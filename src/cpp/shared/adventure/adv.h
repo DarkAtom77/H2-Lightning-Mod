@@ -181,6 +181,8 @@ public:
 
   mapCell *GetCell(int x, int y);
 
+  void ShrineQuickInfo(int xLoc, int yLoc);
+
   void EraseObj(mapCell*, int x, int y);
 
   void PurgeMapChangeQueue();

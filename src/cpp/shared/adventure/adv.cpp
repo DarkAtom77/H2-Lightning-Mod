@@ -15,8 +15,10 @@
 #include "optional.hpp"
 #include <sstream>
 #include <string>
+#include <cmath>
 
 static const int END_TURN_BUTTON = 4;
+unsigned char PlayerVisitedShrine[20736] = { 0 };
 
 int advManager::ProcessDeSelect(tag_message *evt, int *n, mapCell **cells) {
   extern int giBottomViewOverride;
@@ -137,6 +139,7 @@ void advManager::DoEvent(class mapCell *cell, int locX, int locY) {
       this->DoEvent_orig(cell, locX, locY);
       return;
     }
+	PlayerVisitedShrine[locX * locY] |= (unsigned char) pow(2, gpCurPlayer->color);
     this->HandleSpellShrine(cell, locationType, hro, res2, locX, locY);
   }
 
@@ -219,6 +222,15 @@ void advManager::QuickInfo(int x, int y) {
   auto overrideText = ScriptCallbackResult<std::string>("GetTooltipText", locationType, xLoc, yLoc);
   if (!overrideText || overrideText->empty()) {
     // Lua error occurred or tooltip text not overridden.
+	  if (locationType == LOCATION_SHRINE_FIRST_ORDER || locationType == LOCATION_SHRINE_SECOND_ORDER || locationType == LOCATION_SHRINE_THIRD_ORDER)
+	  {
+		  unsigned char visited = PlayerVisitedShrine[xLoc * yLoc] & (unsigned char) pow(2, gpCurPlayer->color);
+		  if (visited == (unsigned char)pow(2, gpCurPlayer->color))
+		  {
+			  ShrineQuickInfo(xLoc, yLoc);
+			  return;
+		  }
+	  }
     QuickInfo_orig(x, y);
     return;
   }
@@ -253,4 +265,57 @@ void advManager::QuickInfo(int x, int y) {
   gpWindowManager->AddWindow(&tooltip, 1, -1);
   QuickViewWait();
   gpWindowManager->RemoveWindow(&tooltip);
+}
+
+void advManager::ShrineQuickInfo(int xLoc, int yLoc)
+{
+	const int x = xLoc - viewX;
+	const int y = yLoc - viewY;
+
+	// Ensure the tooltip box is visible on the screen.
+	const int pTileSize = 32;
+	const int pxOffset = -57;  // tooltip is drawn (-57,-25) pixels from the mouse
+	const int pyOffset = -25;
+	const int pTooltipWidth = 160;
+	const int pTooltipHeight = 96;
+
+	int px = pTileSize * x + pxOffset;
+	if (px < 30) {
+		// minimum indent from left edge
+		px = 30;
+	}
+	else if (px + pTooltipWidth > 464) {
+		// don't overrun right edge
+		px = 304;
+	}
+
+	int py = pTileSize * y + pyOffset;
+	if (py < 16) {
+		// minimum indent from top edge
+		py = 16;
+	}
+	else if (py + pTooltipHeight > 448) {
+		// don't overrun bottom edge
+		py = 352;
+	}
+	auto mapCell = GetCell(xLoc, yLoc);
+	const int locationType = mapCell->objType & 0x7F;
+	std::string str = "Shrine of the ";
+	switch (locationType)
+	{
+		case LOCATION_SHRINE_FIRST_ORDER:
+			str += "First Circle\n";
+			break;
+		case LOCATION_SHRINE_SECOND_ORDER:
+			str += "Second Circle\n";
+			break;
+		case LOCATION_SHRINE_THIRD_ORDER:
+			str += "Third Circle\n";
+			break;
+	}
+	heroWindow tooltip(px, py, "qwikinfo.bin");
+	GUISetText(&tooltip, 1, &(std::string(str + "{Spell:} " + (std::string) gSpellNames[mapCell->extraInfo - 1]))[0]);
+	gpWindowManager->AddWindow(&tooltip, 1, -1);
+	QuickViewWait();
+	gpWindowManager->RemoveWindow(&tooltip);
 }
