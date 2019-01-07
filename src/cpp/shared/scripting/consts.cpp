@@ -47,11 +47,13 @@ void set_dialog_consts(lua_State *L) {
 	lua_setconst(L, "DIALOG_EMPTY", DIALOG_EMPTY);
 	lua_setconst(L, "DIALOG_2_LEARN", 7);
 	lua_setconst(L, "DIALOG_LEFT_LEARN", 8);
+}
 
+void set_button_consts(lua_State* L) {
 	lua_setconst(L, "BUTTON_OK", 30722);
 	lua_setconst(L, "BUTTON_OKAY", 30722);
-	lua_setconst(L, "BUTTON_YES", 30725);
-	lua_setconst(L, "BUTTON_NO", 30726);
+	lua_setconst(L, "BUTTON_YES", BUTTON_CODE_OKAY);
+	lua_setconst(L, "BUTTON_NO", BUTTON_CODE_CANCEL);
 	lua_setconst(L, "BUTTON_CANCEL", 30721);
 	lua_setconst(L, "BUTTON_LEFT_LEARN", 30727);
 	lua_setconst(L, "BUTTON_RIGHT_LEARN", 30728);
@@ -82,6 +84,7 @@ void set_messageboxgroups_consts(lua_State *L) {
 
 void set_gui_consts(lua_State *L) {
   set_dialog_consts(L);
+  set_button_consts(L);
   set_messageboxgroups_consts(L);
 }
 
@@ -177,7 +180,6 @@ void set_artifact_consts(lua_State* L) {
 void set_luck_consts(lua_State *L) {
 	lua_setconst(L, "IMAGE_LUCK", IMAGE_LUCK);
 	lua_setconst(L, "IMAGE_BADLUCK", IMAGE_BADLUCK);
-
 }
 
 
@@ -225,26 +227,35 @@ void set_faction_consts(lua_State* L) {
   lua_setconst(L, "FACTION_CYBORG", FACTION_CYBORG);
 }
 
+void set_sec_skill_consts(lua_State* L, std::string name, int number);
 
 void set_skill_consts(lua_State* L) {
   lua_setconst(L, "PRIMARY_SKILL_ATTACK", PRIMARY_SKILL_ATTACK);
   lua_setconst(L, "PRIMARY_SKILL_DEFENSE", PRIMARY_SKILL_DEFENSE);
   lua_setconst(L, "PRIMARY_SKILL_SPELLPOWER", PRIMARY_SKILL_SPELLPOWER);
   lua_setconst(L, "PRIMARY_SKILL_KNOWLEDGE", PRIMARY_SKILL_KNOWLEDGE);
-  lua_setconst(L, "SECONDARY_SKILL_PATHFINDING", SECONDARY_SKILL_PATHFINDING);
-  lua_setconst(L, "SECONDARY_SKILL_ARCHERY", SECONDARY_SKILL_ARCHERY);
-  lua_setconst(L, "SECONDARY_SKILL_LOGISTICS", SECONDARY_SKILL_LOGISTICS);
-  lua_setconst(L, "SECONDARY_SKILL_SCOUTING", SECONDARY_SKILL_SCOUTING);
-  lua_setconst(L, "SECONDARY_SKILL_DIPLOMACY", SECONDARY_SKILL_DIPLOMACY);
-  lua_setconst(L, "SECONDARY_SKILL_NAVIGATION", SECONDARY_SKILL_NAVIGATION);
-  lua_setconst(L, "SECONDARY_SKILL_LEADERSHIP", SECONDARY_SKILL_LEADERSHIP);
-  lua_setconst(L, "SECONDARY_SKILL_WISDOM", SECONDARY_SKILL_WISDOM);
-  lua_setconst(L, "SECONDARY_SKILL_MYSTICISM", SECONDARY_SKILL_MYSTICISM);
-  lua_setconst(L, "SECONDARY_SKILL_LUCK", SECONDARY_SKILL_LUCK);
-  lua_setconst(L, "SECONDARY_SKILL_BALLISTICS", SECONDARY_SKILL_BALLISTICS);
-  lua_setconst(L, "SECONDARY_SKILL_EAGLE_EYE", SECONDARY_SKILL_EAGLE_EYE);
-  lua_setconst(L, "SECONDARY_SKILL_NECROMANCY", SECONDARY_SKILL_NECROMANCY);
-  lua_setconst(L, "SECONDARY_SKILL_ESTATES", SECONDARY_SKILL_ESTATES);
+  set_sec_skill_consts(L, "PATHFINDING", SECONDARY_SKILL_PATHFINDING);
+  set_sec_skill_consts(L, "ARCHERY", SECONDARY_SKILL_ARCHERY);
+  set_sec_skill_consts(L, "LOGISTICS", SECONDARY_SKILL_LOGISTICS);
+  set_sec_skill_consts(L, "SCOUTING", SECONDARY_SKILL_SCOUTING);
+  set_sec_skill_consts(L, "DIPLOMACY", SECONDARY_SKILL_DIPLOMACY);
+  set_sec_skill_consts(L, "NAVIGATION", SECONDARY_SKILL_NAVIGATION);
+  set_sec_skill_consts(L, "LEADERSHIP", SECONDARY_SKILL_LEADERSHIP);
+  set_sec_skill_consts(L, "WISDOM", SECONDARY_SKILL_WISDOM);
+  set_sec_skill_consts(L, "MYSTICISM", SECONDARY_SKILL_MYSTICISM);
+  set_sec_skill_consts(L, "LUCK", SECONDARY_SKILL_LUCK);
+  set_sec_skill_consts(L, "BALLISTICS", SECONDARY_SKILL_BALLISTICS);
+  set_sec_skill_consts(L, "EAGLE_EYE", SECONDARY_SKILL_EAGLE_EYE);
+  set_sec_skill_consts(L, "NECROMANCY", SECONDARY_SKILL_NECROMANCY);
+  set_sec_skill_consts(L, "ESTATES", SECONDARY_SKILL_ESTATES);
+}
+
+void set_sec_skill_consts(lua_State* L, std::string name, int number)
+{
+	lua_setconst(L, ("SECONDARY_SKILL_" + name).c_str(), number);
+	lua_setconst(L, ("BASIC_" + name).c_str(), number * 3);
+	lua_setconst(L, ("ADVANCED_" + name).c_str(), number * 3 + 1);
+	lua_setconst(L, ("EXPERT_" + name).c_str(), number * 3 + 2);
 }
 
 void set_creature_consts(lua_State* L) {

@@ -40,9 +40,6 @@
     <Filter Include="Header Files\combat">
       <UniqueIdentifier>{2ab76d52-d8c1-4ae8-b0f3-7e3c0a2d1597}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\resource">
-      <UniqueIdentifier>{df03de58-af92-4c34-bab0-27d58ac51efc}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Assembly Interop">
       <UniqueIdentifier>{da16eb6a-da1f-41dd-b995-1374ddcc3912}</UniqueIdentifier>
     </Filter>
@@ -84,6 +81,9 @@
     </Filter>
     <Filter Include="Source Files\spell">
       <UniqueIdentifier>{edd91aef-5ca2-4247-8d6b-261477fd98a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\scripting\resource">
+      <UniqueIdentifier>{df03de58-af92-4c34-bab0-27d58ac51efc}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -357,10 +357,10 @@
       <Filter>Header Files\spell</Filter>
     </ClInclude>
     <ClInclude Include="..\..\cpp\shared\resource\resourceManager.h">
-      <Filter>Header Files\resource</Filter>
+      <Filter>Header Files\scripting\resource</Filter>
     </ClInclude>
     <ClInclude Include="..\..\cpp\shared\resource\resources.h">
-      <Filter>Header Files\resource</Filter>
+      <Filter>Header Files\scripting\resource</Filter>
     </ClInclude>
     <ClInclude Include="..\..\cpp\shared\town\town.h">
       <Filter>Header Files\town</Filter>
