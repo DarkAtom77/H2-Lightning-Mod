@@ -268,6 +268,8 @@ int __fastcall GiveArtifact(hero*, int artifact, int checkEndGame, signed char s
 void __fastcall GiveTakeArtifactStat(hero *h, int art, int take);
 void __fastcall GetMonsterCost(int, int * const);
 
+int GetShrineSpell(int x, int y);
+
 #pragma pack(pop)
 
 #endif

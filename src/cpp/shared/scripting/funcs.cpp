@@ -601,6 +601,18 @@ static int l_mapSetObject(lua_State *L) {
   return 0;
 }
 
+static int l_getShrineSpell(lua_State *L) {
+	int x = (int)luaL_checknumber(L, 1);
+	int y = (int)luaL_checknumber(L, 2);
+	int spell = GetShrineSpell(x, y);
+	if (spell != -1)
+	{
+		lua_pushinteger(L, spell);
+		return 1;
+	}
+	return 0;
+}
+
 static int l_mapPutArmy(lua_State *L) {
   int x = (int)luaL_checknumber(L, 1);
   int y = (int)luaL_checknumber(L, 2);
@@ -653,6 +665,7 @@ static void register_map_funcs(lua_State *L) {
   lua_register(L, "MapPutArmy", l_mapPutArmy);
   lua_register(L, "MapEraseSquare", l_mapEraseObj);
   lua_register(L, "MapSetTileTerrain", l_mapSetTerrainTile);
+  lua_register(L, "GetShrineSpell", l_getShrineSpell);
 }
 
 /************************************** Town *******************************************/
