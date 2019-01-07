@@ -623,6 +623,37 @@ static int l_setShrineSpell(lua_State *L)
 	return 0;
 }
 
+static int l_setPlayerVisitedShrine(lua_State *L)
+{
+	playerData* p = (playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 3));
+	int x = (int)luaL_checknumber(L, 2);
+	int y = (int)luaL_checknumber(L, 3);
+	PlayerVisitedShrine[x * y] |= (unsigned int)pow(2, p->color);
+	return 0;
+}
+
+static int l_setPlayerNotVisitedShrine(lua_State *L)
+{
+	playerData* p = (playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 3));
+	int x = (int)luaL_checknumber(L, 2);
+	int y = (int)luaL_checknumber(L, 3);
+	PlayerVisitedShrine[x * y] &= -((int)pow(2, p->color)) - 1;
+	return 0;
+}
+
+static int l_getPlayerVisitedShrine(lua_State *L)
+{
+	playerData* p = (playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 3));
+	int x = (int)luaL_checknumber(L, 2);
+	int y = (int)luaL_checknumber(L, 3);
+	int answer = PlayerVisitedShrine[x * y] & (unsigned int)pow(2, p->color);
+	if (answer == (unsigned int)pow(2, p->color))
+		lua_pushboolean(L, true);
+	else
+		lua_pushboolean(L, false);
+	return 1;
+}
+
 static int l_mapPutArmy(lua_State *L) {
   int x = (int)luaL_checknumber(L, 1);
   int y = (int)luaL_checknumber(L, 2);
@@ -677,6 +708,9 @@ static void register_map_funcs(lua_State *L) {
   lua_register(L, "MapSetTileTerrain", l_mapSetTerrainTile);
   lua_register(L, "GetShrineSpell", l_getShrineSpell);
   lua_register(L, "SetShrineSpell", l_setShrineSpell);
+  lua_register(L, "GetPlayerVisitedShrine", l_getPlayerVisitedShrine);
+  lua_register(L, "SetPlayerVisitedShrine", l_setPlayerVisitedShrine);
+  lua_register(L, "SetPlayerNotVisitedShrine", l_setPlayerNotVisitedShrine);
 }
 
 /************************************** Town *******************************************/
