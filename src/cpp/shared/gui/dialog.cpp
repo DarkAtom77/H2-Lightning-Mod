@@ -24,7 +24,11 @@ bool H2QuestionBox(char* msg) {
   return gpWindowManager->buttonPressedCode != BUTTON_CODE_CANCEL;
 }
 
-
+int H2NormalDialog(char* msg, int yesno, int horizontal, int vertical, int img1type, int img1arg, int img2type, int img2arg, int writeOr)
+{
+	NormalDialog(msg, yesno, horizontal, vertical, img1type, img1arg, img2type, img2arg, writeOr, 0);
+	return gpWindowManager->buttonPressedCode;
+}
 
 char* H2InputBox(char* msg, int len) {
   char* res = (char*) ALLOC(len+1);

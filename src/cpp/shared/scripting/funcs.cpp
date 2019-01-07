@@ -83,8 +83,9 @@ static int l_AdvancedMessageBox(lua_State *L) {
   int img2arg = luaL_checknumber(L, 8);
   int writeOr = luaL_checknumber(L, 9);
   int a10 = luaL_checknumber(L, 10);
-  NormalDialog((char*)msg, (int)yesno, (int)horizontal, (int)vertical, (int)img1type, (int)img1arg, (int)img2type, (int)img2arg, (int)writeOr, (int)a10);
-  return 0;
+  int answer = H2NormalDialog((char*)msg, (int)yesno, (int)horizontal, (int)vertical, (int)img1type, (int)img1arg, (int)img2type, (int)img2arg, (int)writeOr);
+  lua_pushinteger(L, answer);
+  return 1;
 }
 
 static int l_questionBox(lua_State *L) {

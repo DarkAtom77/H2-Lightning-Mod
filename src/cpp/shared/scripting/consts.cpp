@@ -41,8 +41,20 @@ namespace {
 void set_dialog_consts(lua_State *L) {
 	lua_setconst(L, "DIALOG_YES_NO", DIALOG_YES_NO);
 	lua_setconst(L, "DIALOG_OKAY", DIALOG_OKAY);
+	lua_setconst(L, "DIALOG_OK", DIALOG_OKAY);
+	lua_setconst(L, "DIALOG_NO_OR", 0);
 	lua_setconst(L, "DIALOG_OR", DIALOG_OR);
 	lua_setconst(L, "DIALOG_EMPTY", DIALOG_EMPTY);
+	lua_setconst(L, "DIALOG_2_LEARN", 7);
+	lua_setconst(L, "DIALOG_LEFT_LEARN", 8);
+
+	lua_setconst(L, "BUTTON_OK", 30722);
+	lua_setconst(L, "BUTTON_OKAY", 30722);
+	lua_setconst(L, "BUTTON_YES", 30725);
+	lua_setconst(L, "BUTTON_NO", 30726);
+	lua_setconst(L, "BUTTON_CANCEL", 30721);
+	lua_setconst(L, "BUTTON_LEFT_LEARN", 30727);
+	lua_setconst(L, "BUTTON_RIGHT_LEARN", 30728);
 }
 
 void set_messageboxgroups_consts(lua_State *L) {
