@@ -3,6 +3,7 @@ extern "C" {
 #include "lua/src/lualib.h"
 #include "lua/src/lauxlib.h"
 }
+#include <cmath>
 
 #include "adventure/adv.h"
 #include "adventure/map.h"
@@ -613,6 +614,15 @@ static int l_getShrineSpell(lua_State *L) {
 	return 0;
 }
 
+static int l_setShrineSpell(lua_State *L)
+{
+	int x = (int)luaL_checknumber(L, 1);
+	int y = (int)luaL_checknumber(L, 2);
+	int spell = (int)luaL_checknumber(L, 3);
+	SetShrineSpell(x, y, spell);
+	return 0;
+}
+
 static int l_mapPutArmy(lua_State *L) {
   int x = (int)luaL_checknumber(L, 1);
   int y = (int)luaL_checknumber(L, 2);
@@ -666,6 +676,7 @@ static void register_map_funcs(lua_State *L) {
   lua_register(L, "MapEraseSquare", l_mapEraseObj);
   lua_register(L, "MapSetTileTerrain", l_mapSetTerrainTile);
   lua_register(L, "GetShrineSpell", l_getShrineSpell);
+  lua_register(L, "SetShrineSpell", l_setShrineSpell);
 }
 
 /************************************** Town *******************************************/

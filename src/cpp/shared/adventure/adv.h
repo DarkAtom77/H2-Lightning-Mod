@@ -263,12 +263,14 @@ extern int giAdjacentMonsterLowerBoundY;
 extern ExpCampaign xCampaign;
 
 hero* GetCurrentHero();
+extern unsigned char PlayerVisitedShrine[20736];
 
 int __fastcall GiveArtifact(hero*, int artifact, int checkEndGame, signed char scrollSpell);
 void __fastcall GiveTakeArtifactStat(hero *h, int art, int take);
 void __fastcall GetMonsterCost(int, int * const);
 
 int GetShrineSpell(int x, int y);
+void SetShrineSpell(int x, int y, int spell);
 
 #pragma pack(pop)
 
