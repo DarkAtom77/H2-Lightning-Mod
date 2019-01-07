@@ -22,6 +22,7 @@ bld/
 
 # Visual C++ cache files
 ipch/
+.vs/
 *.aps
 *.ncb
 *.opendb
@@ -30,6 +31,8 @@ ipch/
 *.cachefile
 *.VC.db
 *.VC.VC.opendb
+*.db-wal
+*.db-shm
 
 # Visual Studio profiler
 *.psess
