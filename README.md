@@ -1,4 +1,4 @@
-Project Ironfist
-================
+Lightning Mod
+=============
 
-Project Ironfist is a mod of the classic PC game "Heroes of Might and Magic II." Ironfist has been under active development since 2010, and had its first public release in 2013. See http://www.ironfi.st for news and discussion, and http://wiki.ironfi.st for more details information about modding.
+This mod is based on the Project Ironfist source code (see http://ironfi.st), modified using the technique shown in the video Modding with an Iron Fist: Episode 4: Modding the Source Code (https://youtu.be/dFTT0id4Iz0)
