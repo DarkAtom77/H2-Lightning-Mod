@@ -17,6 +17,7 @@
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -441,7 +442,7 @@ STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP
 FONT 8, "System", 0, 0, 0x0
 BEGIN
     CTEXT           "Heroes of Might and Magic II",-1,29,5,97,8
-    CTEXT           "Version 0.1",-1,55,27,38,8
+    CTEXT           "Version 1.3.0 (Lightning Mod)",-1,29,27,96,8
     CTEXT           "Developed by the Project Ironfist Team",-1,14,43,132,12
     DEFPUSHBUTTON   "OK",1,61,85,32,14,WS_GROUP
     CTEXT           "Ironfist",-1,29,15,97,8
@@ -473,7 +474,19 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_ICON1               ICON                   "..\\..\\..\\assets\\windows\\just_ironfist.ico"
+IDI_ICON1               ICON                    "..\\..\\..\\assets\\windows\\just_ironfist.ico"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+HEROES AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
 #endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 
