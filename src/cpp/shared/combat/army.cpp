@@ -2042,7 +2042,9 @@ void army::DamageEnemy(army *targ, int *damageDone, int *creaturesKilled, int is
     || this->creatureIdx == CREATURE_EARTH_ELEMENTAL && targ->creatureIdx == CREATURE_AIR_ELEMENTAL
     || this->creatureIdx == CREATURE_AIR_ELEMENTAL && targ->creatureIdx == CREATURE_EARTH_ELEMENTAL
     || this->creatureIdx == CREATURE_WATER_ELEMENTAL && targ->creatureIdx == CREATURE_FIRE_ELEMENTAL
-    || this->creatureIdx == CREATURE_FIRE_ELEMENTAL && targ->creatureIdx == CREATURE_WATER_ELEMENTAL)
+    || this->creatureIdx == CREATURE_FIRE_ELEMENTAL && targ->creatureIdx == CREATURE_WATER_ELEMENTAL
+	|| this->creatureIdx == CREATURE_TITAN && targ->creatureIdx == CREATURE_BLACK_DRAGON
+	|| this->creatureIdx == CREATURE_BLACK_DRAGON && targ->creatureIdx == CREATURE_TITAN)
     damagePerUnit *= 2.0;
 
   if (this->luckStatus > 0)
