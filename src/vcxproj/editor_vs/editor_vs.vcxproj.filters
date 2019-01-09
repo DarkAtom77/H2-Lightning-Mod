@@ -186,9 +186,6 @@
     <ClCompile Include="..\..\cpp\shared\lib\lua\src\lutf8lib.c">
       <Filter>Source Files\shared\lib\lua\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\cpp\editor\editor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\cpp\editor\events.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -221,6 +218,9 @@
     </ClCompile>
     <ClCompile Include="..\..\cpp\shared\town\buildings.cpp">
       <Filter>Source Files\shared\town</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cpp\editor\editor.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
