@@ -12,9 +12,8 @@ function OnMapStart()
 	GrantArmy(h2, CREATURE_BONE_DRAGON, 10);
 end;
 
-function OnTownOpen(name)
-	if name == "Sorrow's End" then
-		t = GetCurrentTown();
+function OnTownOpen(t)
+	if GetTownName(t) == "Sorrow's End" then
 		if HasVisitingHero(t) then
 			h = GetVisitingHero(t);
 			if HasArtifact(h, ARTIFACT_MAGES_RING_OF_POWER) then

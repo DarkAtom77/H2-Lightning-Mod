@@ -111,9 +111,6 @@
     <ClCompile Include="..\..\cpp\shared\game\game.cpp">
       <Filter>Source Files\game</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\cpp\shared\combat\combat.cpp">
-      <Filter>Source Files\combat</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\cpp\shared\combat\creatures.cpp">
       <Filter>Source Files\combat</Filter>
     </ClCompile>
@@ -279,9 +276,6 @@
     <ClCompile Include="..\..\cpp\shared\sound\cd_music.cpp">
       <Filter>Source Files\sound</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\cpp\shared\combat\army.cpp">
-      <Filter>Source Files\combat</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\cpp\shared\spell\spell_constants.cpp">
       <Filter>Source Files\spell</Filter>
     </ClCompile>
@@ -296,6 +290,18 @@
     </ClCompile>
     <ClCompile Include="..\..\cpp\shared\town\buildings.cpp">
       <Filter>Source Files\town</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cpp\shared\graphics.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cpp\shared\scripting\deepbinding.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cpp\shared\combat\combat.cpp">
+      <Filter>Source Files\combat</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cpp\shared\combat\army.cpp">
+      <Filter>Source Files\combat</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -505,6 +511,9 @@
     </ClInclude>
     <ClInclude Include="..\..\cpp\shared\town\buildings.h">
       <Filter>Header Files\town</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cpp\shared\scripting\deepbinding.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
