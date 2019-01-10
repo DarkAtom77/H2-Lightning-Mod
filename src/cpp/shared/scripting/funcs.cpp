@@ -237,6 +237,16 @@ static int l_grantSpell(lua_State *L) {
   return 0;
 }
 
+static int l_hasSpell(lua_State *L) {
+	hero* hro = (hero*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 2));
+	int spell = (int)luaL_checknumber(L, 2);
+	if (hro->spellsLearned[spell] == 1)
+		lua_pushboolean(L, true);
+	else
+		lua_pushboolean(L, false);
+	return 1;
+}
+
 static int l_forgetSpell(lua_State *L) {
   hero* hro = (hero*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 2));
   int spell = (int)luaL_checknumber(L, 2);
@@ -517,6 +527,7 @@ static int l_grantSpellScroll(lua_State *L) {
 static void register_hero_funcs(lua_State *L) {
   lua_register(L, "GetCurrentHero", l_getCurrentHero);
   lua_register(L, "GrantSpell", l_grantSpell);
+  lua_register(L, "HasSpell", l_hasSpell);
   lua_register(L, "ForgetSpell", l_forgetSpell);
   lua_register(L, "HasTroop", l_hasTroop);
   lua_register(L, "GetCreatureAmount", l_getCreatureAmount);
