@@ -540,7 +540,7 @@ char *__fastcall GetBuildingName(int faction, int building) {
       return GetSpecialBuildingName(faction);
     } else if (building >= BUILDING_DWELLING_1) {
       return GetDwellingName(faction, building - BUILDING_DWELLING_1);
-    } else if (IsWellDisabled() && faction == FACTION_NECROMANCER && building == BUILDING_WELL) {
+    } else if (faction == FACTION_NECROMANCER && building == BUILDING_WELL) {
       static std::string poisonedWellName = "Poisoned Well";
       return &poisonedWellName[0];
     } else {
@@ -558,7 +558,9 @@ char * __fastcall GetBuildingInfo(int faction, int building, int withTitle) {
     if (faction == FACTION_NECROMANCER) {
       desc = "The Well has been tainted by the presence of dark magic. Good thing undead don't get thirsty.";
     }
-  } else if (building == BUILDING_SPECIAL_GROWTH) {
+  } else if (faction == FACTION_NECROMANCER && building == BUILDING_WELL)
+	  desc = "The Poisoned Well increases the growth rate of all dwellings by 2 creatures per week.";
+	else if (building == BUILDING_SPECIAL_GROWTH) {
     const int tier1 = GetDwellingType(faction, DWELLING_1);
     desc = "The ";
     desc += buildingName;
