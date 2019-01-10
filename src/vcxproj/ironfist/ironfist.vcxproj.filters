@@ -82,7 +82,7 @@
     <Filter Include="Source Files\spell">
       <UniqueIdentifier>{edd91aef-5ca2-4247-8d6b-261477fd98a0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\scripting\resource">
+    <Filter Include="Header Files\resource">
       <UniqueIdentifier>{df03de58-af92-4c34-bab0-27d58ac51efc}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -341,9 +341,6 @@
     <ClInclude Include="..\..\cpp\shared\adventure\adv.h">
       <Filter>Header Files\adventure</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\cpp\shared\game\game.h">
-      <Filter>Header Files\game</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\cpp\shared\game\map_xml.hxx">
       <Filter>Header Files\game</Filter>
     </ClInclude>
@@ -363,10 +360,10 @@
       <Filter>Header Files\spell</Filter>
     </ClInclude>
     <ClInclude Include="..\..\cpp\shared\resource\resourceManager.h">
-      <Filter>Header Files\scripting\resource</Filter>
+      <Filter>Header Files\resource</Filter>
     </ClInclude>
     <ClInclude Include="..\..\cpp\shared\resource\resources.h">
-      <Filter>Header Files\scripting\resource</Filter>
+      <Filter>Header Files\resource</Filter>
     </ClInclude>
     <ClInclude Include="..\..\cpp\shared\town\town.h">
       <Filter>Header Files\town</Filter>
@@ -514,6 +511,9 @@
     </ClInclude>
     <ClInclude Include="..\..\cpp\shared\scripting\deepbinding.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cpp\shared\game\game.h">
+      <Filter>Header Files\game</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
