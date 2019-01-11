@@ -144,6 +144,7 @@ void advManager::DoEvent(class mapCell *cell, int locX, int locY) {
 		  this->HandlePyramid(cell, locationType, hro, &res2, locX, locY);
 	  else
 		  this->DoEvent_orig(cell, locX, locY);
+	  ScriptCallback("AfterLocationVisit", locationType, locX, locY);
       return;
   }
 
@@ -152,6 +153,7 @@ void advManager::DoEvent(class mapCell *cell, int locX, int locY) {
   this->UpdateTownLocators(1, 1);
   this->UpdBottomView(1, 1, 1);
   this->UpdateScreen(0, 0);
+  ScriptCallback("AfterLocationVisit", locationType, locX, locY);
   gpSoundManager->SwitchAmbientMusic(giTerrainToMusicTrack[this->currentTerrain]);
   WaitEndSample(res2, res2.sample);
   CheckEndGame(0, 0);
