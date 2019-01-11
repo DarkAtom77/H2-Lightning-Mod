@@ -237,6 +237,7 @@ static int l_grantSpell(lua_State *L) {
   return 0;
 }
 
+//this will only return true if the hero actually KNOWS the spell; sources like Spell Scrolls are ignored
 static int l_hasSpell(lua_State *L) {
 	hero* hro = (hero*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 2));
 	int spell = (int)luaL_checknumber(L, 2);
@@ -524,6 +525,19 @@ static int l_grantSpellScroll(lua_State *L) {
   return 0;
 }
 
+static int l_hasSpellScroll(lua_State* L) {
+	hero* hro = (hero*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 2));
+	int spell = (int)luaL_checknumber(L, 2);
+	for (int i = 0; i < MAX_ARTIFACTS; i++)
+		if (hro->artifacts[i] == ARTIFACT_SPELL_SCROLL && hro->scrollSpell[i] == spell)
+		{
+			lua_pushboolean(L, true);
+			return 1;
+		}
+	lua_pushboolean(L, false);
+	return 1;
+}
+
 static void register_hero_funcs(lua_State *L) {
   lua_register(L, "GetCurrentHero", l_getCurrentHero);
   lua_register(L, "GrantSpell", l_grantSpell);
@@ -563,6 +577,7 @@ static void register_hero_funcs(lua_State *L) {
   lua_register(L, "GetHeroTempLuckBonuses", l_getHeroTempLuckBonuses);
   lua_register(L, "SetHeroTempLuckBonuses", l_setHeroTempLuckBonuses);
   lua_register(L, "GrantSpellScroll", l_grantSpellScroll);
+  lua_register(L, "HasSpellScroll", l_hasSpellScroll);
 }
 
 /************************************** Map *******************************************/
