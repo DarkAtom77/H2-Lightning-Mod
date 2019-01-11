@@ -1146,9 +1146,16 @@ static int l_toggleAIArmySharing(lua_State *L) {
   return 0;
 }
 
+static int l_getSpellLevel(lua_State *L) {
+	int spell = luaL_checknumber(L, 1);
+	lua_pushinteger(L, gsSpellInfo[spell].level);
+	return 1;
+}
+
 static void register_uncategorized_funcs(lua_State *L) {
   lua_register(L, "StartBattle", l_startbattle);
   lua_register(L, "ToggleAIArmySharing", l_toggleAIArmySharing);
+  lua_register(L, "GetSpellLevel", l_getSpellLevel);
 }
 
 /****************************************************************************************************************/
