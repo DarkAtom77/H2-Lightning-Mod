@@ -629,7 +629,7 @@ static int l_setPlayerVisitedShrine(lua_State *L)
 	playerData* p = (playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 3));
 	int x = (int)luaL_checknumber(L, 2);
 	int y = (int)luaL_checknumber(L, 3);
-	PlayerVisitedShrine[x * y] |= (unsigned int)pow(2, p->color);
+	PlayerVisitedShrine[x][y] |= (unsigned int)pow(2, p->color);
 	return 0;
 }
 
@@ -638,7 +638,7 @@ static int l_setPlayerNotVisitedShrine(lua_State *L)
 	playerData* p = (playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 3));
 	int x = (int)luaL_checknumber(L, 2);
 	int y = (int)luaL_checknumber(L, 3);
-	PlayerVisitedShrine[x * y] &= -((int)pow(2, p->color)) - 1;
+	PlayerVisitedShrine[x][y] &= -((int)pow(2, p->color)) - 1;
 	return 0;
 }
 
@@ -647,7 +647,7 @@ static int l_getPlayerVisitedShrine(lua_State *L)
 	playerData* p = (playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 3));
 	int x = (int)luaL_checknumber(L, 2);
 	int y = (int)luaL_checknumber(L, 3);
-	int answer = PlayerVisitedShrine[x * y] & (unsigned int)pow(2, p->color);
+	int answer = PlayerVisitedShrine[x][y] & (unsigned int)pow(2, p->color);
 	if (answer == (unsigned int)pow(2, p->color))
 		lua_pushboolean(L, true);
 	else

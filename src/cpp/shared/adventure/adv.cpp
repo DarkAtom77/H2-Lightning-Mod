@@ -18,7 +18,7 @@
 #include <cmath>
 
 static const int END_TURN_BUTTON = 4;
-unsigned char PlayerVisitedShrine[20736] = { 0 };
+unsigned char PlayerVisitedShrine[144][144] = { 0 };
 
 int advManager::ProcessDeSelect(tag_message *evt, int *n, mapCell **cells) {
   extern int giBottomViewOverride;
@@ -137,7 +137,7 @@ void advManager::DoEvent(class mapCell *cell, int locX, int locY) {
   if (!shouldSkip.value_or(false)) {
 	  if (locationType == LOCATION_SHRINE_FIRST_ORDER || locationType == LOCATION_SHRINE_SECOND_ORDER || locationType == LOCATION_SHRINE_THIRD_ORDER)
 	  {
-		  PlayerVisitedShrine[locX * locY] |= (unsigned char)pow(2, gpCurPlayer->color);
+		  PlayerVisitedShrine[locX][locY] |= (unsigned char)pow(2, gpCurPlayer->color);
 		  this->HandleSpellShrine(cell, locationType, hro, &res2, locX, locY);
 	  }
 	  else if (locationType == LOCATION_PYRAMID)
@@ -280,7 +280,7 @@ void advManager::QuickInfo(int x, int y) {
     // Lua error occurred or tooltip text not overridden.
 	  if (locationType == LOCATION_SHRINE_FIRST_ORDER || locationType == LOCATION_SHRINE_SECOND_ORDER || locationType == LOCATION_SHRINE_THIRD_ORDER)
 	  {
-		  unsigned char visited = PlayerVisitedShrine[xLoc * yLoc] & (unsigned char) pow(2, gpCurPlayer->color);
+		  unsigned char visited = PlayerVisitedShrine[xLoc][yLoc] & (unsigned char) pow(2, gpCurPlayer->color);
 		  if (visited == (unsigned char)pow(2, gpCurPlayer->color))
 		  {
 			  ShrineQuickInfo(xLoc, yLoc);

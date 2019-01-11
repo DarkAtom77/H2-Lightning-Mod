@@ -11,7 +11,7 @@
 #include "skills.h"
 #include "spell/spells.h"
 
-extern unsigned char PlayerVisitedShrine[20736];
+extern unsigned char PlayerVisitedShrine[144][144];
 
 // The title screen implements button hovering manually in code, using this data structure
 // x, y, width, height
@@ -124,8 +124,9 @@ void game::InitNewGame(struct SMapHeader *a) {
 			strcpy_s(this->mapFilename, sizeof(mapFilename), lastPlayed.c_str());
 		}
 	}
-	for (int i = 0; i < 20736; i++)
-		PlayerVisitedShrine[i] = 0;
+	for (int i = 0; i < 144; i++)
+		for (int j = 0; j < 144; j++)
+		PlayerVisitedShrine[i][j] = 0;
 	this->InitNewGame_orig(a);
 }
 

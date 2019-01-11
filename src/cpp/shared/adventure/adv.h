@@ -266,7 +266,7 @@ extern int giAdjacentMonsterLowerBoundY;
 extern ExpCampaign xCampaign;
 
 hero* GetCurrentHero();
-extern unsigned char PlayerVisitedShrine[20736];
+extern unsigned char PlayerVisitedShrine[144][144];
 
 int __fastcall GiveArtifact(hero*, int artifact, int checkEndGame, signed char scrollSpell);
 void __fastcall GiveTakeArtifactStat(hero *h, int art, int take);
