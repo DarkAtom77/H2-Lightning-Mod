@@ -364,6 +364,13 @@ static int l_hasArtifact(lua_State *L) {
   return 1;
 }
 
+static int l_getArtifactAtIndex(lua_State* L) {
+	hero* hro = (hero*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 2));
+	int idx = (int)luaL_checknumber(L, 2);
+	lua_pushinteger(L, hro->artifacts[idx]);
+	return 1;
+}
+
 static int l_takeArtifact(lua_State *L) {
   hero* hro = (hero*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 2));
   int art = (int)luaL_checknumber(L, 2);
@@ -553,6 +560,7 @@ static void register_hero_funcs(lua_State *L) {
   lua_register(L, "GetHeroOwner", l_getHeroOwner);
   lua_register(L, "GrantArtifact", l_grantArtifact);
   lua_register(L, "HasArtifact", l_hasArtifact);
+  lua_register(L, "GetArtifactAtIndex", l_getArtifactAtIndex);
   lua_register(L, "TakeArtifact", l_takeArtifact);
   lua_register(L, "CountEmptyArtifactSlots", l_countEmptyArtifactSlots);
   lua_register(L, "CountEmptyCreatureSlots", l_countEmptyCreatureSlots);
