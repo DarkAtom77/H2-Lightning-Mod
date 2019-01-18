@@ -624,6 +624,30 @@ static int l_setShrineSpell(lua_State *L)
 	return 0;
 }
 
+static int l_getSignText(lua_State *L)
+{
+	int x = (int)luaL_checknumber(L, 1);
+	int y = (int)luaL_checknumber(L, 2);
+	mapCell* loc = gpAdvManager->GetCell(x, y);
+	SignExtra* sign = (SignExtra *)ppMapExtra[loc->extraInfo];
+	if (strlen(&sign->message) <= 1)
+		lua_pushnil(L);
+	else
+		lua_pushstring(L, &sign->message);
+	return 1;
+}
+
+static int l_setSignText(lua_State *L)
+{
+	int x = (int)luaL_checknumber(L, 1);
+	int y = (int)luaL_checknumber(L, 2);
+	const char* text = (char*)luaL_checkstring(L, 3);
+	mapCell* loc = gpAdvManager->GetCell(x, y);
+	SignExtra* sign = (SignExtra *)ppMapExtra[loc->extraInfo];
+	strcpy(&sign->message, text);
+	return 0;
+}
+
 static int l_setPlayerVisitedShrine(lua_State *L)
 {
 	playerData* p = (playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 3));
@@ -709,6 +733,8 @@ static void register_map_funcs(lua_State *L) {
   lua_register(L, "MapSetTileTerrain", l_mapSetTerrainTile);
   lua_register(L, "GetShrineSpell", l_getShrineSpell);
   lua_register(L, "SetShrineSpell", l_setShrineSpell);
+  lua_register(L, "GetSignText", l_getSignText);
+  lua_register(L, "SetSignText", l_setSignText);
   lua_register(L, "GetPlayerVisitedShrine", l_getPlayerVisitedShrine);
   lua_register(L, "SetPlayerVisitedShrine", l_setPlayerVisitedShrine);
   lua_register(L, "SetPlayerNotVisitedShrine", l_setPlayerNotVisitedShrine);
