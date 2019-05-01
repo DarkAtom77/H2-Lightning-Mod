@@ -206,7 +206,14 @@ void advManager::HandleSpellShrine(class mapCell *cell, int locationType, hero *
   if (hro->HasArtifact(ARTIFACT_MAGIC_BOOK)) {
     if (gsSpellInfo[cell->extraInfo - 1].level > hro->secondarySkillLevel[SECONDARY_SKILL_WISDOM] + 2) {
       shrineText += "Unfortunately, you do not have the wisdom to understand the spell, and you are unable to learn it.";
-      this->EventWindow(-1, 1, &shrineText[0], -1, 0, -1, 0, -1);
+	  int level = gsSpellInfo[cell->extraInfo - 1].level;
+	  if (level == 4)
+		  level = 1;
+	  else if (level == 5)
+		  level = 2;
+	  else
+		  level = 0;
+      this->EventWindow(-1, 1, &shrineText[0], 8, cell->extraInfo - 1, 17, SECONDARY_SKILL_WISDOM * 3 + level, -1);
     } else {
       this->EventSound(locationType, NULL, res2);
       int heroKnowledge = hro->Stats(PRIMARY_SKILL_KNOWLEDGE);
@@ -215,7 +222,7 @@ void advManager::HandleSpellShrine(class mapCell *cell, int locationType, hero *
     }
   } else {
     shrineText += "Unfortunately, you have no Magic Book to record the spell with.";
-    this->EventWindow(-1, 1, &shrineText[0], -1, 0, -1, 0, -1);
+    this->EventWindow(-1, 1, &shrineText[0], 8, cell->extraInfo - 1, 7, ARTIFACT_MAGIC_BOOK, -1);
   }
 }
 
@@ -240,7 +247,14 @@ void advManager::HandlePyramid(class mapCell *cell, int locType, hero *hro, SAMP
 				if (hro->HasArtifact(ARTIFACT_MAGIC_BOOK)) {
 					if (hro->secondarySkillLevel[SECONDARY_SKILL_WISDOM] < gsSpellInfo[cell->extraInfo - 1].level - 2) {
 						msg += "  Unfortunately, you do not have the wisdom to understand the spell, and you are unable to learn it.  ";
-						advManager::EventWindow(-1, 1, &msg[0], -1, 0, -1, 0, -1);
+						int level = gsSpellInfo[cell->extraInfo - 1].level;
+						if (level == 4)
+							level = 1;
+						else if (level == 5)
+							level = 2;
+						else
+							level = 0;
+						advManager::EventWindow(-1, 1, &msg[0], 8, cell->extraInfo - 1, 17, SECONDARY_SKILL_WISDOM * 3 + level, -1);
 					}
 					else {
 						int knowledge = hro->Stats(PRIMARY_SKILL_KNOWLEDGE);
@@ -251,7 +265,7 @@ void advManager::HandlePyramid(class mapCell *cell, int locType, hero *hro, SAMP
 				}
 				else {
 					msg += "  Unfortunately, you have no Magic Book to record the spell with.";
-					this->EventWindow(-1, 1, &msg[0], -1, 0, -1, 0, -1);
+					this->EventWindow(-1, 1, &msg[0], 8, cell->extraInfo - 1, 7, ARTIFACT_MAGIC_BOOK, -1);
 				}
 				cell->extraInfo = 0;
 			}
@@ -427,7 +441,17 @@ void advManager::ShrineQuickInfo(int xLoc, int yLoc)
 			break;
 	}
 	heroWindow tooltip(px, py, "qwikinfo.bin");
-	GUISetText(&tooltip, 1, &(std::string(str + "{Spell:} " + (std::string) gSpellNames[mapCell->extraInfo - 1]))[0]);
+	std::string learned = "";
+	if (gpCurPlayer->curHeroIdx != -1)
+	{
+		hero *hro = &gpGame->heroes[gpCurPlayer->curHeroIdx];
+		if (hro != NULL)
+			if (hro->spellsLearned[mapCell->extraInfo - 1] == 1)
+				learned = "\n(already learned)";
+			else
+				learned = "\n(not learned)";
+	}
+	GUISetText(&tooltip, 1, &(std::string(str + "{Spell:} " + (std::string) gSpellNames[mapCell->extraInfo - 1] + learned))[0]);
 	gpWindowManager->AddWindow(&tooltip, 1, -1);
 	QuickViewWait();
 	gpWindowManager->RemoveWindow(&tooltip);
@@ -468,7 +492,17 @@ void advManager::WitchHutQuickInfo(int xLoc, int yLoc)
 	const int locationType = mapCell->objType & 0x7F;
 	std::string str = "Witch\'s Hut\n";
 	heroWindow tooltip(px, py, "qwikinfo.bin");
-	GUISetText(&tooltip, 1, &(std::string(str + "{Skill:} " + secondarySkillNames[mapCell->extraInfo]))[0]);
+	std::string learned = "";
+	if (gpCurPlayer->curHeroIdx != -1)
+	{
+		hero *hro = &gpGame->heroes[gpCurPlayer->curHeroIdx];
+		if (hro != NULL)
+			if (hro->GetSSLevel(mapCell->extraInfo) >= 1)
+				learned = "\n(already learned)";
+			else
+				learned = "\n(not learned)";
+	}
+	GUISetText(&tooltip, 1, &(std::string(str + "{Skill:} " + secondarySkillNames[mapCell->extraInfo] + learned))[0]);
 	gpWindowManager->AddWindow(&tooltip, 1, -1);
 	QuickViewWait();
 	gpWindowManager->RemoveWindow(&tooltip);
