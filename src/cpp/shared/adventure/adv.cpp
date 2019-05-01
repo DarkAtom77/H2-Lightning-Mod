@@ -19,6 +19,22 @@
 
 static const int END_TURN_BUTTON = 4;
 unsigned char PlayerVisitedShrine[144][144] = { 0 };
+static const std::string secondarySkillNames[] = {
+	"Pathfinding",
+	"Archery",
+	"Logistics",
+	"Scouting",
+	"Diplomacy",
+	"Navigation",
+	"Leadership",
+	"Wisdom",
+	"Mysticism",
+	"Luck",
+	"Ballistics",
+	"Eagle Eye",
+	"Necromancy",
+	"Estates",
+};
 
 int advManager::ProcessDeSelect(tag_message *evt, int *n, mapCell **cells) {
   extern int giBottomViewOverride;
@@ -142,6 +158,11 @@ void advManager::DoEvent(class mapCell *cell, int locX, int locY) {
 	  }
 	  else if (locationType == LOCATION_PYRAMID)
 		  this->HandlePyramid(cell, locationType, hro, &res2, locX, locY);
+	  else if (locationType == LOCATION_WITCH_HUT)
+	  {
+		  PlayerVisitedShrine[locX][locY] |= (unsigned char)pow(2, gpCurPlayer->color);
+		  this->DoEvent_orig(cell, locX, locY);
+	  }
 	  else
 		  this->DoEvent_orig(cell, locX, locY);
 	  ScriptCallback("AfterLocationVisit", locationType, locX, locY);
@@ -287,6 +308,15 @@ void advManager::QuickInfo(int x, int y) {
 			  return;
 		  }
 	  }
+	  else if (locationType == LOCATION_WITCH_HUT)
+	  {
+		  unsigned char visited = PlayerVisitedShrine[xLoc][yLoc] & (unsigned char) pow(2, gpCurPlayer->color);
+		  if (visited == (unsigned char)pow(2, gpCurPlayer->color))
+		  {
+			  WitchHutQuickInfo(xLoc, yLoc);
+			  return;
+		  }
+	  }
     QuickInfo_orig(x, y);
     return;
   }
@@ -371,6 +401,47 @@ void advManager::ShrineQuickInfo(int xLoc, int yLoc)
 	}
 	heroWindow tooltip(px, py, "qwikinfo.bin");
 	GUISetText(&tooltip, 1, &(std::string(str + "{Spell:} " + (std::string) gSpellNames[mapCell->extraInfo - 1]))[0]);
+	gpWindowManager->AddWindow(&tooltip, 1, -1);
+	QuickViewWait();
+	gpWindowManager->RemoveWindow(&tooltip);
+}
+
+void advManager::WitchHutQuickInfo(int xLoc, int yLoc)
+{
+	const int x = xLoc - viewX;
+	const int y = yLoc - viewY;
+
+	// Ensure the tooltip box is visible on the screen.
+	const int pTileSize = 32;
+	const int pxOffset = -57;  // tooltip is drawn (-57,-25) pixels from the mouse
+	const int pyOffset = -25;
+	const int pTooltipWidth = 160;
+	const int pTooltipHeight = 96;
+
+	int px = pTileSize * x + pxOffset;
+	if (px < 30) {
+		// minimum indent from left edge
+		px = 30;
+	}
+	else if (px + pTooltipWidth > 464) {
+		// don't overrun right edge
+		px = 304;
+	}
+
+	int py = pTileSize * y + pyOffset;
+	if (py < 16) {
+		// minimum indent from top edge
+		py = 16;
+	}
+	else if (py + pTooltipHeight > 448) {
+		// don't overrun bottom edge
+		py = 352;
+	}
+	auto mapCell = GetCell(xLoc, yLoc);
+	const int locationType = mapCell->objType & 0x7F;
+	std::string str = "Witch\'s Hut\n";
+	heroWindow tooltip(px, py, "qwikinfo.bin");
+	GUISetText(&tooltip, 1, &(std::string(str + "{Skill:} " + secondarySkillNames[mapCell->extraInfo]))[0]);
 	gpWindowManager->AddWindow(&tooltip, 1, -1);
 	QuickViewWait();
 	gpWindowManager->RemoveWindow(&tooltip);
