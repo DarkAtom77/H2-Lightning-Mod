@@ -677,19 +677,17 @@ static int l_setSignText(lua_State *L)
 
 static int l_setPlayerVisitedShrine(lua_State *L)
 {
-	playerData* p = (playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 3));
+	playerData* p = (playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 4));
 	int x = (int)luaL_checknumber(L, 2);
 	int y = (int)luaL_checknumber(L, 3);
-	PlayerVisitedShrine[x][y] |= (unsigned int)pow(2, p->color);
-	return 0;
-}
-
-static int l_setPlayerNotVisitedShrine(lua_State *L)
-{
-	playerData* p = (playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 3));
-	int x = (int)luaL_checknumber(L, 2);
-	int y = (int)luaL_checknumber(L, 3);
-	PlayerVisitedShrine[x][y] &= -((int)pow(2, p->color)) - 1;
+	if (lua_isboolean(L, 4))
+	{
+		bool yes = lua_toboolean(L, 4);
+		if (yes)
+			PlayerVisitedShrine[x][y] |= (unsigned int)pow(2, p->color);
+		else
+			PlayerVisitedShrine[x][y] &= -((int)pow(2, p->color)) - 1;
+	}
 	return 0;
 }
 
@@ -704,23 +702,6 @@ static int l_getPlayerVisitedShrine(lua_State *L)
 	else
 		lua_pushboolean(L, false);
 	return 1;
-}
-
-static int l_setPlayerVisitedWitchHut(lua_State *L)
-{
-	l_setPlayerVisitedShrine(L);
-	return 0;
-}
-
-static int l_setPlayerNotVisitedWitchHut(lua_State *L)
-{
-	l_setPlayerNotVisitedShrine(L);
-	return 0;
-}
-
-static int l_getPlayerVisitedWitchHut(lua_State *L)
-{
-	return l_getPlayerVisitedShrine(L);
 }
 
 static int l_mapPutArmy(lua_State *L) {
@@ -783,10 +764,8 @@ static void register_map_funcs(lua_State *L) {
   //lua_register(L, "SetSignText", l_setSignText);
   lua_register(L, "GetPlayerVisitedShrine", l_getPlayerVisitedShrine);
   lua_register(L, "SetPlayerVisitedShrine", l_setPlayerVisitedShrine);
-  lua_register(L, "SetPlayerNotVisitedShrine", l_setPlayerNotVisitedShrine);
   lua_register(L, "GetPlayerVisitedWitchHut", l_getPlayerVisitedShrine);
   lua_register(L, "SetPlayerVisitedWitchHut", l_setPlayerVisitedShrine);
-  lua_register(L, "SetPlayerNotVisitedWitchHut", l_setPlayerNotVisitedShrine);
 }
 
 /************************************** Town *******************************************/
