@@ -706,6 +706,23 @@ static int l_getPlayerVisitedShrine(lua_State *L)
 	return 1;
 }
 
+static int l_setPlayerVisitedWitchHut(lua_State *L)
+{
+	l_setPlayerVisitedShrine(L);
+	return 0;
+}
+
+static int l_setPlayerNotVisitedWitchHut(lua_State *L)
+{
+	l_setPlayerNotVisitedShrine(L);
+	return 0;
+}
+
+static int l_getPlayerVisitedWitchHut(lua_State *L)
+{
+	return l_getPlayerVisitedShrine(L);
+}
+
 static int l_mapPutArmy(lua_State *L) {
   int x = (int)luaL_checknumber(L, 1);
   int y = (int)luaL_checknumber(L, 2);
