@@ -153,14 +153,14 @@ void advManager::DoEvent(class mapCell *cell, int locX, int locY) {
   if (!shouldSkip.value_or(false)) {
 	  if (locationType == LOCATION_SHRINE_FIRST_ORDER || locationType == LOCATION_SHRINE_SECOND_ORDER || locationType == LOCATION_SHRINE_THIRD_ORDER)
 	  {
-		  PlayerVisitedShrine[locX][locY] |= (unsigned char)pow(2, gpCurPlayer->color);
+		  PlayerVisitedShrine[locX][locY] |= 1u << gpCurPlayer->color;
 		  this->HandleSpellShrine(cell, locationType, hro, &res2, locX, locY);
 	  }
 	  else if (locationType == LOCATION_PYRAMID)
 		  this->HandlePyramid(cell, locationType, hro, &res2, locX, locY);
 	  else if (locationType == LOCATION_WITCH_HUT)
 	  {
-		  PlayerVisitedShrine[locX][locY] |= (unsigned char)pow(2, gpCurPlayer->color);
+		  PlayerVisitedShrine[locX][locY] |= 1u << gpCurPlayer->color;
 		  this->DoEvent_orig(cell, locX, locY);
 	  }
 	  else
@@ -301,8 +301,8 @@ void advManager::QuickInfo(int x, int y) {
     // Lua error occurred or tooltip text not overridden.
 	  if (locationType == LOCATION_SHRINE_FIRST_ORDER || locationType == LOCATION_SHRINE_SECOND_ORDER || locationType == LOCATION_SHRINE_THIRD_ORDER)
 	  {
-		  unsigned char visited = PlayerVisitedShrine[xLoc][yLoc] & (unsigned char) pow(2, gpCurPlayer->color);
-		  if (visited == (unsigned char)pow(2, gpCurPlayer->color))
+		  unsigned char visited = (PlayerVisitedShrine[xLoc][yLoc] >> gpCurPlayer->color) & 1u;
+		  if (visited)
 		  {
 			  ShrineQuickInfo(xLoc, yLoc);
 			  return;
@@ -310,10 +310,20 @@ void advManager::QuickInfo(int x, int y) {
 	  }
 	  else if (locationType == LOCATION_WITCH_HUT)
 	  {
-		  unsigned char visited = PlayerVisitedShrine[xLoc][yLoc] & (unsigned char) pow(2, gpCurPlayer->color);
-		  if (visited == (unsigned char)pow(2, gpCurPlayer->color))
+		  unsigned char visited = (PlayerVisitedShrine[xLoc][yLoc] >> gpCurPlayer->color) & 1u;
+		  unsigned char visited2 = (PlayerVisitedShrine[xLoc][yLoc + 1] >> gpCurPlayer->color) & 1u;
+		  //The Witch's Hut extends across 3 cells on the y-axis
+		  //We only check for the bottom 2 because the player is
+		  //REALLY unlikely to right-click the top one and it would
+		  //create visual pollution
+		  if (visited)
 		  {
 			  WitchHutQuickInfo(xLoc, yLoc);
+			  return;
+		  }
+		  else if (visited2)
+		  {
+			  WitchHutQuickInfo(xLoc, yLoc + 1);
 			  return;
 		  }
 	  }
