@@ -392,3 +392,20 @@ void SetShrineSpell(int x, int y, int spell)
 	if (locationType == LOCATION_SHRINE_FIRST_ORDER || locationType == LOCATION_SHRINE_SECOND_ORDER || locationType == LOCATION_SHRINE_THIRD_ORDER || locationType == LOCATION_PYRAMID)
 		cell->extraInfo = spell + 1;
 }
+
+int GetWitchHutSkill(int x, int y)
+{
+	auto cell = gpAdvManager->GetCell(x, y);
+	const int locationType = cell->objType & 0x7F;
+	if (locationType != LOCATION_WITCH_HUT)
+		return -1;
+	return cell->extraInfo;
+}
+
+void SetWitchHutSkill(int x, int y, int skill)
+{
+	auto cell = gpAdvManager->GetCell(x, y);
+	const int locationType = cell->objType & 0x7F;
+	if (locationType == LOCATION_WITCH_HUT)
+		cell->extraInfo = skill;
+}

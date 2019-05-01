@@ -603,7 +603,8 @@ static int l_mapSetObject(lua_State *L) {
   return 0;
 }
 
-static int l_getShrineSpell(lua_State *L) {
+static int l_getShrineSpell(lua_State *L)
+{
 	int x = (int)luaL_checknumber(L, 1);
 	int y = (int)luaL_checknumber(L, 2);
 	int spell = GetShrineSpell(x, y);
@@ -624,8 +625,31 @@ static int l_setShrineSpell(lua_State *L)
 	return 0;
 }
 
+static int l_getWitchHutSkill(lua_State *L)
+{
+	int x = (int)luaL_checknumber(L, 1);
+	int y = (int)luaL_checknumber(L, 2);
+	int skill = GetWitchHutSkill(x, y);
+	if (skill != -1)
+	{
+		lua_pushinteger(L, skill);
+		return 1;
+	}
+	return 0;
+}
+
+static int l_setWitchHutSkill(lua_State *L)
+{
+	int x = (int)luaL_checknumber(L, 1);
+	int y = (int)luaL_checknumber(L, 2);
+	int skill = (int)luaL_checknumber(L, 3);
+	SetWitchHutSkill(x, y, skill);
+	return 0;
+}
+
 /*
 TODO: Add correct code for these 2 functions
+
 static int l_getSignText(lua_State *L)
 {
 	int x = (int)luaL_checknumber(L, 1);
@@ -736,11 +760,16 @@ static void register_map_funcs(lua_State *L) {
   lua_register(L, "MapSetTileTerrain", l_mapSetTerrainTile);
   lua_register(L, "GetShrineSpell", l_getShrineSpell);
   lua_register(L, "SetShrineSpell", l_setShrineSpell);
+  lua_register(L, "GetWitchHutSkill", l_getWitchHutSkill);
+  lua_register(L, "SetWitchHutSkill", l_setWitchHutSkill);
   //lua_register(L, "GetSignText", l_getSignText);
   //lua_register(L, "SetSignText", l_setSignText);
   lua_register(L, "GetPlayerVisitedShrine", l_getPlayerVisitedShrine);
   lua_register(L, "SetPlayerVisitedShrine", l_setPlayerVisitedShrine);
   lua_register(L, "SetPlayerNotVisitedShrine", l_setPlayerNotVisitedShrine);
+  lua_register(L, "GetPlayerVisitedWitchHut", l_getPlayerVisitedShrine);
+  lua_register(L, "SetPlayerVisitedWitchHut", l_setPlayerVisitedShrine);
+  lua_register(L, "SetPlayerNotVisitedWitchHut", l_setPlayerNotVisitedShrine);
 }
 
 /************************************** Town *******************************************/

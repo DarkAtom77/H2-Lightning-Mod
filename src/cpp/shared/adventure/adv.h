@@ -274,6 +274,8 @@ void __fastcall GetMonsterCost(int, int * const);
 
 int GetShrineSpell(int x, int y);
 void SetShrineSpell(int x, int y, int spell);
+int GetWitchHutSkill(int x, int y);
+void SetWitchHutSkill(int x, int y, int skill);
 
 #pragma pack(pop)
 
