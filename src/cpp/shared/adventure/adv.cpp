@@ -161,7 +161,7 @@ void advManager::DoEvent(class mapCell *cell, int locX, int locY) {
 	  else if (locationType == LOCATION_WITCH_HUT)
 	  {
 		  PlayerVisitedShrine[locX][locY] |= 1u << gpCurPlayer->color;
-		  this->DoEvent_orig(cell, locX, locY);
+		  this->HandleWitchHut(cell, locationType, hro, &res2, locX, locY);
 	  }
 	  else
 		  this->DoEvent_orig(cell, locX, locY);
@@ -267,6 +267,23 @@ void advManager::HandlePyramid(class mapCell *cell, int locType, hero *hro, SAMP
 			}
 		}
 	}
+}
+
+void advManager::HandleWitchHut(class mapCell *cell, int locType, hero *hro, SAMPLE2 *res2, int locX, int locY)
+{
+	int skill = cell->extraInfo;
+	if (hro->GetSSLevel(skill) >= 1 || hro->numSecSkillsKnown >= NUM_SECONDARY_SKILLS)
+	{
+		DoEvent_orig(cell, locX, locY);
+		return;
+	}
+	this->EventSound(locType, skill, res2);
+	std::string str = "{Witch\'s Hut}\n\nYou enter a hut with bird's legs for stilts. The witch that lives inside wants to teach you a skill - ";
+	str += secondarySkillNames[skill];
+	str += ". Do you accept?";
+	int answer = H2NormalDialog(&str[0], DIALOG_YES_NO, -1, -1, IMAGE_GROUP_SECONDARY_SKILLS, skill * 3, -1, 0, 0);
+	if (answer == BUTTON_CODE_OKAY)
+		hro->SetSS(skill, 1);
 }
 
 int advManager::MapPutArmy(int x, int y, int monIdx, int monQty) {
