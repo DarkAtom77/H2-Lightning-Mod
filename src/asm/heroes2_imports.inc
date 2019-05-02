@@ -245,6 +245,8 @@ IMPORT_?GetCommand@combatManager@@QAEHH@Z = 1
 ?GetCommand@combatManager@@QAEHH@Z_clone EQU ?GetCommand_orig@combatManager@@QAEHH@Z
 IMPORT_?SetCombatDirections@combatManager@@QAEXH@Z = 1
 ?SetCombatDirections@combatManager@@QAEXH@Z_clone EQU ?SetCombatDirections_orig@combatManager@@QAEXH@Z
+IMPORT_?ModifyDamageForArtifacts@combatManager@@QAEXPAJHPAVhero@@1@Z = 1
+;;?ModifyDamageForArtifacts@combatManager@@QAEXPAJHPAVhero@@1@Z_clone EQU IMPORT_?ModifyDamageForArtifacts_orig@combatManager@@QAEXPAJHPAVhero@@1@Z
 
 ;;heroes
 IMPORT_?cHeroTypeInitial@@3PADA = 1

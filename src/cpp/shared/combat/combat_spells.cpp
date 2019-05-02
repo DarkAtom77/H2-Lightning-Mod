@@ -157,6 +157,11 @@ float army::SpellCastWorkChance(int spell) {
 		&& spell == SPELL_METEOR_SHOWER)
 		return 1.0;
 
+	if ((this->creature.creature_flags & UNDEAD)
+		&& (spell == SPELL_COLD_RAY
+		|| spell == SPELL_COLD_RING))
+		return 0.0;
+
   if (spell == SPELL_SHADOW_MARK && this->dead)
     return 0.0;
 
@@ -384,7 +389,7 @@ void combatManager::CastSpell(int proto_spell, int hexIdx, int isCreatureAbility
     }
     case SPELL_COLD_RAY: {
       DelayMilli((signed __int64)(gfCombatSpeedMod[giCombatSpeed] * 175.0));
-      long damage = 20 * spellpower;
+      long damage = 18 * spellpower;
       if (stack->creatureIdx == CREATURE_FIRE_ELEMENTAL)
         damage *= 2;
       if (stack->creatureIdx == CREATURE_IRON_GOLEM || stack->creatureIdx == CREATURE_STEEL_GOLEM)
@@ -404,7 +409,12 @@ void combatManager::CastSpell(int proto_spell, int hexIdx, int isCreatureAbility
       break;
     }
     case SPELL_CHAIN_LIGHTNING:
-      this->ChainLightning(hexIdx, spellpower);
+	  {
+		long damage = spellpower * 40;
+		this->ModifyDamageForArtifacts(&damage, SPELL_CHAIN_LIGHTNING, currentHero, enemyHero);
+		damage /= 40;
+		this->ChainLightning(hexIdx, damage);
+	  } //curly braces to avoid C2360 - initialization of 'damage' is skipped by case label
       break;
     case SPELL_MAGIC_ARROW: {
       DelayMilli((signed __int64)(gfCombatSpeedMod[giCombatSpeed] * 100.0));
@@ -628,4 +638,66 @@ void combatManager::CastSpell(int proto_spell, int hexIdx, int isCreatureAbility
   }
   WaitEndSample(res, res.sample);
   this->CheckChangeSelector();
+}
+
+void __thiscall combatManager::ModifyDamageForArtifacts(long* damage, int spell, hero* thisHero, hero * enemyHero)
+{
+	/*
+	 * Reason for replacing this method:
+	 *
+	 * When the caster had a +50% damage artifact (e.g. Lightning Rod)
+	 * And the defender had a "half damage" artifact (e.g. Lightning Helm)
+	 * It would completely cancel the +50% damage artifact,
+	 * and the spell (in the example given Lightning Bolt or Chain Lightning)
+	 * would do half damage
+	 *
+	 * Now, in a case such as the one described above, the spell should do
+	 * 75% damage (because 0.5 * 1.5 = 0.75)
+	 */
+	
+	if (thisHero)
+	{
+		if (thisHero->HasArtifact(ARTIFACT_EVERCOLD_ICICLE) && (spell == SPELL_COLD_RAY || spell == SPELL_COLD_RING))
+			*damage = (double)*damage * 1.5;
+		if (thisHero->HasArtifact(ARTIFACT_EVERHOT_LAVA_ROCK)
+			&& (spell == SPELL_FIREBALL || spell == SPELL_FIREBLAST))
+			*damage = (double)*damage * 1.5;
+		if (thisHero->HasArtifact(ARTIFACT_LIGHTNING_ROD)
+			&& (spell == SPELL_LIGHTNING_BOLT || spell == SPELL_CHAIN_LIGHTNING))
+			*damage = (double)*damage * 1.5;
+	}
+	if (enemyHero)
+	{
+		if (enemyHero->HasArtifact(ARTIFACT_ICE_CLOAK) && (spell == SPELL_COLD_RAY || spell == SPELL_COLD_RING))
+			*damage = (double)*damage * 0.5;
+		if (enemyHero->HasArtifact(ARTIFACT_FIRE_CLOAK) && (spell == SPELL_FIREBALL || spell == SPELL_FIREBLAST))
+			*damage = (double)*damage * 0.5;
+		if (enemyHero->HasArtifact(ARTIFACT_LIGHTNING_HELM)
+			&& (spell == SPELL_LIGHTNING_BOLT || spell == SPELL_CHAIN_LIGHTNING))
+			*damage = (double)*damage * 0.5;
+		if (enemyHero->HasArtifact(ARTIFACT_HEART_OF_FIRE))
+		{
+			if (spell != SPELL_COLD_RAY && spell != SPELL_COLD_RING)
+			{
+				if (spell == SPELL_FIREBALL || spell == SPELL_FIREBLAST)
+					*damage = (double)*damage * 0.5;
+			}
+			else
+			{
+				*damage *= 2;
+			}
+		}
+		if (enemyHero->HasArtifact(ARTIFACT_HEART_OF_ICE))
+		{
+			if (spell != SPELL_COLD_RAY && spell != SPELL_COLD_RING)
+			{
+				if (spell == SPELL_FIREBALL || spell == SPELL_FIREBLAST)
+					*damage *= 2;
+			}
+			else
+			{
+				*damage = (double)*damage * 0.5;
+			}
+		}
+	}
 }
