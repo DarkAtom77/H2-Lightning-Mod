@@ -20,6 +20,7 @@
 static const int END_TURN_BUTTON = 4;
 unsigned char PlayerVisitedShrine[144][144] = { 0 };
 static const std::string secondarySkillNames[] = {
+	//Does this exist already elsewhere in the code?
 	"Pathfinding",
 	"Archery",
 	"Logistics",
