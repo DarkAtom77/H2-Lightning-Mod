@@ -552,8 +552,6 @@ void advManager::ArtifactQuickInfo(int xLoc, int yLoc)
 		artifact = LOBYTE(artifact) - 128;
 	std::string str = GetArtifactName(artifact);
 	heroWindow tooltip(px, py, "qwikinfo.bin");
-	char* s = new char[str.size() + 1];
-	strcpy(s, str.c_str());
 	GUISetText(&tooltip, 1, &str[0]);
 	gpWindowManager->AddWindow(&tooltip, 1, -1);
 	QuickViewWait();
