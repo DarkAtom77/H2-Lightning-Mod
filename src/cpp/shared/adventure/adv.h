@@ -153,6 +153,24 @@ public:
   void Clear();
 };
 
+enum class Sex { Male, Female };
+
+class HeroExtra
+{
+	public:
+		HeroExtra(hero* hero);
+		HeroExtra(hero* hero, Sex sex);
+		HeroExtra(hero& hero);
+		HeroExtra(hero& hero, Sex sex);
+		Sex GetHeroSex();
+		void SetHeroSex(); //automatic by the portrait
+		void SetHeroSex(Sex sex);
+		hero& hero;
+	private:
+		Sex sex;
+		int specialty; //for the future, not used right now
+};
+
 enum HERO_FLAGS {
 	HERO_AT_SEA = 0x80,
 	HERO_FLAG_RELATED_TO_PYRAMID = 0x4000,
