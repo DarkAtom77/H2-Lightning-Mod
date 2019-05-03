@@ -1218,12 +1218,46 @@ static int l_getArtifactName(lua_State *L) {
 	return 1;
 }
 
+static int l_getUltimateArtifactX(lua_State *L) {
+	lua_pushinteger(L, gpGame->ultimateArtifactLocX);
+	return 1;
+}
+
+static int l_getUltimateArtifactY(lua_State *L) {
+	lua_pushinteger(L, gpGame->ultimateArtifactLocY);
+	return 1;
+}
+
+static int l_getUltimateArtifact(lua_State *L) {
+	lua_pushinteger(L, gpGame->ultimateArtifactIdx);
+	return 1;
+}
+
+static int l_setUltimateArtifact(lua_State *L) {
+	int artifact = luaL_checknumber(L, 1);
+	gpGame->ultimateArtifactIdx = artifact;
+	return 0;
+}
+
+static int l_setUltimateArtifactPos(lua_State *L) {
+	int x = luaL_checknumber(L, 1);
+	int y = luaL_checknumber(L, 2);
+	gpGame->ultimateArtifactLocX = x;
+	gpGame->ultimateArtifactLocY = y;
+	return 0;
+}
+
 static void register_uncategorized_funcs(lua_State *L) {
   lua_register(L, "StartBattle", l_startbattle);
   lua_register(L, "ToggleAIArmySharing", l_toggleAIArmySharing);
   lua_register(L, "GetSpellLevel", l_getSpellLevel);
   lua_register(L, "GetSpellName", l_getSpellName);
   lua_register(L, "GetArtifactName", l_getArtifactName);
+  lua_register(L, "GetUltimateArtifactX", l_getUltimateArtifactX);
+  lua_register(L, "GetUltimateArtifactY", l_getUltimateArtifactY);
+  lua_register(L, "GetUltimateArtifact", l_getUltimateArtifact);
+  lua_register(L, "SetUltimateArtifactPos", l_setUltimateArtifactPos);
+  lua_register(L, "SetUltimateArtifact", l_setUltimateArtifact);
 }
 
 /****************************************************************************************************************/
