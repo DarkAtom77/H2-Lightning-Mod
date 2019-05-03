@@ -239,6 +239,7 @@ public:
 
   void ShrineQuickInfo(int xLoc, int yLoc);
   void WitchHutQuickInfo(int xLoc, int yLoc);
+  void ArtifactQuickInfo(int xLoc, int yLoc);
 };
 
 class ExpCampaign {

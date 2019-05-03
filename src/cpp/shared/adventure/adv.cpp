@@ -359,6 +359,11 @@ void advManager::QuickInfo(int x, int y) {
 			  return;
 		  }
 	  }
+	  else if (locationType == LOCATION_ARTIFACT)
+	  {
+		  ArtifactQuickInfo(xLoc, yLoc);
+		  return;
+	  }
     QuickInfo_orig(x, y);
     return;
   }
@@ -504,6 +509,52 @@ void advManager::WitchHutQuickInfo(int xLoc, int yLoc)
 				learned = "\n(not learned)";
 	}
 	GUISetText(&tooltip, 1, &(std::string(str + "{Skill:} " + secondarySkillNames[mapCell->extraInfo] + learned))[0]);
+	gpWindowManager->AddWindow(&tooltip, 1, -1);
+	QuickViewWait();
+	gpWindowManager->RemoveWindow(&tooltip);
+}
+
+void advManager::ArtifactQuickInfo(int xLoc, int yLoc)
+{
+	const int x = xLoc - viewX;
+	const int y = yLoc - viewY;
+
+	// Ensure the tooltip box is visible on the screen.
+	const int pTileSize = 32;
+	const int pxOffset = -57;  // tooltip is drawn (-57,-25) pixels from the mouse
+	const int pyOffset = -25;
+	const int pTooltipWidth = 160;
+	const int pTooltipHeight = 96;
+
+	int px = pTileSize * x + pxOffset;
+	if (px < 30) {
+		// minimum indent from left edge
+		px = 30;
+	}
+	else if (px + pTooltipWidth > 464) {
+		// don't overrun right edge
+		px = 304;
+	}
+
+	int py = pTileSize * y + pyOffset;
+	if (py < 16) {
+		// minimum indent from top edge
+		py = 16;
+	}
+	else if (py + pTooltipHeight > 448) {
+		// don't overrun bottom edge
+		py = 352;
+	}
+	auto mapCell = GetCell(xLoc, yLoc);
+	const int locationType = mapCell->objType & 0x7F;
+	int artifact = mapCell->objectIndex >> 1;
+	if (artifact < 8 || artifact >= 64)
+		artifact = LOBYTE(artifact) - 128;
+	std::string str = GetArtifactName(artifact);
+	heroWindow tooltip(px, py, "qwikinfo.bin");
+	char* s = new char[str.size() + 1];
+	strcpy(s, str.c_str());
+	GUISetText(&tooltip, 1, &str[0]);
 	gpWindowManager->AddWindow(&tooltip, 1, -1);
 	QuickViewWait();
 	gpWindowManager->RemoveWindow(&tooltip);
