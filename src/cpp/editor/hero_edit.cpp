@@ -7,7 +7,7 @@
 
 extern HeroExtra gEditedHeroExtra;
 
-#define NUM_HERO_PORTRAITS 73
+#define NUM_HERO_PORTRAITS 72
 
 namespace {
   const int ARTIFACT_DROPDOWN_1 = 308;
