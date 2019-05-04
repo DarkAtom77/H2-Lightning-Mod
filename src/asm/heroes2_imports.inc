@@ -273,6 +273,8 @@ IMPORT_?QuickInfo@advManager@@QAEXHH@Z = 1
 ;;hero movement reminder
 IMPORT_?ProcessDeSelect@advManager@@QAEHPAUtag_message@@PAHPAPAVmapCell@@@Z = 1
 ?ProcessDeSelect@advManager@@QAEHPAUtag_message@@PAHPAPAVmapCell@@@Z_clone EQU ?ProcessDeSelect_orig@advManager@@QAEHPAUtag_message@@PAHPAPAVmapCell@@@Z
+IMPORT_?ProcessSearch@advManager@@QAEHHH@Z = 1
+?ProcessSearch@advManager@@QAEHHH@Z_clone EQU ?ProcessSearch_orig@advManager@@QAEHHH@Z
 
 
 ;;;; border guards

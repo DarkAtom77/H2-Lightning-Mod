@@ -558,6 +558,16 @@ void advManager::ArtifactQuickInfo(int xLoc, int yLoc)
 	gpWindowManager->RemoveWindow(&tooltip);
 }
 
+int advManager::ProcessSearch(int x, int y)
+{
+	//why is the name of this method so poorly chosen?
+	//this is supposed to handle the Ultimate Artifact digging
+	//I don't understand why the arguments are always -1
+	hero* hro = &gpGame->heroes[gpCurPlayer->curHeroIdx];
+	ScriptCallback("OnHeroDig", hro->x, hro->y);
+	return ProcessSearch_orig(x, y);
+}
+
 int GetShrineSpell(int x, int y)
 {
 	auto cell = gpAdvManager->GetCell(x, y);

@@ -300,6 +300,9 @@ public:
   void __thiscall UpdateScreen(int, int);
   void __thiscall UpdateTownLocators(int, int);
 
+  int __thiscall ProcessSearch_orig(int, int);
+  int __thiscall ProcessSearch(int, int);
+
   int ProcessDeSelect(struct tag_message *GUIMessage_evt, int *a3, class mapCell **a4);
   int ProcessDeSelect_orig(struct tag_message *, int *, class mapCell **);
 
