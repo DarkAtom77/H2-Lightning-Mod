@@ -15,6 +15,8 @@
 
 #pragma pack(push,1)
 
+HeroExtraII* HeroExtras[MAX_HEROES];
+
 class executive {
 public:
   char _[16];
@@ -88,6 +90,13 @@ void __fastcall InitMainClasses()
 	gpPhilAI = new philAI;
 	gpMonGroup = new armyGroup;
 	gpBufferPalette = new palette;
+	for (int i = 0; i < MAX_HEROES; i++)
+		HeroExtras[i] = (HeroExtraII*) operator new(sizeof(HeroExtraII));
+	    //HeroExtraII has no default constructor (it wouldn't make sense),
+		//and heroes are not yet available at this point
+		//using "new HeroExtraII" would ask for a constructor
+		//also malloc/calloc cannot be used
+		//destructor must be called on deletion with delete operator
 }
 
 void __fastcall DeleteMainClasses() {
@@ -106,6 +115,8 @@ void __fastcall DeleteMainClasses() {
 	delete gpPhilAI;
 	delete gpMonGroup;
 	delete gpBufferPalette;
+	for (int i = 0; i < MAX_HEROES; i++)
+		delete HeroExtras[i];
 }
 
 extern int iCDRomErr;
@@ -170,11 +181,21 @@ int __fastcall SetupCDDrive() {
 	return 1;
 }
 
+void SetHeroSexes()
+{
+	for (int i = 0; i < MAX_HEROES; i++)
+	{
+		HeroExtraII* h = new HeroExtraII(gpGame->heroes[i]);
+		HeroExtras[i] = h;
+	}
+}
+
 int executive::AddManager(baseManager *mgr, int argIdx) {
   int ret = this->AddManager_orig(mgr, argIdx);
   if (mgr == gpAdvManager)
     if (!strcmp(gpGame->lastSaveFile, "NEWGAME") && !gpGame->firstDayEventDone) { // that tells us it's a NEW game, not a loaded game. A loaded game can't have NEWGAME as a save filename
-        ScriptCallback("OnMapStart");
+		SetHeroSexes();
+		ScriptCallback("OnMapStart");
         ScriptCallback("OnNewDay", gpGame->month, gpGame->week, gpGame->day);
         gpGame->firstDayEventDone = true;
     }

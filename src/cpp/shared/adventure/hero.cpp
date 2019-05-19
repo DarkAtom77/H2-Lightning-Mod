@@ -284,3 +284,67 @@ int hero::CalcMobility() {
 hero* GetCurrentHero() {
   return &gpGame->heroes[gpCurPlayer->curHeroIdx];
 }
+
+HeroExtraII::HeroExtraII(hero* hro) : hro(*hro)
+{
+	int hero = this->hro.heroID;
+	//This will detect the sex by the portrait.
+	switch (hero)
+	{
+		case PORTRAIT_GWENNETH:
+		case PORTRAIT_RUBY:
+		case PORTRAIT_JEZEBEL:
+		case PORTRAIT_JACLYN:
+		case PORTRAIT_ASTRA:
+		case PORTRAIT_NATASHA:
+		case PORTRAIT_TROYAN:
+		case PORTRAIT_VATAWNA:
+		case PORTRAIT_REBECCA:
+		case PORTRAIT_GEM:
+		case PORTRAIT_ARIEL:
+		case PORTRAIT_CARLAWN:
+		case PORTRAIT_LUNA:
+		case PORTRAIT_MYRA:
+		case PORTRAIT_DAWN:
+		case PORTRAIT_MYRINI:
+		case PORTRAIT_KALINDRA:
+		case PORTRAIT_DARLANA:
+		case PORTRAIT_CHARITY:
+		case PORTRAIT_ROXANA:
+		case PORTRAIT_CELIA:
+		case PORTRAIT_SISTER_ELIZA:
+		case PORTRAIT_DRAKONIA:
+		case PORTRAIT_MARTINE:
+		case PORTRAIT_CAPTAIN_SORCERESS:
+			sex = Sex::Female;
+			break;
+		default:
+			sex = Sex::Male;
+			break;
+	}
+}
+
+HeroExtraII::HeroExtraII(hero& hro) : hro(hro)
+{
+	HeroExtraII h (&hro); //lazy...don't want to fill the page with that thing again
+	sex = h.GetHeroSex();
+}
+
+HeroExtraII::HeroExtraII(hero* hro, Sex sex) : hro(*hro), sex(sex) {}
+HeroExtraII::HeroExtraII(hero& hro, Sex sex) : hro(hro), sex(sex) {}
+
+Sex HeroExtraII::GetHeroSex()
+{
+	return sex;
+}
+
+void HeroExtraII::SetHeroSex(Sex sex)
+{
+	this->sex = sex;
+}
+
+void HeroExtraII::ResetHeroSex()
+{
+	HeroExtraII h = *this; //again lazy
+	sex = h.GetHeroSex();
+}

@@ -56,7 +56,7 @@ enum HERO_PORTRAITS {
 	PORTRAIT_ASTRA = 18,
 	PORTRAIT_NATASHA = 19,
 	PORTRAIT_TROYAN = 20,
-	PORTRAIT_VATWNA = 21,
+	PORTRAIT_VATAWNA = 21,
 	PORTRAIT_REBECCA = 22,
 	PORTRAIT_GEM = 23,
 	PORTRAIT_ARIEL = 24,
@@ -250,14 +250,14 @@ enum class Sex { Male, Female };
 class HeroExtraII
 {
 public:
-	HeroExtraII(hero* hero);
-	HeroExtraII(hero* hero, Sex sex);
-	HeroExtraII(hero& hero);
-	HeroExtraII(hero& hero, Sex sex);
+	HeroExtraII(hero* hro);
+	HeroExtraII(hero* hro, Sex sex);
+	HeroExtraII(hero& hro);
+	HeroExtraII(hero& hro, Sex sex);
 	Sex GetHeroSex();
-	void SetHeroSex(); //automatic by the portrait
+	void ResetHeroSex(); //automatic by the portrait
 	void SetHeroSex(Sex sex);
-	hero& hero;
+	hero& hro;
 private:
 	Sex sex;
 	int specialty; //for the future, not used right now

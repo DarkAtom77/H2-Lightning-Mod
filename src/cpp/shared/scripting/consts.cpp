@@ -177,11 +177,18 @@ void set_artifact_consts(lua_State* L) {
   */
 }
 
+/*
 void set_luck_consts(lua_State *L) {
 	lua_setconst(L, "IMAGE_LUCK", IMAGE_LUCK);
 	lua_setconst(L, "IMAGE_BADLUCK", IMAGE_BADLUCK);
 }
+This is useless*/
 
+void set_hero_consts(lua_State* L) {
+	lua_setconst(L, "SEX_MALE", 0);
+	lua_setconst(L, "SEX_FEMALE", 1);
+	//TODO: Portraits
+}
 
 void set_town_consts(lua_State* L) {
   lua_setconst(L, "BUILDING_MAGE_GUILD", BUILDING_MAGE_GUILD);
@@ -494,6 +501,7 @@ void set_scripting_consts(lua_State* L) {
   set_gui_consts(L);
   set_spell_consts(L);
   set_artifact_consts(L);
+  set_hero_consts(L);
   set_town_consts(L);
   set_faction_consts(L);
   set_skill_consts(L);

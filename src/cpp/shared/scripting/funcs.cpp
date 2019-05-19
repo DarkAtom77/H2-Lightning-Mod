@@ -545,6 +545,25 @@ static int l_hasSpellScroll(lua_State* L) {
 	return 1;
 }
 
+static int l_getHeroSex(lua_State* L) {
+	hero* hro = (hero*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 1));
+	if (HeroExtras[hro->idx]->GetHeroSex() == Sex::Male)
+		lua_pushnumber(L, 0);
+	else
+		lua_pushnumber(L, 1);
+	return 1;
+}
+
+static int l_setHeroSex(lua_State* L) {
+	hero* hro = (hero*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 2));
+	int sex = luaL_checkinteger(L, 2);
+	if (sex == 0)
+		HeroExtras[hro->idx]->SetHeroSex(Sex::Male);
+	else
+		HeroExtras[hro->idx]->SetHeroSex(Sex::Female);
+	return 0;
+}
+
 static void register_hero_funcs(lua_State *L) {
   lua_register(L, "GetCurrentHero", l_getCurrentHero);
   lua_register(L, "GrantSpell", l_grantSpell);
@@ -586,6 +605,8 @@ static void register_hero_funcs(lua_State *L) {
   lua_register(L, "SetHeroTempLuckBonuses", l_setHeroTempLuckBonuses);
   lua_register(L, "GrantSpellScroll", l_grantSpellScroll);
   lua_register(L, "HasSpellScroll", l_hasSpellScroll);
+  lua_register(L, "GetHeroSex", l_getHeroSex);
+  lua_register(L, "SetHeroSex", l_setHeroSex);
 }
 
 /************************************** Map *******************************************/
