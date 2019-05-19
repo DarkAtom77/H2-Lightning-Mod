@@ -137,6 +137,7 @@ enum CREATURE_EVENT_CODE {
 #define SHADOW_MARK "shadow-mark"
 #define JUMPER "jumper"
 #define CHARGER "charger"
+#define REBIRTH "rebirth"
 
 extern char *speedText[];
 
