@@ -282,6 +282,7 @@ extern randomHeroCreatureInfo randomHeroArmyBounds[MAX_FACTIONS][2];
 extern int neutralTownCreatureTypes[MAX_FACTIONS][5];
 
 extern signed __int8 gHeroSkillBonus[MAX_FACTIONS][2][4];
+extern HeroExtraII* HeroExtras[MAX_HEROES];
 
 #pragma pack(pop)
 
