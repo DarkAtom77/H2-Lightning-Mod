@@ -189,6 +189,7 @@ public:
 	void SetVisibility(int,int,int,int);
   void SetVisibility_orig(int, int, int, int);
 
+  void __thiscall ClaimMine(int idx, int color);
 	void ClaimTown(int,int,int);
   int GetTownId(int,int);
   

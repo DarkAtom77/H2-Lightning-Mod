@@ -725,6 +725,40 @@ static int l_getPlayerVisitedShrine(lua_State *L)
 	return 1;
 }
 
+static int l_getMineId(lua_State *L)
+{
+	int x = (int)luaL_checknumber(L, 1);
+	int y = (int)luaL_checknumber(L, 2);
+	int i;
+	for (i = 0; i < 144; i++)
+	{
+		mine* mn = &gpGame->mines[i];
+		if (mn->x == x && mn->y == y)
+			break;
+	}
+	if (i == 144)
+		lua_pushnil(L);
+	else
+		lua_pushinteger(L, i);
+	return 1;
+}
+
+static int l_getMineOwner(lua_State *L)
+{
+	int id = (int)luaL_checknumber(L, 1);
+	mine* mn = &gpGame->mines[id];
+	lua_pushinteger(L, mn->owner);
+	return 1;
+}
+
+static int l_setMineOwner(lua_State *L)
+{
+	int id = (int)luaL_checknumber(L, 1);
+	int player = (int)luaL_checknumber(L, 2);
+	gpGame->ClaimMine(id, player);
+	return 0;
+}
+
 static int l_mapPutArmy(lua_State *L) {
   int x = (int)luaL_checknumber(L, 1);
   int y = (int)luaL_checknumber(L, 2);
@@ -787,6 +821,9 @@ static void register_map_funcs(lua_State *L) {
   lua_register(L, "SetPlayerVisitedShrine", l_setPlayerVisitedShrine);
   lua_register(L, "GetPlayerVisitedWitchHut", l_getPlayerVisitedShrine);
   lua_register(L, "SetPlayerVisitedWitchHut", l_setPlayerVisitedShrine);
+  lua_register(L, "GetMineId", l_getMineId);
+  lua_register(L, "GetMineOwner", l_getMineOwner);
+  lua_register(L, "SetMineOwner", l_setMineOwner);
 }
 
 /************************************** Town *******************************************/
