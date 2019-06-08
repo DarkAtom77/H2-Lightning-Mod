@@ -759,6 +759,33 @@ static int l_setMineOwner(lua_State *L)
 	return 0;
 }
 
+static int l_getMineGuards(lua_State *L)
+{
+	int id = (int)luaL_checknumber(L, 1);
+	mine* mn = &gpGame->mines[id];
+	lua_pushinteger(L, mn->guardianType);
+	return 1;
+}
+
+static int l_getMineGuardCount(lua_State *L)
+{
+	int id = (int)luaL_checknumber(L, 1);
+	mine* mn = &gpGame->mines[id];
+	lua_pushinteger(L, mn->guardianQty);
+	return 1;
+}
+
+static int l_setMineGuards(lua_State *L)
+{
+	int id = (int)luaL_checknumber(L, 1);
+	int type = (int)luaL_checknumber(L, 2);
+	int qty = (int)luaL_checknumber(L, 3);
+	mine* mn = &gpGame->mines[id];
+	mn->guardianType = type;
+	mn->guardianQty = qty;
+	return 0;
+}
+
 static int l_mapPutArmy(lua_State *L) {
   int x = (int)luaL_checknumber(L, 1);
   int y = (int)luaL_checknumber(L, 2);
@@ -824,6 +851,9 @@ static void register_map_funcs(lua_State *L) {
   lua_register(L, "GetMineId", l_getMineId);
   lua_register(L, "GetMineOwner", l_getMineOwner);
   lua_register(L, "SetMineOwner", l_setMineOwner);
+  lua_register(L, "GetMineGuards", l_getMineGuards);
+  lua_register(L, "GetMineGuardCount", l_getMineGuardCount);
+  lua_register(L, "SetMineGuards", l_setMineGuards);
 }
 
 /************************************** Town *******************************************/
