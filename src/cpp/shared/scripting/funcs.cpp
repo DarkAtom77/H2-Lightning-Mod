@@ -780,6 +780,107 @@ static int l_setMineGuards(lua_State *L)
 	return 0;
 }
 
+static int l_getDwellingQuantity(lua_State* L)
+{
+	int x = (int)luaL_checknumber(L, 1);
+	int y = (int)luaL_checknumber(L, 2);
+	mapCell* cell = gpAdvManager->GetCell(x, y);
+	int locType = cell->objType & 0x7F;
+	if (locType == LOCATION_EXPANSION_DWELLING)
+		lua_pushinteger(L, cell->extraInfo / 5);
+	else if (locType == LOCATION_TROLL_BRIDGE || locType == LOCATION_CITY_OF_DEAD || locType == LOCATION_DRAGON_CITY)
+	{
+		if (cell->extraInfo > 255)
+			lua_pushinteger(L, cell->extraInfo - 256);
+		else
+			lua_pushinteger(L, cell->extraInfo);
+	}
+	else
+		lua_pushinteger(L, cell->extraInfo);
+	return 1;
+}
+
+static int l_setDwellingQuantity(lua_State *L)
+{
+	int x = (int)luaL_checknumber(L, 1);
+	int y = (int)luaL_checknumber(L, 2);
+	int qty = (int)luaL_checknumber(L, 3);
+	mapCell* cell = gpAdvManager->GetCell(x, y);
+	int locType = cell->objType & 0x7F;
+	if (locType == LOCATION_TROLL_BRIDGE || locType == LOCATION_CITY_OF_DEAD || locType == LOCATION_DRAGON_CITY)
+		if (cell->extraInfo > 255)
+			cell->extraInfo = qty + 256;
+		else
+			cell->extraInfo = qty;
+	return 0;
+}
+
+static int l_dwellingHasGuards(lua_State *L)
+{
+	int x = (int)luaL_checknumber(L, 1);
+	int y = (int)luaL_checknumber(L, 2);
+	mapCell* cell = gpAdvManager->GetCell(x, y);
+	int locType = cell->objType & 0x7F;
+	if (locType == LOCATION_TROLL_BRIDGE || locType == LOCATION_CITY_OF_DEAD || locType == LOCATION_DRAGON_CITY)
+		if (cell->extraInfo > 255)
+			lua_pushboolean(L, true);
+		else
+			lua_pushboolean(L, false);
+	else
+		lua_pushboolean(L, false);
+	return 1;
+}
+
+static int l_setDwellingHasGuards(lua_State *L)
+{
+	int x = (int)luaL_checknumber(L, 1);
+	int y = (int)luaL_checknumber(L, 2);
+	mapCell* cell = gpAdvManager->GetCell(x, y);
+	int locType = cell->objType & 0x7F;
+	if (locType == LOCATION_TROLL_BRIDGE || locType == LOCATION_CITY_OF_DEAD || locType == LOCATION_DRAGON_CITY)
+		if (lua_isboolean(L, 3))
+		{
+			bool yes = lua_toboolean(L, 3);
+			if (yes && cell->extraInfo < 256)
+				cell->extraInfo += 256;
+			else if (!yes && cell->extraInfo > 255)
+				cell->extraInfo -= 256;
+		}
+	return 0;
+}
+
+static int l_setExpansionDwellingQuantity(lua_State *L)
+{
+	int x = (int)luaL_checknumber(L, 1);
+	int y = (int)luaL_checknumber(L, 2);
+	int qty = (int)luaL_checknumber(L, 3);
+	int creature = (int)luaL_checknumber(L, 4);
+	mapCell* cell = gpAdvManager->GetCell(x, y);
+	int locType = cell->objType & 0x7F;
+	if (locType == LOCATION_EXPANSION_DWELLING)
+	{
+		cell->extraInfo = 8 * qty;
+		switch (creature)
+		{
+			case CREATURE_EARTH_ELEMENTAL:
+				cell->extraInfo += 1;
+				break;
+			case CREATURE_AIR_ELEMENTAL:
+				cell->extraInfo += 2;
+				break;
+			case CREATURE_FIRE_ELEMENTAL:
+				cell->extraInfo += 3;
+				break;
+			case CREATURE_WATER_ELEMENTAL:
+				cell->extraInfo += 4;
+				break;
+			default:
+				break;
+		}
+	}
+	return 0;
+}
+
 static int l_mapPutArmy(lua_State *L) {
   int x = (int)luaL_checknumber(L, 1);
   int y = (int)luaL_checknumber(L, 2);
@@ -848,6 +949,11 @@ static void register_map_funcs(lua_State *L) {
   lua_register(L, "GetMineGuards", l_getMineGuards);
   lua_register(L, "GetMineGuardCount", l_getMineGuardCount);
   lua_register(L, "SetMineGuards", l_setMineGuards);
+  lua_register(L, "GetDwellingQuantity", l_getDwellingQuantity);
+  lua_register(L, "SetDwellingQuantity", l_setDwellingQuantity);
+  lua_register(L, "DwellingHasGuards", l_dwellingHasGuards);
+  lua_register(L, "SetDwellingHasGuards", l_setDwellingHasGuards);
+  lua_register(L, "SetExpansionDwellingQuantity", l_setExpansionDwellingQuantity);
 }
 
 /************************************** Town *******************************************/
