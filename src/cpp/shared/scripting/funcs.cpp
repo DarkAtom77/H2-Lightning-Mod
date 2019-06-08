@@ -729,17 +729,11 @@ static int l_getMineId(lua_State *L)
 {
 	int x = (int)luaL_checknumber(L, 1);
 	int y = (int)luaL_checknumber(L, 2);
-	int i;
-	for (i = 0; i < 144; i++)
-	{
-		mine* mn = &gpGame->mines[i];
-		if (mn->x == x && mn->y == y)
-			break;
-	}
-	if (i == 144)
+	int id = gpGame->GetMineId(x, y);
+	if (id == -1)
 		lua_pushnil(L);
 	else
-		lua_pushinteger(L, i);
+		lua_pushinteger(L, id);
 	return 1;
 }
 

@@ -192,6 +192,7 @@ public:
   void __thiscall ClaimMine(int idx, int color);
 	void ClaimTown(int,int,int);
   int GetTownId(int,int);
+  int __thiscall GetMineId(int, int);
   
 	void NextPlayer();
 	void NextPlayer_orig();
