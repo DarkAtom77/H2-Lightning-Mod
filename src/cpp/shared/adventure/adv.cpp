@@ -151,21 +151,27 @@ void advManager::DoEvent(class mapCell *cell, int locX, int locY) {
   int locationType = cell->objType & 0x7F;
   SAMPLE2 res2 = NULL_SAMPLE2;
   nonstd::optional<bool> shouldSkip = ScriptCallbackResult<bool>("OnLocationVisit", locationType, locX, locY);
-  if (!shouldSkip.value_or(false)) {
-	  if (locationType == LOCATION_SHRINE_FIRST_ORDER || locationType == LOCATION_SHRINE_SECOND_ORDER || locationType == LOCATION_SHRINE_THIRD_ORDER)
+  if (!shouldSkip.value_or(false))
+  {
+	  switch (locationType)
 	  {
-		  PlayerVisitedShrine[locX][locY] |= 1u << gpCurPlayer->color;
-		  this->HandleSpellShrine(cell, locationType, hro, &res2, locX, locY);
+		  case LOCATION_SHRINE_FIRST_ORDER:
+		  case LOCATION_SHRINE_SECOND_ORDER:
+		  case LOCATION_SHRINE_THIRD_ORDER:
+			  PlayerVisitedShrine[locX][locY] |= 1u << gpCurPlayer->color;
+			  this->HandleSpellShrine(cell, locationType, hro, &res2, locX, locY);
+			  break;
+		  case LOCATION_PYRAMID:
+			  this->HandlePyramid(cell, locationType, hro, &res2, locX, locY);
+			  break;
+		  case LOCATION_WITCH_HUT:
+			  PlayerVisitedShrine[locX][locY] |= 1u << gpCurPlayer->color;
+			  this->HandleWitchHut(cell, locationType, hro, &res2, locX, locY);
+			  break;
+		  default:
+			  this->DoEvent_orig(cell, locX, locY);
+			  break;
 	  }
-	  else if (locationType == LOCATION_PYRAMID)
-		  this->HandlePyramid(cell, locationType, hro, &res2, locX, locY);
-	  else if (locationType == LOCATION_WITCH_HUT)
-	  {
-		  PlayerVisitedShrine[locX][locY] |= 1u << gpCurPlayer->color;
-		  this->HandleWitchHut(cell, locationType, hro, &res2, locX, locY);
-	  }
-	  else
-		  this->DoEvent_orig(cell, locX, locY);
 	  ScriptCallback("AfterLocationVisit", locationType, locX, locY);
       return;
   }
@@ -566,6 +572,109 @@ int advManager::ProcessSearch(int x, int y)
 	hero* hro = &gpGame->heroes[gpCurPlayer->curHeroIdx];
 	ScriptCallback("OnHeroDig", hro->x, hro->y);
 	return ProcessSearch_orig(x, y);
+}
+
+void __thiscall advManager::HouseEvent(class hero * hro, class mapCell * cell)
+{
+	int locationType = cell->objType & 0x7F;
+	std::string askstring = "{%s}\n\nA group of " + std::to_string(cell->extraInfo) + " %s with a desire for greater glory wish to join you. Do you accept?";
+	std::string emptystring = "{%s}\n\nAs you approach the dwelling, you notice that there is no one here.";
+	char str[200];
+	int creature;
+	switch (locationType)
+	{
+			case LOCATION_ARCHERS_HOUSE:
+				sprintf(str, askstring.c_str(), "Archer\'s House", "archers");
+				askstring = str;
+				sprintf(str, emptystring.c_str(), "Archer\'s House");
+				emptystring = str;
+				creature = CREATURE_ARCHER;
+				break;
+			case LOCATION_GOBLIN_HUT:
+				sprintf(str, askstring.c_str(), "Goblin Hut", "goblins");
+				askstring = str;
+				sprintf(str, emptystring.c_str(), "Goblin Hut");
+				emptystring = str;
+				creature = CREATURE_GOBLIN;
+				break;
+			case LOCATION_DWARF_COTTAGE:
+				sprintf(str, askstring.c_str(), "Dwarf Cottage", "dwarves");
+				askstring = str;
+				sprintf(str, emptystring.c_str(), "Dwarf Cottage");
+				emptystring = str;
+				creature = CREATURE_DWARF;
+				break;
+			case LOCATION_DWARF_CABIN:
+				sprintf(str, askstring.c_str(), "Dwarf Cabin", "dwarves");
+				askstring = str;
+				sprintf(str, emptystring.c_str(), "Dwarf Cabin");
+				emptystring = str;
+				creature = CREATURE_DWARF;
+				return;
+			case LOCATION_PEASANT_HUT:
+				sprintf(str, askstring.c_str(), "Peasant Hut", "peasants");
+				askstring = str;
+				sprintf(str, emptystring.c_str(), "Peasant Hut");
+				emptystring = str;
+				creature = CREATURE_PEASANT;
+				break;
+			case LOCATION_LOG_CABIN:
+				HouseEvent_orig(hro, cell);
+				return;
+			case LOCATION_WATCH_TOWER:
+				sprintf(str, askstring.c_str(), "Watch Tower", "orcs");
+				askstring = str;
+				sprintf(str, emptystring.c_str(), "Watch Tower");
+				emptystring = str;
+				creature = CREATURE_ORC;
+				break;
+			case LOCATION_TREE_HOUSE:
+				sprintf(str, askstring.c_str(), "Tree House", "sprites");
+				askstring = str;
+				sprintf(str, emptystring.c_str(), "Tree House");
+				emptystring = str;
+				creature = CREATURE_SPRITE;
+				break;
+			case LOCATION_HALFLING_HOLE:
+				sprintf(str, askstring.c_str(), "Halfling Hole", "halflings");
+				askstring = str;
+				sprintf(str, emptystring.c_str(), "Halfling Hole");
+				emptystring = str;
+				creature = CREATURE_HALFLING;
+				break;
+			case LOCATION_EXCAVATION:
+				sprintf(str, askstring.c_str(), "Excavation", "skeletons");
+				askstring = str;
+				sprintf(str, emptystring.c_str(), "Excavation");
+				emptystring = str;
+				creature = CREATURE_SKELETON;
+				break;
+			case LOCATION_CAVE:
+				sprintf(str, askstring.c_str(), "Cave", "centaurs");
+				askstring = str;
+				sprintf(str, emptystring.c_str(), "Cave");
+				emptystring = str;
+				creature = CREATURE_CENTAUR;
+				break;
+		}
+		if (cell->extraInfo >= 1)
+		{
+		strcpy(str, askstring.c_str());
+		this->EventWindow(-1, 2, str, IMAGE_GROUP_UNIT, creature, -1, 0, -1);
+		if (gpWindowManager->buttonPressedCode == BUTTON_YES)
+			if (hro->army.CanJoin(creature))
+			{
+				hro->army.Add(creature, cell->extraInfo, -1);
+				cell->extraInfo = 0;
+			}
+			else
+				this->EventWindow(-1, 1, "You are unable to recruit at this time, your ranks are full.", -1, 0, -1, 0, -1);
+	}
+	else
+	{
+		strcpy(str, emptystring.c_str());
+		this->EventWindow(-1, 1, str, -1, 0, -1, 0, -1);
+	}
 }
 
 int GetShrineSpell(int x, int y)

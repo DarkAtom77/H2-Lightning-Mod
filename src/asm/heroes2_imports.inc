@@ -270,6 +270,9 @@ IMPORT_?DoEvent@advManager@@QAEXPAVmapCell@@HH@Z = 1
 IMPORT_?QuickInfo@advManager@@QAEXHH@Z = 1
 ?QuickInfo@advManager@@QAEXHH@Z_clone EQU ?QuickInfo_orig@advManager@@QAEXHH@Z
 
+IMPORT_?HouseEvent@advManager@@QAEXPAVhero@@PAVmapCell@@@Z = 1
+?HouseEvent@advManager@@QAEXPAVhero@@PAVmapCell@@@Z_clone EQU ?HouseEvent_orig@advManager@@QAEXPAVhero@@PAVmapCell@@@Z
+
 ;;hero movement reminder
 IMPORT_?ProcessDeSelect@advManager@@QAEHPAUtag_message@@PAHPAPAVmapCell@@@Z = 1
 ?ProcessDeSelect@advManager@@QAEHPAUtag_message@@PAHPAPAVmapCell@@@Z_clone EQU ?ProcessDeSelect_orig@advManager@@QAEHPAUtag_message@@PAHPAPAVmapCell@@@Z

@@ -140,7 +140,7 @@ public:
 
   int Add(int, int, int);
   void ClearArmy();
-  
+  int __thiscall armyGroup::CanJoin(int creatureType);
 };
 
 class hero {
@@ -297,6 +297,12 @@ public:
 
   void PurgeMapChangeQueue();
   void CheckSetEvilInterface(int, int);
+
+  void __thiscall HouseEvent(class hero *, class mapCell *);
+
+  void __thiscall HouseEvent_orig(class hero *, class mapCell *);
+  //Keeping this method just for the Log Cabin; is it supposed to hire Peasants or Dwarves?
+  //It says Peasants but it hires Dwarves :)
 
   void DemobilizeCurrHero();
 
