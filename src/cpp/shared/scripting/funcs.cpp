@@ -683,12 +683,18 @@ static int l_setWitchHutSkill(lua_State *L)
 
 static int l_getSignText(lua_State *L)
 {
+	const char* signTexts[4] = {
+	"See Rock City",
+	"This space for rent",
+	"Next sign 50 miles",
+	"Burma shave"
+	}; //this DOES exist in the original code as off_4F70C8 but I don't know how to use it
 	int x = (int)luaL_checknumber(L, 1);
 	int y = (int)luaL_checknumber(L, 2);
 	mapCell* loc = gpAdvManager->GetCell(x, y);
 	SignExtra* sign = (SignExtra *)ppMapExtra[loc->extraInfo];
 	if (strlen(&sign->message) < 1)
-		lua_pushnil(L);
+		lua_pushstring(L, signTexts[x % 4]);
 	else
 		lua_pushstring(L, &sign->message);
 	return 1;
