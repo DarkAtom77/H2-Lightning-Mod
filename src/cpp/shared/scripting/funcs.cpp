@@ -898,6 +898,32 @@ static int l_setExpansionDwellingQuantity(lua_State *L)
 	return 0;
 }
 
+static int l_getCampfireResource(lua_State *L) {
+	int x = (int)luaL_checknumber(L, 1);
+	int y = (int)luaL_checknumber(L, 2);
+	mapCell* cell = gpAdvManager->GetCell(x, y);
+	lua_pushinteger(L, cell->extraInfo & 15);
+	return 1;
+}
+
+static int l_getCampfireResourceCount(lua_State *L) {
+	int x = (int)luaL_checknumber(L, 1);
+	int y = (int)luaL_checknumber(L, 2);
+	mapCell* cell = gpAdvManager->GetCell(x, y);
+	lua_pushinteger(L, cell->extraInfo >> 4);
+	return 1;
+}
+
+static int l_setCampfireResource(lua_State *L) {
+	int x = (int)luaL_checknumber(L, 1);
+	int y = (int)luaL_checknumber(L, 2);
+	int res = (int)luaL_checknumber(L, 3);
+	int qty = (int)luaL_checknumber(L, 4);
+	mapCell* cell = gpAdvManager->GetCell(x, y);
+	cell->extraInfo = (qty << 4) + res;
+	return 0;
+}
+
 static int l_mapPutArmy(lua_State *L) {
   int x = (int)luaL_checknumber(L, 1);
   int y = (int)luaL_checknumber(L, 2);
@@ -971,6 +997,9 @@ static void register_map_funcs(lua_State *L) {
   lua_register(L, "DwellingHasGuards", l_dwellingHasGuards);
   lua_register(L, "SetDwellingHasGuards", l_setDwellingHasGuards);
   lua_register(L, "SetExpansionDwellingQuantity", l_setExpansionDwellingQuantity);
+  lua_register(L, "GetCampfireResource", l_getCampfireResource);
+  lua_register(L, "GetCampfireResourceCount", l_getCampfireResourceCount);
+  lua_register(L, "SetCampfireResource", l_setCampfireResource);
 }
 
 /************************************** Town *******************************************/
