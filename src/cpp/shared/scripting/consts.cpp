@@ -7,6 +7,7 @@ extern "C" {
 #include "artifacts.h"
 #include "adventure/adv.h"
 #include "adventure/map.h"
+#include "game/game.h"
 #include "combat/creatures.h"
 #include "spell/spells.h"
 #include "scripting/lua_utils.h"
@@ -568,10 +569,18 @@ void set_tooltip_consts(lua_State *L) {
   lua_setconst_nil(L, "TOOLTIP_DEFAULT");
 }
 
+void set_personality_consts(lua_State *L) {
+	lua_setconst(L, "PERSONALITY_WARRIOR", PERSONALITY_WARRIOR);
+	lua_setconst(L, "PERSONALITY_BUILDER", PERSONALITY_BUILDER);
+	lua_setconst(L, "PERSONALITY_EXPLORER", PERSONALITY_EXPLORER);
+	lua_setconst(L, "PERSONALITY_HUMAN", PERSONALITY_HUMAN);
+}
+
 void set_map_consts(lua_State *L) {
   set_location_consts(L);
   set_map_cell_consts(L);
   set_tooltip_consts(L);
+  set_personality_consts(L);
 }
 
 /*************************************************************************************/

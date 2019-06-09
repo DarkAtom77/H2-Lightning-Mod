@@ -110,9 +110,20 @@ static int l_getPlayer(lua_State *L) {
   return 1;
 }
 
+static int l_getPlayerPersonality(lua_State *L) {
+	playerData* p = (playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 1));
+	lua_pushinteger(L, p->personality);
+	return 1;
+}
+
 static int l_getCurrentPlayer(lua_State *L) {
   deepbound_push(L, deepbind<playerData*>(gpCurPlayer));
   return 1;
+}
+
+static int l_getCurrentPlayerNumber(lua_State *L) {
+	lua_pushinteger(L, giCurPlayer);
+	return 1;
 }
 
 static int l_getPlayerColor(lua_State *L) {
@@ -208,7 +219,9 @@ static int l_revealMap(lua_State *L) {
 
 static void register_player_funcs(lua_State *L) {
   lua_register(L, "GetPlayer", l_getPlayer);
+  lua_register(L, "GetPlayerPersonality", l_getPlayerPersonality);
   lua_register(L, "GetCurrentPlayer", l_getCurrentPlayer);
+  lua_register(L, "GetCurrentPlayerNumber", l_getCurrentPlayerNumber);
   lua_register(L, "GetPlayerColor", l_getPlayerColor);
   lua_register(L, "GetNumHeroes", l_getNumHeroes);
   lua_register(L, "GetHero", l_getHero);
