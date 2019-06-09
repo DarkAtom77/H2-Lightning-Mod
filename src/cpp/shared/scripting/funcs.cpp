@@ -681,16 +681,13 @@ static int l_setWitchHutSkill(lua_State *L)
 	return 0;
 }
 
-/*
-TODO: Add correct code for these 2 functions
-
 static int l_getSignText(lua_State *L)
 {
 	int x = (int)luaL_checknumber(L, 1);
 	int y = (int)luaL_checknumber(L, 2);
 	mapCell* loc = gpAdvManager->GetCell(x, y);
 	SignExtra* sign = (SignExtra *)ppMapExtra[loc->extraInfo];
-	if (strlen(&sign->message) <= 1)
+	if (strlen(&sign->message) < 1)
 		lua_pushnil(L);
 	else
 		lua_pushstring(L, &sign->message);
@@ -707,7 +704,6 @@ static int l_setSignText(lua_State *L)
 	strcpy(&sign->message, text);
 	return 0;
 }
-*/
 
 static int l_setPlayerVisitedShrine(lua_State *L)
 {
@@ -952,8 +948,8 @@ static void register_map_funcs(lua_State *L) {
   lua_register(L, "SetShrineSpell", l_setShrineSpell);
   lua_register(L, "GetWitchHutSkill", l_getWitchHutSkill);
   lua_register(L, "SetWitchHutSkill", l_setWitchHutSkill);
-  //lua_register(L, "GetSignText", l_getSignText);
-  //lua_register(L, "SetSignText", l_setSignText);
+  lua_register(L, "GetSignText", l_getSignText);
+  lua_register(L, "SetSignText", l_setSignText);
   lua_register(L, "GetPlayerVisitedShrine", l_getPlayerVisitedShrine);
   lua_register(L, "SetPlayerVisitedShrine", l_setPlayerVisitedShrine);
   lua_register(L, "GetPlayerVisitedWitchHut", l_getPlayerVisitedShrine);
