@@ -924,6 +924,24 @@ static int l_setCampfireResource(lua_State *L) {
 	return 0;
 }
 
+static int l_getLeanToResource(lua_State *L) {
+	int x = (int)luaL_checknumber(L, 1);
+	int y = (int)luaL_checknumber(L, 2);
+	mapCell* cell = gpAdvManager->GetCell(x, y);
+	lua_pushinteger(L, (cell->extraInfo & 15) - 1);
+	return 1;
+}
+
+static int l_setLeanToResource(lua_State *L) {
+	int x = (int)luaL_checknumber(L, 1);
+	int y = (int)luaL_checknumber(L, 2);
+	int res = (int)luaL_checknumber(L, 3);
+	int qty = (int)luaL_checknumber(L, 4);
+	mapCell* cell = gpAdvManager->GetCell(x, y);
+	cell->extraInfo = (qty << 4) + res + 1;
+	return 0;
+}
+
 static int l_mapPutArmy(lua_State *L) {
   int x = (int)luaL_checknumber(L, 1);
   int y = (int)luaL_checknumber(L, 2);
@@ -1000,6 +1018,9 @@ static void register_map_funcs(lua_State *L) {
   lua_register(L, "GetCampfireResource", l_getCampfireResource);
   lua_register(L, "GetCampfireResourceCount", l_getCampfireResourceCount);
   lua_register(L, "SetCampfireResource", l_setCampfireResource);
+  lua_register(L, "GetLeanToResource", l_getLeanToResource);
+  lua_register(L, "GetLeanToResourceCount", l_getCampfireResourceCount);
+  lua_register(L, "SetLeanToResource", l_setLeanToResource);
 }
 
 /************************************** Town *******************************************/
