@@ -812,6 +812,8 @@ static int l_setDwellingQuantity(lua_State *L)
 			cell->extraInfo = qty + 256;
 		else
 			cell->extraInfo = qty;
+	else
+		cell->extraInfo = qty;
 	return 0;
 }
 
