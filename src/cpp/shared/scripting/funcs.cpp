@@ -1039,6 +1039,34 @@ static int l_setWagonArtifact(lua_State *L) {
 	return 0;
 }
 
+static int l_getSkeletonArtifact(lua_State *L) {
+	int x = (int)luaL_checknumber(L, 1);
+	int y = (int)luaL_checknumber(L, 2);
+	mapCell* cell = gpAdvManager->GetCell(x, y);
+	if (cell->objType & 0x7F != LOCATION_SKELETON)
+	{
+		lua_pushnil(L);
+		return 1;
+	}
+	int artifact = cell->extraInfo;
+	artifact -= 2;
+	//the value cannot be pushed directly; cell->extraInfo is unsigned
+	//when it is 1 (empty Skeleton), the value pushed would not be -1, but rather 4294967295
+	lua_pushinteger(L, artifact);
+	return 1;
+}
+
+static int l_setSkeletonArtifact(lua_State *L) {
+	int x = (int)luaL_checknumber(L, 1);
+	int y = (int)luaL_checknumber(L, 2);
+	int artifact = (int)luaL_checknumber(L, 3);
+	mapCell* cell = gpAdvManager->GetCell(x, y);
+	if (cell->objType & 0x7F != LOCATION_SKELETON)
+		return 0;
+	cell->extraInfo = artifact + 2;
+	return 0;
+}
+
 static int l_mapPutArmy(lua_State *L) {
   int x = (int)luaL_checknumber(L, 1);
   int y = (int)luaL_checknumber(L, 2);
@@ -1124,6 +1152,8 @@ static void register_map_funcs(lua_State *L) {
   lua_register(L, "GetWagonArtifact", l_getWagonArtifact);
   lua_register(L, "SetWagonResource", l_setWagonResource);
   lua_register(L, "SetWagonArtifact", l_setWagonArtifact);
+  lua_register(L, "GetSkeletonArtifact", l_getSkeletonArtifact);
+  lua_register(L, "SetSkeletonArtifact", l_setSkeletonArtifact);
 }
 
 /************************************** Town *******************************************/

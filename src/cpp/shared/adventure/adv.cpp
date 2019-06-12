@@ -723,3 +723,36 @@ int GetWagonType(int x, int y)
 	else
 		return 1;
 }
+
+bool isDwelling(int x, int y)
+{
+	//This function has no use yet
+	mapCell* cell = gpAdvManager->GetCell(x, y);
+	int locationType = cell->objType & 0x7F;
+	switch (locationType)
+	{
+	case LOCATION_ANCIENT_LAMP:
+	case LOCATION_ARCHERS_HOUSE:
+	case LOCATION_GOBLIN_HUT:
+	case LOCATION_DWARF_COTTAGE:
+	case LOCATION_PEASANT_HUT:
+	case LOCATION_LOG_CABIN:
+	case LOCATION_DRAGON_CITY:
+	case LOCATION_DESERT_TENT:
+	case LOCATION_WAGON_CAMP:
+	case LOCATION_WATCH_TOWER:
+	case LOCATION_TREE_HOUSE:
+	case LOCATION_TREE_CITY:
+	case LOCATION_RUINS:
+	case LOCATION_DWARF_CABIN:
+	case LOCATION_HALFLING_HOLE:
+	case LOCATION_CITY_OF_DEAD:
+	case LOCATION_EXCAVATION:
+	case LOCATION_TROLL_BRIDGE:
+	case LOCATION_EXPANSION_DWELLING:
+		//hopefully these are all of them
+		return true;
+	default:
+		return false;
+	}
+}
