@@ -710,3 +710,16 @@ void SetWitchHutSkill(int x, int y, int skill)
 	if (locationType == LOCATION_WITCH_HUT)
 		cell->extraInfo = skill;
 }
+
+int GetWagonType(int x, int y)
+{
+	mapCell* cell = gpAdvManager->GetCell(x, y);
+	if (cell->objType & 0x7F != LOCATION_WAGON)
+		return -1;
+	if (cell->extraInfo == 0)
+		return 0;
+	else if (cell->extraInfo & 0x80)
+		return 2;
+	else
+		return 1;
+}

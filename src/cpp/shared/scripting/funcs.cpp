@@ -902,7 +902,12 @@ static int l_getCampfireResource(lua_State *L) {
 	int x = (int)luaL_checknumber(L, 1);
 	int y = (int)luaL_checknumber(L, 2);
 	mapCell* cell = gpAdvManager->GetCell(x, y);
-	lua_pushinteger(L, cell->extraInfo & 15);
+	if (cell->objType & 0x7F != LOCATION_CAMPFIRE)
+	{
+		lua_pushnil(L);
+		return 1;
+	}
+	lua_pushinteger(L, cell->extraInfo & 0xF);
 	return 1;
 }
 
@@ -910,6 +915,11 @@ static int l_getCampfireResourceCount(lua_State *L) {
 	int x = (int)luaL_checknumber(L, 1);
 	int y = (int)luaL_checknumber(L, 2);
 	mapCell* cell = gpAdvManager->GetCell(x, y);
+	if (cell->objType & 0x7F != LOCATION_CAMPFIRE)
+	{
+		lua_pushnil(L);
+		return 1;
+	}
 	lua_pushinteger(L, cell->extraInfo >> 4);
 	return 1;
 }
@@ -920,6 +930,8 @@ static int l_setCampfireResource(lua_State *L) {
 	int res = (int)luaL_checknumber(L, 3);
 	int qty = (int)luaL_checknumber(L, 4);
 	mapCell* cell = gpAdvManager->GetCell(x, y);
+	if (cell->objType & 0x7F != LOCATION_CAMPFIRE)
+		return 0;
 	cell->extraInfo = (qty << 4) + res;
 	return 0;
 }
@@ -928,7 +940,15 @@ static int l_getLeanToResource(lua_State *L) {
 	int x = (int)luaL_checknumber(L, 1);
 	int y = (int)luaL_checknumber(L, 2);
 	mapCell* cell = gpAdvManager->GetCell(x, y);
-	lua_pushinteger(L, (cell->extraInfo & 15) - 1);
+	if (cell->objType & 0x7F != LOCATION_LEAN_TO)
+	{
+		lua_pushnil(L);
+		return 1;
+	}
+	if (cell->extraInfo == 0)
+		lua_pushinteger(L, -1);
+	else
+		lua_pushinteger(L, (cell->extraInfo & 0xF) - 1);
 	return 1;
 }
 
@@ -938,7 +958,84 @@ static int l_setLeanToResource(lua_State *L) {
 	int res = (int)luaL_checknumber(L, 3);
 	int qty = (int)luaL_checknumber(L, 4);
 	mapCell* cell = gpAdvManager->GetCell(x, y);
+	if (cell->objType & 0x7F != LOCATION_LEAN_TO)
+		return 0;
 	cell->extraInfo = (qty << 4) + res + 1;
+	return 0;
+}
+
+static int l_getWagonType(lua_State *L) {
+	int x = (int)luaL_checknumber(L, 1);
+	int y = (int)luaL_checknumber(L, 2);
+	int type = GetWagonType(x, y);
+	if (type == -1)
+		lua_pushnil(L);
+	else
+		lua_pushinteger(L, type);
+	return 1;
+}
+
+static int l_getWagonResource(lua_State *L) {
+	int x = (int)luaL_checknumber(L, 1);
+	int y = (int)luaL_checknumber(L, 2);
+	int type = GetWagonType(x, y);
+	if (type != 1)
+		lua_pushnil(L);
+	else
+		lua_pushinteger(L, (gpAdvManager->GetCell(x, y)->extraInfo & 0xF) - 1);
+	return 1;
+}
+
+static int l_getWagonResourceCount(lua_State *L) {
+	int x = (int)luaL_checknumber(L, 1);
+	int y = (int)luaL_checknumber(L, 2);
+	int type = GetWagonType(x, y);
+	if (type != 1)
+		lua_pushnil(L);
+	else
+		lua_pushinteger(L, gpAdvManager->GetCell(x, y)->extraInfo >> 4);
+	return 1;
+}
+
+static int l_getWagonArtifact(lua_State *L) {
+	int x = (int)luaL_checknumber(L, 1);
+	int y = (int)luaL_checknumber(L, 2);
+	int type = GetWagonType(x, y);
+	if (type != 2)
+		lua_pushnil(L);
+	else
+		lua_pushinteger(L, gpAdvManager->GetCell(x, y)->extraInfo & 0x7F);
+	return 1;
+}
+
+static int l_setWagonResource(lua_State *L) {
+	int x = (int)luaL_checknumber(L, 1);
+	int y = (int)luaL_checknumber(L, 2);
+	int res = (int)luaL_checknumber(L, 3);
+	int count = (int)luaL_checknumber(L, 4);
+	mapCell* cell = gpAdvManager->GetCell(x, y);
+	if (count > 7)
+		count = 7;
+	if (cell->objType & 0x7F != LOCATION_WAGON)
+		return 0;
+	if (res < 0 || count <= 0)
+		cell->extraInfo = 0;
+	else
+		cell->extraInfo = (count << 4) + res + 1;
+	return 0;
+}
+
+static int l_setWagonArtifact(lua_State *L) {
+	int x = (int)luaL_checknumber(L, 1);
+	int y = (int)luaL_checknumber(L, 2);
+	int artifact = (int)luaL_checknumber(L, 3);
+	mapCell* cell = gpAdvManager->GetCell(x, y);
+	if (cell->objType & 0x7F != LOCATION_WAGON)
+		return 0;
+	if (artifact < 0)
+		cell->extraInfo = 0;
+	else
+		cell->extraInfo = (artifact & 0x7F) | 0x80;
 	return 0;
 }
 
@@ -1021,6 +1118,12 @@ static void register_map_funcs(lua_State *L) {
   lua_register(L, "GetLeanToResource", l_getLeanToResource);
   lua_register(L, "GetLeanToResourceCount", l_getCampfireResourceCount);
   lua_register(L, "SetLeanToResource", l_setLeanToResource);
+  lua_register(L, "GetWagonType", l_getWagonType);
+  lua_register(L, "GetWagonResource", l_getWagonResource);
+  lua_register(L, "GetWagonResourceCount", l_getWagonResourceCount);
+  lua_register(L, "GetWagonArtifact", l_getWagonArtifact);
+  lua_register(L, "SetWagonResource", l_setWagonResource);
+  lua_register(L, "SetWagonArtifact", l_setWagonArtifact);
 }
 
 /************************************** Town *******************************************/

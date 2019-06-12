@@ -432,6 +432,7 @@ void set_resources_consts(lua_State *L) {
   lua_setconst(L, "RESOURCE_ORE", RESOURCE_ORE);
   lua_setconst(L, "RESOURCE_SULFUR", RESOURCE_SULFUR);
   lua_setconst(L, "RESOURCE_CRYSTALS", RESOURCE_CRYSTAL);
+  lua_setconst(L, "RESOURCE_CRYSTAL", RESOURCE_CRYSTAL);
   lua_setconst(L, "RESOURCE_GEMS", RESOURCE_GEMS);
   lua_setconst(L, "RESOURCE_GOLD", RESOURCE_GOLD);
 }
