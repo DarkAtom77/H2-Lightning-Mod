@@ -231,6 +231,7 @@ public:
   signed char Stats(int);
   signed char GetSSLevel(int);
   void SetSS(int, int);
+  void __thiscall CheckLevel_orig(void);
   void CheckLevel();
   int GiveSS(int, int);
   void ClearSS();

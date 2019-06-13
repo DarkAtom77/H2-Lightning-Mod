@@ -255,6 +255,8 @@ IMPORT_?gAlignmentNames@@3PAPADA = 1
 IMPORT_?gHeroSkillBonus@@3PAY113CA = 1
 IMPORT_?cHeroTypeShortName@@3PAPADA = 1
 IMPORT_?captainStats@@3PAY03CA = 1
+IMPORT_?CheckLevel@hero@@QAEXXZ = 1
+?CheckLevel@hero@@QAEXXZ_clone EQU ?CheckLevel_orig@hero@@QAEXXZ
 
 ;; adventure map
 IMPORT_?SetVisibility@game@@QAEXHHHH@Z = 1

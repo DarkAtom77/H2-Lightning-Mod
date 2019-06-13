@@ -7,6 +7,7 @@
 
 #include "adventure/adv.h"
 #include "game/game.h"
+#include "scripting/callback.h"
 
 #include<io.h>
 #include<stddef.h>
@@ -322,6 +323,14 @@ HeroExtraII::HeroExtraII(hero* hro) : hro(*hro)
 			sex = Sex::Male;
 			break;
 	}
+}
+
+void hero::CheckLevel(void)
+{
+	ScriptCallback("OnHeroLevelUp", this->heroID);
+	//Unfortunately, this gets called at the start of the map as well
+	//But not on the first loading of a map
+	CheckLevel_orig();
 }
 
 HeroExtraII::HeroExtraII(hero& hro) : hro(hro)
