@@ -1093,6 +1093,81 @@ static int l_setResourcePileCount(lua_State *L)
 	return 0;
 }
 
+static int l_getTreasureChestType(lua_State *L)
+{
+	int x = (int)luaL_checknumber(L, 1);
+	int y = (int)luaL_checknumber(L, 2);
+	mapCell* cell = gpAdvManager->GetCell(x, y);
+	if ((cell->objType & 0x7F) != LOCATION_TREASURE_CHEST)
+	{
+		lua_pushnil(L);
+		return 1;
+	}
+	if (cell->extraInfo & 0x100)
+		lua_pushinteger(L, 2);
+	else
+		lua_pushinteger(L, 1);
+	return 1;
+}
+
+static int l_getTreasureChestLevel(lua_State *L)
+{
+	int x = (int)luaL_checknumber(L, 1);
+	int y = (int)luaL_checknumber(L, 2);
+	mapCell* cell = gpAdvManager->GetCell(x, y);
+	if ((cell->objType & 0x7F) != LOCATION_TREASURE_CHEST)
+	{
+		lua_pushnil(L);
+		return 1;
+	}
+	if (cell->extraInfo & 0x100)
+		lua_pushnil(L);
+	else
+		lua_pushinteger(L, cell->extraInfo);
+	return 1;
+}
+
+static int l_getTreasureChestArtifact(lua_State *L)
+{
+	int x = (int)luaL_checknumber(L, 1);
+	int y = (int)luaL_checknumber(L, 2);
+	mapCell* cell = gpAdvManager->GetCell(x, y);
+	if ((cell->objType & 0x7F) != LOCATION_TREASURE_CHEST)
+	{
+		lua_pushnil(L);
+		return 1;
+	}
+	if (cell->extraInfo & 0x100)
+		lua_pushinteger(L, cell->extraInfo ^ 0x100);
+	else
+		lua_pushnil(L);
+	return 1;
+}
+
+static int l_setTreasureChestLevel(lua_State *L)
+{
+	int x = (int)luaL_checknumber(L, 1);
+	int y = (int)luaL_checknumber(L, 2);
+	int lvl = (int)luaL_checknumber(L, 3);
+	mapCell* cell = gpAdvManager->GetCell(x, y);
+	if ((cell->objType & 0x7F) != LOCATION_TREASURE_CHEST)
+		return 0;
+	cell->extraInfo = lvl;
+	return 0;
+}
+
+static int l_setTreasureChestArtifact(lua_State *L)
+{
+	int x = (int)luaL_checknumber(L, 1);
+	int y = (int)luaL_checknumber(L, 2);
+	int artifact = (int)luaL_checknumber(L, 3);
+	mapCell* cell = gpAdvManager->GetCell(x, y);
+	if ((cell->objType & 0x7F) != LOCATION_TREASURE_CHEST)
+		return 0;
+	cell->extraInfo = artifact | 0x100;
+	return 0;
+}
+
 static int l_mapPutArmy(lua_State *L) {
   int x = (int)luaL_checknumber(L, 1);
   int y = (int)luaL_checknumber(L, 2);
@@ -1182,6 +1257,11 @@ static void register_map_funcs(lua_State *L) {
   lua_register(L, "SetSkeletonArtifact", l_setSkeletonArtifact);
   lua_register(L, "GetResourcePileCount", l_getResourcePileCount);
   lua_register(L, "SetResourcePileCount", l_setResourcePileCount);
+  lua_register(L, "GetTreasureChestType", l_getTreasureChestType);
+  lua_register(L, "GetTreasureChestLevel", l_getTreasureChestLevel);
+  lua_register(L, "GetTreasureChestArtifact", l_getTreasureChestArtifact);
+  lua_register(L, "SetTreasureChestLevel", l_setTreasureChestLevel);
+  lua_register(L, "SetTreasureChestArtifact", l_setTreasureChestArtifact);
 }
 
 /************************************** Town *******************************************/
