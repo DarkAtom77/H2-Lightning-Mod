@@ -915,7 +915,7 @@ static int l_getCampfireResourceCount(lua_State *L) {
 	int x = (int)luaL_checknumber(L, 1);
 	int y = (int)luaL_checknumber(L, 2);
 	mapCell* cell = gpAdvManager->GetCell(x, y);
-	if ((cell->objType & 0x7F) != LOCATION_CAMPFIRE)
+	if ((cell->objType & 0x7F) != LOCATION_CAMPFIRE && (cell->objType & 0x7F) != LOCATION_LEAN_TO)
 	{
 		lua_pushnil(L);
 		return 1;
