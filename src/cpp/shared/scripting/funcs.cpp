@@ -902,7 +902,7 @@ static int l_getCampfireResource(lua_State *L) {
 	int x = (int)luaL_checknumber(L, 1);
 	int y = (int)luaL_checknumber(L, 2);
 	mapCell* cell = gpAdvManager->GetCell(x, y);
-	if (cell->objType & 0x7F != LOCATION_CAMPFIRE)
+	if ((cell->objType & 0x7F) != LOCATION_CAMPFIRE)
 	{
 		lua_pushnil(L);
 		return 1;
@@ -915,7 +915,7 @@ static int l_getCampfireResourceCount(lua_State *L) {
 	int x = (int)luaL_checknumber(L, 1);
 	int y = (int)luaL_checknumber(L, 2);
 	mapCell* cell = gpAdvManager->GetCell(x, y);
-	if (cell->objType & 0x7F != LOCATION_CAMPFIRE)
+	if ((cell->objType & 0x7F) != LOCATION_CAMPFIRE)
 	{
 		lua_pushnil(L);
 		return 1;
@@ -930,7 +930,7 @@ static int l_setCampfireResource(lua_State *L) {
 	int res = (int)luaL_checknumber(L, 3);
 	int qty = (int)luaL_checknumber(L, 4);
 	mapCell* cell = gpAdvManager->GetCell(x, y);
-	if (cell->objType & 0x7F != LOCATION_CAMPFIRE)
+	if ((cell->objType & 0x7F) != LOCATION_CAMPFIRE)
 		return 0;
 	cell->extraInfo = (qty << 4) + res;
 	return 0;
@@ -940,7 +940,7 @@ static int l_getLeanToResource(lua_State *L) {
 	int x = (int)luaL_checknumber(L, 1);
 	int y = (int)luaL_checknumber(L, 2);
 	mapCell* cell = gpAdvManager->GetCell(x, y);
-	if (cell->objType & 0x7F != LOCATION_LEAN_TO)
+	if ((cell->objType & 0x7F) != LOCATION_LEAN_TO)
 	{
 		lua_pushnil(L);
 		return 1;
@@ -958,7 +958,7 @@ static int l_setLeanToResource(lua_State *L) {
 	int res = (int)luaL_checknumber(L, 3);
 	int qty = (int)luaL_checknumber(L, 4);
 	mapCell* cell = gpAdvManager->GetCell(x, y);
-	if (cell->objType & 0x7F != LOCATION_LEAN_TO)
+	if ((cell->objType & 0x7F) != LOCATION_LEAN_TO)
 		return 0;
 	cell->extraInfo = (qty << 4) + res + 1;
 	return 0;
@@ -1016,7 +1016,7 @@ static int l_setWagonResource(lua_State *L) {
 	mapCell* cell = gpAdvManager->GetCell(x, y);
 	if (count > 7)
 		count = 7;
-	if (cell->objType & 0x7F != LOCATION_WAGON)
+	if ((cell->objType & 0x7F) != LOCATION_WAGON)
 		return 0;
 	if (res < 0 || count <= 0)
 		cell->extraInfo = 0;
@@ -1030,7 +1030,7 @@ static int l_setWagonArtifact(lua_State *L) {
 	int y = (int)luaL_checknumber(L, 2);
 	int artifact = (int)luaL_checknumber(L, 3);
 	mapCell* cell = gpAdvManager->GetCell(x, y);
-	if (cell->objType & 0x7F != LOCATION_WAGON)
+	if ((cell->objType & 0x7F) != LOCATION_WAGON)
 		return 0;
 	if (artifact < 0)
 		cell->extraInfo = 0;
@@ -1043,7 +1043,7 @@ static int l_getSkeletonArtifact(lua_State *L) {
 	int x = (int)luaL_checknumber(L, 1);
 	int y = (int)luaL_checknumber(L, 2);
 	mapCell* cell = gpAdvManager->GetCell(x, y);
-	if (cell->objType & 0x7F != LOCATION_SKELETON)
+	if ((cell->objType & 0x7F) != LOCATION_SKELETON)
 	{
 		lua_pushnil(L);
 		return 1;
@@ -1061,9 +1061,35 @@ static int l_setSkeletonArtifact(lua_State *L) {
 	int y = (int)luaL_checknumber(L, 2);
 	int artifact = (int)luaL_checknumber(L, 3);
 	mapCell* cell = gpAdvManager->GetCell(x, y);
-	if (cell->objType & 0x7F != LOCATION_SKELETON)
+	if ((cell->objType & 0x7F) != LOCATION_SKELETON)
 		return 0;
 	cell->extraInfo = artifact + 2;
+	return 0;
+}
+
+static int l_getResourcePileCount(lua_State *L)
+{
+	int x = (int)luaL_checknumber(L, 1);
+	int y = (int)luaL_checknumber(L, 2);
+	mapCell* cell = gpAdvManager->GetCell(x, y);
+	if ((cell->objType & 0x7F) != LOCATION_RESOURCE)
+	{
+		lua_pushnil(L);
+		return 1;
+	}
+	lua_pushinteger(L, cell->extraInfo);
+	return 1;
+}
+
+static int l_setResourcePileCount(lua_State *L)
+{
+	int x = (int)luaL_checknumber(L, 1);
+	int y = (int)luaL_checknumber(L, 2);
+	int qty = (int)luaL_checknumber(L, 3);
+	mapCell* cell = gpAdvManager->GetCell(x, y);
+	if ((cell->objType & 0x7F) != LOCATION_RESOURCE)
+		return 0;
+	cell->extraInfo = qty;
 	return 0;
 }
 
@@ -1154,6 +1180,8 @@ static void register_map_funcs(lua_State *L) {
   lua_register(L, "SetWagonArtifact", l_setWagonArtifact);
   lua_register(L, "GetSkeletonArtifact", l_getSkeletonArtifact);
   lua_register(L, "SetSkeletonArtifact", l_setSkeletonArtifact);
+  lua_register(L, "GetResourcePileCount", l_getResourcePileCount);
+  lua_register(L, "SetResourcePileCount", l_setResourcePileCount);
 }
 
 /************************************** Town *******************************************/
