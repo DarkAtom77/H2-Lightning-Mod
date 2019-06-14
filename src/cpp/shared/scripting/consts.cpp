@@ -67,20 +67,28 @@ void set_messageboxgroups_consts(lua_State *L) {
 	lua_setconst(L, "IMAGE_ORE", IMAGE_ORE);
 	lua_setconst(L, "IMAGE_SULFUR", IMAGE_SULFUR);
 	lua_setconst(L, "IMAGE_CRYSTALS", IMAGE_CRYSTALS);
+	lua_setconst(L, "IMAGE_CRYSTAL", IMAGE_CRYSTALS);
 	lua_setconst(L, "IMAGE_GEMS", IMAGE_GEMS);
 	lua_setconst(L, "IMAGE_GOLD", IMAGE_GOLD);
 	lua_setconst(L, "IMAGE_GROUP_ARTIFACTS", IMAGE_GROUP_ARTIFACTS);
+	lua_setconst(L, "IMAGE_ARTIFACT", IMAGE_GROUP_ARTIFACTS);
 	lua_setconst(L, "IMAGE_GROUP_SPELLS", IMAGE_GROUP_SPELLS);
+	lua_setconst(L, "IMAGE_SPELL", IMAGE_GROUP_SPELLS);
 	lua_setconst(L, "IMAGE_GROUP_PLAYERS", IMAGE_GROUP_PLAYERS);
+	lua_setconst(L, "IMAGE_PLAYER", IMAGE_GROUP_PLAYERS);
 	lua_setconst(L, "IMAGE_LUCK", IMAGE_LUCK);
 	lua_setconst(L, "IMAGE_BADLUCK", IMAGE_BADLUCK);
 	lua_setconst(L, "IMAGE_GOOD_MORALE", IMAGE_GOOD_MORALE);
 	lua_setconst(L, "IMAGE_BAD_MORALE", IMAGE_BAD_MORALE);
 	lua_setconst(L, "IMAGE_EXP", IMAGE_EXP);
 	lua_setconst(L, "IMAGE_GROUP_HERO", IMAGE_GROUP_HERO);
+	lua_setconst(L, "IMAGE_HERO", IMAGE_GROUP_HERO);
 	lua_setconst(L, "IMAGE_GROUP_SECONDARY_SKILLS", IMAGE_GROUP_SECONDARY_SKILLS);
+	lua_setconst(L, "IMAGE_SECONDARY_SKILL", IMAGE_GROUP_SECONDARY_SKILLS);
 	lua_setconst(L, "IMAGE_GROUP_UNIT", IMAGE_GROUP_UNIT);
+	lua_setconst(L, "IMAGE_CREATURE", IMAGE_GROUP_UNIT);
 	lua_setconst(L, "IMAGE_GROUP_PRIMARY_SKILLS", IMAGE_GROUP_PRIMARY_SKILLS);
+	lua_setconst(L, "IMAGE_PRIMARY_SKILL", IMAGE_GROUP_PRIMARY_SKILLS);
 }
 
 void set_gui_consts(lua_State *L) {
