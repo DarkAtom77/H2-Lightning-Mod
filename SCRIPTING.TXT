@@ -1,0 +1,436 @@
+Functions (C-style types are included for more readability):
+
+Dialogs:
+1. int AdvancedMessageBox(string msg, int dialogType, int pos1, int pos2, int img1Type, int img1Arg, int img2Type, int img2Arg, int writeOr, int a10)
+  Changes from the original:
+  - Now returns values:
+	dialogType = DIALOG_OK: BUTTON_OK
+	dialogType = DIALOG_YES_NO: BUTTON_YES or BUTTON_NO
+	dialogType = 3: BUTTON_CANCEL
+	dialogType = DIALOG_2_LEARN: BUTTON_LEFT_LEARN or BUTTON_RIGHT_LEARN
+	dialogType = DIALOG_LEFT_LEARN: BUTTON_LEFT_LEARN
+  - Convenience constants for parameter writeOr: DIALOG_OR and DIALOG_NO_OR
+
+Player:
+1. int GetPlayerPersonality(player p)
+  Arguments:
+   p: The player to check
+  Return: PERSONALITY_WARRIOR, PERSONALITY_BUILDER, PERSONALITY_EXPLORER or PERSONALITY_HUMAN.
+
+2. int GetCurrentPlayerNumber(void)
+  Return: The player number of the current player.
+  Notes: GetPlayer(GetCurrentPlayerNumber()) returns the same thing as GetCurrentPlayer()
+
+Adventure Map:
+---------------------------------------------------------SHRINES---------------------------------------------------------
+1. int GetShrineSpell(int x, int y)
+  Arguments:
+   x: The X coordinate of the Shrine/Pyramid
+   y: The Y coordinate of the Shrine/Pyramid
+  Return:
+   The spell ID which is located in the specified Shrine/Pyramid
+  Notes: This function works with both Shrines (of any level) and Pyramids
+
+2. void SetShrineSpell(int x, int y, int spell)
+  Arguments:
+   x: The X coordinate of the Shrine/Pyramid
+   y: The Y coordinate of the Shrine/Pyramid
+   spell: The spell to be set (can be of a different level than normal :P)
+  Notes: This function works with both Shrines (of any level) and Pyramids
+
+3. bool GetPlayerVisitedShrine(player p, int x, int y)
+  Arguments:
+   p: The player to check for (use GetPlayer() or GetCurrentPlayer())
+   x: The X coordinate of the Shrine
+   y: The Y coordinate of the Shrine
+  Return: True if the player can see the spell at the shrine (either by having visited it, or by SetPlayerVisitedShrine()), false otherwise.
+  Notes: What this function checks for is actually if the Shrine displays its spell to the specified player (on right-click). Doesn't work with AI (will return false).
+
+4. void SetPlayerVisitedShrine(player p, int x, int y, bool yesno)
+  Arguments:
+   p: The player desired
+   x: The X coordinate of the Shrine
+   y: The Y coordinate of the Shrine
+   yesno: Specifies if it should set to false or true
+  Notes: If you set this to true, the player will be able to see the spell at the said Shrine when right-clicking, even if he didn't visit it. This will not affect the AI in any way.
+  This can also be used to not allow a player to see the spell even after visiting, by setting it to false.
+
+---------------------------------------------------------WITCH's HUTS---------------------------------------------------------
+
+5. int GetWitchHutSkill(int x, int y)
+  Arguments:
+   x: The X coordinate of the Witch's Hut
+   y: The Y coordinate of the Witch's Hut
+  Return: The skill in the Witch's Hut
+
+6. void SetWitchHutSkill(int x, int y, int skill)
+  Arguments:
+   x: The X coordinate of the Witch's Hut
+   y: The Y coordinate of the Witch's Hut
+   skill: The skill to be set (can be any skill, including Necromancy, which cannot appear normally in Witch's Huts)
+
+7. bool GetPlayerVisitedWitchHut(player p, int x, int y)
+  Arguments:
+   p: The player to check for (use GetPlayer() or GetCurrentPlayer())
+   x: The X coordinate of the Witch Hut
+   y: The Y coordinate of the Witch Hut
+  Return: True if the player can see the skill at the witch hut (either by having visited it, or by SetPlayerVisitedWitchHut()), false otherwise.
+  Notes: What this function checks for is actually if the Witch Hut displays its skill to the specified player (on right-click). Doesn't work with AI (will return false).
+
+8. void SetPlayerVisitedWitchHut(player p, int x, int y, bool yesno)
+  Arguments:
+   p: The player desired
+   x: The X coordinate of the Witch Hut
+   y: The Y coordinate of the Witch Hut
+   yesno: Specifies if it should set to false or true
+  Notes: If you set this to true, the player will be able to see the skill at the said Witch Hut when right-clicking, even if he didn't visit it. This will not affect the AI in any way.
+  This can also be used to not allow a player to see the skill even after visiting, by setting it to false.
+
+---------------------------------------------------------ULTIMATE ARTIFACT---------------------------------------------------------
+
+9. int GetUltimateArtifactX(void)
+  Return: The X coordinate of the Ultimate Artifact
+
+10. int GetUltimateArtifactY(void)
+  Return: The Y coordinate of the Ultimate Artifact
+
+11. int GetUltimateArtifact(void)
+  Return: The ID of the Ultimate Artifact
+
+12. void SetUltimateArtifactPos(int x, int y)
+  Arguments:
+   x: The new X coordinate of the Ultimate Artifact
+   y: The new Y coordinate of the Ultimate Artifact
+  Notes: You can even set this to the edge of the map (the Map Editor would complain). The puzzle map adjusts accordingly, even if some pieces were revealed.
+
+13. void SetUltimateArtifact(int artifact)
+  Arguments:
+   artifact: The ID of the new Ultimate Artifact
+  Notes: The artifact doesn't necessarily have to be Ultimate. You can even set it to Tax Lien if you want to :P.
+
+---------------------------------------------------------MINES---------------------------------------------------------
+
+14. int GetMineId(int x, int y)
+  Arguments:
+   x: The X coordinate of the Mine/Lighthouse
+   y: The Y coordinate of the Mine/Lighthouse
+  Return: An ID that identifies the Mine/Lighthouse at the specified location
+  Notes: Because of how the game works, all other mine-related functions require this ID instead of the usual x and y coordinates
+  This functions works with all 8 types of mines (7 resources + abandoned) and Lighthouses as well.
+
+15. int GetMineOwner(int id)
+  Arguments:
+   id: The id of the Mine/Lighthouse
+  Return: The player number of the player who owns the Mine/Lighthouse (or -1 if no one owns it).
+  Notes: This player number can be passed as argument to GetPlayer() to get the player data.
+  This function works with all 7 resource mines (abandoned mines cannot be owned) and Lighthouses.
+
+16. void SetMineOwner(int id, int player)
+  Arguments:
+   id: The id of the Mine/Lighthouse
+   player: The player number of the player who will own the mine
+  Notes: The player number is NOT the player color. It is the number that you pass to GetPlayer() to get the player.
+  If you want the player number for the current player, then use GetCurrentPlayerNumber().
+  The color ID of the purple player is 5, but if that is the human player, the player number is 0.
+  This function works with all 7 resource mines (abandoned mines cannot be owned) and Lighthouses.
+
+17. int GetMineGuards(int id)
+  Arguments:
+   id: The id of the Mine
+  Return: The monster type that guards the mine.
+
+18. int GetMineGuardCount(int id)
+  Arguments:
+   id: The id of the Mine
+  Return: The quantity of monsters that guard the mine.
+
+19. void SetMineGuards(int id, int type, int count)
+  Arguments:
+   id: The id of the Mine
+   type: The type of the monster (for now this can only be Ghosts or Elementals)
+   count: The number of monsters (maximum is 255)
+  Notes: You can set Ghosts but still keep an owner :P (spell Haunt makes the mine unowned). Don't try on Sawmills or Alchemist Labs.
+
+---------------------------------------------------------DWELLINGS---------------------------------------------------------
+
+20. int GetDwellingQuantity(int x, int y)
+  Arguments:
+   x: The X coordinate of the dwelling
+   y: The Y coordinate of the dwelling
+  Return: The number of monsters that can be recruited from the dwelling
+
+21. void SetDwellingQuantity(int x, int y, int qty)
+  Arguments:
+   x: The X coordinate of the dwelling
+   y: The Y coordinate of the dwelling
+   qty: The number of monsters that will be available for recruit
+  Notes: DO NOT use this function for expansion dwellings (elemental altars and barrow mounds). Use SetExpansionDwellingQuantity() instead.
+
+21. void SetExpansionDwellingQuantity(int x, int y, int qty, int creature)
+  Arguments:
+   x: The X coordinate of the dwelling
+   y: The Y coordinate of the dwelling
+   qty: The number of monsters that will be available for recruit
+   creature: The creature that can be recruited
+  Notes: Usually you will want to put the correct creature as parameter, but you can also switch what you can recruit (but only Elementals or Ghosts).
+  I didn't find a way to make the function auto-determine the type of altar/barrow mounds, so you need to explicitly tell it :(.
+
+22. bool DwellingHasGuards(int x, int y)
+  Arguments:
+   x: The X coordinate of the dwelling
+   y: The Y coordinate of the dwelling
+  Return: If the dwelling has guards, it returns true, otherwise false.
+  Notes: Only Troll Bridges, Cities of the Dead and Dragon Cities can have guards. For everything else, the function makes no check and returns false.
+
+23. void SetDwellingHasGuards(int x, int y, bool yesno)
+  Arguments:
+   x: The X coordinate of the dwelling
+   y: The Y coordinate of the dwelling
+   yesno: True if the dwelling should have guards, false otherwise.
+  Notes: Only Troll Bridges, Cities of the Dead and Dragon Cities can have guards. The function ignores any other kind of object.
+  The types of the guards are the regular guards for that specific dwelling.
+
+---------------------------------------------------------SIGNS---------------------------------------------------------
+
+24. string GetSignText(int x, int y)
+  Arguments:
+   x: The X coordinate of the Sign/Bottle
+   y: The Y coordinate of the Sign/Bottle
+  Return: The message that's on the sign. Works with bottles as well (if they are still there).
+
+25. void SetSignText(int x, int y, string msg)
+  Arguments:
+   x: The X coordinate of the Sign/Bottle
+   y: The Y coordinate of the Sign/Bottle
+   msg: The new message
+
+---------------------------------------------------------CAMPFIRES---------------------------------------------------------
+
+26. int GetCampfireResource(int x, int y)
+  Arguments:
+   x: The X coordinate of the Campfire
+   y: The Y coordinate of the Campfire
+  Return: The resource type located at the specified campfire (aside from the Gold).
+
+27. int GetCampfireResourceCount(int x, int y)
+  Arguments:
+   x: The X coordinate of the Campfire
+   y: The Y coordinate of the Campfire
+  Return: The resource amount in the specified campfire. The amount of gold is 100 times this value, while the amount
+  of rare resource is exactly this value.
+
+28. void SetCampfireResource(int x, int y, int resource, int qty)
+  Arguments:
+   x: The X coordinate of the Campfire
+   y: The Y coordinate of the Campfire
+   resource: The additional resource type (aside from gold). This can be gold itself :) (but the amount will not be multiplied by 100)
+   qty: The amount of resources that will be given (qty * 100 gold and qty rare resource)
+
+---------------------------------------------------------LEAN-TO---------------------------------------------------------
+
+29. int GetLeanToResource(int x, int y)
+  Arguments:
+   x: The X coordinate of the Lean-To
+   y: The Y coordinate of the Lean-To
+  Return: The resource type located at the specified Lean-To. -1 if it is empty
+
+27. int GetLeanToResourceCount(int x, int y)
+  Arguments:
+   x: The X coordinate of the Lean-To
+   y: The Y coordinate of the Lean-To
+  Return: The resource amount in the specified Lean-To. 0 if it is empty
+
+28. void SetLeanToResource(int x, int y, int resource, int qty)
+  Arguments:
+   x: The X coordinate of the Lean-To
+   y: The Y coordinate of the Lean-To
+   resource: The resource type (this can also be gold)
+   qty: The amount of resources that will be given
+  Notes: Set resource to -1 and qty to 0 to make the Lean-To empty.
+
+---------------------------------------------------------WAGONS---------------------------------------------------------
+
+29. int GetWagonType(int x, int y)
+  Arguments:
+   x: The X coordinate of the Wagon
+   y: The Y coordinate of the Wagon
+  Return: 0 if the wagon is empty, 1 if the wagon contains a resource, 2 if it contains an artifact
+
+30. int GetWagonResource(int x, int y)
+  Arguments:
+   x: The X coordinate of the Wagon
+   y: The Y coordinate of the Wagon
+  Return: The resource type in the wagon. Returns nil if the wagon's type is not 1 (see GetWagonType())
+
+31. int GetWagonResourceCount(int x, int y)
+  Arguments:
+   x: The X coordinate of the Wagon
+   y: The Y coordinate of the Wagon
+  Return: The resource count in the wagon. Returns nil if the wagon's type is not 1 (see GetWagonType())
+
+32. int GetWagonArtifact(int x, int y)
+  Arguments:
+   x: The X coordinate of the Wagon
+   y: The Y coordinate of the Wagon
+  Return: The artifact in the wagon. Returns nil if the wagon's type is not 2 (see GetWagonType())
+
+33. void SetWagonResource(int x, int y, int resource, int qty)
+  Arguments:
+   x: The X coordinate of the Wagon
+   y: The Y coordinate of the Wagon
+   resource: The resource type
+   qty: The resource count
+  Note: The function auto-sets the type of the wagon to 1. If you set the resource to -1 or the count to 0, the type will be set to 0,
+  and the Wagon will be empty.
+
+34. void SetWagonArtifact(int x, int y, int artifact)
+  Arguments:
+   x: The X coordinate of the Wagon
+   y: The Y coordinate of the Wagon
+   artifact: The artifact ID
+  Note: The function auto-sets the type of the wagon to 2. If you set the artifact to -1, the type will be set to 0, and the Wagon will be empty.
+
+---------------------------------------------------------SKELETONS---------------------------------------------------------
+
+NOTE: ALTHOUGH THE MAP EDITOR HIGHLIGHTS BOTH OF THE CELLS OF THE SKELETON AS TRIGGER CELLS, ONLY THE RIGHT CELL
+ACTIVATES THE SKELETON. USE THOSE COORDINATES FOR THESE FUNCTIONS
+
+35. void GetSkeletonArtifact(int x, int y)
+  Arguments:
+   x: The X coordinate of the Skeleton
+   y: The Y coordinate of the Skeleton
+  Return: The artifact located at the Skeleton, or -1 if it is empty
+
+36. void SetSkeletonArtifact(int x, int y, int artifact)
+  Arguments:
+   x: The X coordinate of the Skeleton
+   y: The Y coordinate of the Skeleton
+   artifact: The artifact ID (or -1 for empty Skeleton)
+
+---------------------------------------------------------RESOURCES---------------------------------------------------------
+
+37. int GetResourcePileCount(int x, int y)
+  Arguments:
+   x: The X coordinate of the resource pile
+   y: The Y coordinate of the resource pile
+  Return: The amount of resources in the pile
+
+38. void SetResourcePileCount(int x, int y, int qty)
+  Arguments:
+   x: The X coordinate of the resource pile
+   y: The Y coordinate of the resource pile
+   qty: The amount of resources to be set
+
+---------------------------------------------------------TREASURE CHESTS---------------------------------------------------------
+
+
+39. int GetTreasureChestType(int x, int y)
+  Arguments:
+   x: The X coordinate of the Treasure Chest
+   y: The Y coordinate of the Treasure Chest
+  Return:  1 if the chest contains a gold/exp, 2 if it contains an artifact
+
+30. int GetTreasureChestLevel(int x, int y)
+  Arguments:
+   x: The X coordinate of the Treasure Chest
+   y: The Y coordinate of the Treasure Chest
+  Return: The level of the chest. Returns nil if the chest's type is not 1 (see GetTreasureChestType()).
+  The amount of gold is level * 500. The amount of exp is (level * 500) - 500. Standard chests use levels 2, 3 and 4.
+
+31. int GetTreasureChestArtifact(int x, int y)
+  Arguments:
+   x: The X coordinate of the Treasure Chest
+   y: The Y coordinate of the Treasure Chest
+  Return: The artifact in the chest. Returns nil if the chest's type is not 2 (see GetTreasureChestType())
+
+33. void SetTreasureChestLevel(int x, int y, int lvl)
+  Arguments:
+   x: The X coordinate of the Treasure Chest
+   y: The Y coordinate of the Treasure Chest
+   lvl: The level of the chest (0-255)
+  Note: The function auto-sets the type of the chest to 1. Gold amount = lvl * 500. Exp amount = lvl * 500 - 500.
+  At level 0, you get 0 gold or -500 experience. The regular chests use levels 2, 3 and 4.
+
+34. void SetTreasureChestArtifact(int x, int y, int artifact)
+  Arguments:
+   x: The X coordinate of the Treasure Chest
+   y: The Y coordinate of the Treasure Chest
+   artifact: The artifact ID
+  Note: The function auto-sets the type of the wagon to 2.
+
+Hero:
+1. bool HasSpell(hero hro, int spell)
+  Arguments:
+   hro: The hero to be checked
+   spell: The spell to check for
+  Return:
+   True if the hero has the spell, false otherwise. Note that sources like spell scrolls are ignored (see HasSpellScroll())
+
+2. bool HasSpellScroll(hero hro, int spell)
+  Arguments:
+   hro: The hero to be checked
+   spell: The spell to check for
+  Return:
+   True if the hero has at least one of the specified scroll, false otherwise
+
+3. int GetArtifactAtIndex(hero hro, int idx)
+  Arguments:
+   hro: The hero to be searched
+   idx: The artifact slot to be searched (0-13)
+  Return:
+   The artifact that is located in the specified artifact slot. -1 if there is no artifact
+
+4. int GetHeroSex(hero hro) - EXPERIMENTAL
+  Arguments:
+   hro: The hero in question
+  Return:
+   Either SEX_MALE or SEX_FEMALE
+  Notes:
+   By default, the sex of a hero is determined by its portrait
+
+5. void SetHeroSex(hero hro, int sex) - EXPERIMENTAL
+  Arguments:
+   hro: The hero in question
+   sex: The new sex (either SEX_MALE or SEX_FEMALE)
+
+Miscellaneous:
+1. int GetSpellLevel(int spell)
+  Arguments:
+   spell: The spell to check the level for
+  Return:
+   The level of the spell (1-5).
+
+2. string GetSpellName(int spell)
+  Arguments:
+   spell: The spell to get the name for
+  Return:
+   The name of the spell (e.g. for SPELL_LIGHTNING_BOLT, the name is "Lightning Bolt")
+
+3. string GetArtifactName(int artifact)
+  Arguments:
+   artifact: The artifact to get the name for
+  Return:
+   The name of the artifact (e.g. for ARTIFACT_MAGES_RING_OF_POWER, the name is "Mage's Ring of Power")
+  Notes:
+   The game will crash if the argument is not a valid artifact number. Check it first.
+
+Callbacks:
+1. void AfterLocationVisit(int loc, int x, int y)
+ Arguments:
+  loc: This will contain the location type
+  x: The X coordinate of the location
+  y: The Y coordinate of the location
+ Notes: This triggers AFTER the object event has been done.
+
+2. void OnHeroDig(int x, int y)
+ Arguments:
+  x: The X coordinate of the location
+  y: The Y coordinate of the location
+ Notes: This triggers before the digging event occurs
+
+3. void OnHeroLevelUp(int heroID) - EXPERIMENTAL
+ Arguments:
+  heroID: The ID of the hero who gets the level up
+ Notes:
+  Very buggy. This will trigger for every hero at the start of the map, unless it is the first time a map is started.
+  TODO: Add the primary skill gained and the secondary skills offered as parameters

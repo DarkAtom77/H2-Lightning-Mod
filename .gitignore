@@ -44,4 +44,5 @@ ipch/
 [Bb]uild/
 
 *.DS_STORE
-SCRIPTING.TXT
+
+# SCRIPTING.TXT
