@@ -393,6 +393,20 @@ Hero:
    hro: The hero in question
    sex: The new sex (either SEX_MALE or SEX_FEMALE)
 
+Town:
+1. bool GetBuildingFlag(town twn)
+  Arguments:
+   twn: The town in question
+  Return:
+   True if a building can be built in the specified town in that turn
+
+2. void SetBuildingFlag(town twn, bool yesno)
+  Arguments:
+   twn: The town in question
+   yesno: False to give the ability to build, true to take it
+  Notes:
+   This function can be used for giving a player to build twice per day in a town (or never :P).
+
 Miscellaneous:
 1. int GetSpellLevel(int spell)
   Arguments:
@@ -427,10 +441,3 @@ Callbacks:
   x: The X coordinate of the location
   y: The Y coordinate of the location
  Notes: This triggers before the digging event occurs
-
-3. void OnHeroLevelUp(int heroID) - EXPERIMENTAL
- Arguments:
-  heroID: The ID of the hero who gets the level up
- Notes:
-  Very buggy. This will trigger for every hero at the start of the map, unless it is the first time a map is started.
-  TODO: Add the primary skill gained and the secondary skills offered as parameters

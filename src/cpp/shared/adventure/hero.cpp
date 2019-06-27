@@ -327,7 +327,7 @@ HeroExtraII::HeroExtraII(hero* hro) : hro(*hro)
 
 void hero::CheckLevel(void)
 {
-	ScriptCallback("OnHeroLevelUp", this->heroID);
+	//ScriptCallback("OnHeroLevelUp", this->heroID); - removed for now; it is not useful at this point
 	//Unfortunately, this gets called at the start of the map as well
 	//But not on the first loading of a map
 	CheckLevel_orig();
