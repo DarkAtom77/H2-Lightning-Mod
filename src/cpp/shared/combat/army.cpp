@@ -1569,7 +1569,8 @@ void army::SpecialAttack() {
           if (!gArmyEffected[targ->owningSide][targ->stackIdx]) {
             if (target != targ || i == 6) {
               gArmyEffected[targ->owningSide][targ->stackIdx] = 1;
-              this->DamageEnemy(targ, &damageDone, &creaturesKilled, 1, 0);
+			  if (!(targ->creature.creature_flags & UNDEAD) || i == 6)
+			      this->DamageEnemy(targ, &damageDone, &creaturesKilled, 1, 0);
             }
           }
         }
