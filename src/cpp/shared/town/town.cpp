@@ -610,3 +610,24 @@ int recruitUnit::Open(int x) {
   ScriptCallback("OnUnitRecruit", this->creatureType);
   return this->Open_orig(x);
 }
+
+
+bool town::GetBuildingFlag()
+{
+	int index = this->idx / 8;
+	char bit = this->idx % 8;
+	if (gpGame->builtThisDay[index] & (1 << bit))
+		return true;
+	else
+		return false;
+}
+
+void town::SetBuildingFlag(bool yesno)
+{
+	int index = this->idx / 8;
+	char bit = this->idx % 8;
+	if (yesno)
+		gpGame->builtThisDay[index] |= (1 << bit);
+	else
+		gpGame->builtThisDay[index] &= ~(1 << bit);
+}

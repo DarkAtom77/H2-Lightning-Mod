@@ -2019,22 +2019,22 @@ namespace ironfist_save
     this->field_2773_ = s;
   }
 
-  const gamestate_t::field_27BB_sequence& gamestate_t::
-  field_27BB () const
+  const gamestate_t::builtThisDay_sequence& gamestate_t::
+  builtThisDay () const
   {
-    return this->field_27BB_;
+    return this->builtThisDay_;
   }
 
-  gamestate_t::field_27BB_sequence& gamestate_t::
-  field_27BB ()
+  gamestate_t::builtThisDay_sequence& gamestate_t::
+  builtThisDay ()
   {
-    return this->field_27BB_;
+    return this->builtThisDay_;
   }
 
   void gamestate_t::
-  field_27BB (const field_27BB_sequence& s)
+  builtThisDay (const builtThisDay_sequence& s)
   {
-    this->field_27BB_ = s;
+    this->builtThisDay_ = s;
   }
 
   const gamestate_t::field_60A6_sequence& gamestate_t::
@@ -6955,7 +6955,7 @@ namespace ironfist_save
     difficulty_ (difficulty, ::xml_schema::flags (), this),
     mapFilename_ (mapFilename, ::xml_schema::flags (), this),
     field_2773_ (::xml_schema::flags (), this),
-    field_27BB_ (::xml_schema::flags (), this),
+    builtThisDay_ (::xml_schema::flags (), this),
     field_60A6_ (::xml_schema::flags (), this),
     randomArtifacts_ (::xml_schema::flags (), this),
     boatBuilt_ (::xml_schema::flags (), this),
@@ -7015,7 +7015,7 @@ namespace ironfist_save
     difficulty_ (x.difficulty_, f, this),
     mapFilename_ (x.mapFilename_, f, this),
     field_2773_ (x.field_2773_, f, this),
-    field_27BB_ (x.field_27BB_, f, this),
+    builtThisDay_ (x.builtThisDay_, f, this),
     field_60A6_ (x.field_60A6_, f, this),
     randomArtifacts_ (x.randomArtifacts_, f, this),
     boatBuilt_ (x.boatBuilt_, f, this),
@@ -7075,7 +7075,7 @@ namespace ironfist_save
     difficulty_ (f, this),
     mapFilename_ (f, this),
     field_2773_ (f, this),
-    field_27BB_ (f, this),
+    builtThisDay_ (f, this),
     field_60A6_ (f, this),
     randomArtifacts_ (f, this),
     boatBuilt_ (f, this),
@@ -7501,14 +7501,14 @@ namespace ironfist_save
         continue;
       }
 
-      // field_27BB
+      // builtThisDay
       //
-      if (n.name () == "field_27BB" && n.namespace_ ().empty ())
+      if (n.name () == "builtThisDay" && n.namespace_ ().empty ())
       {
-        ::std::auto_ptr< field_27BB_type > r (
-          field_27BB_traits::create (i, f, this));
+        ::std::auto_ptr< builtThisDay_type > r (
+          builtThisDay_traits::create (i, f, this));
 
-        this->field_27BB_.push_back (r);
+        this->builtThisDay_.push_back (r);
         continue;
       }
 
@@ -14768,15 +14768,15 @@ namespace ironfist_save
       s << *b;
     }
 
-    // field_27BB
+    // builtThisDay
     //
-    for (gamestate_t::field_27BB_const_iterator
-         b (i.field_27BB ().begin ()), n (i.field_27BB ().end ());
+    for (gamestate_t::builtThisDay_const_iterator
+         b (i.builtThisDay ().begin ()), n (i.builtThisDay ().end ());
          b != n; ++b)
     {
       ::xercesc::DOMElement& s (
         ::xsd::cxx::xml::dom::create_element (
-          "field_27BB",
+          "builtThisDay",
           e));
 
       s << *b;

@@ -1429,6 +1429,23 @@ static int l_getGuildSpell(lua_State *L) {
   return 1;
 }
 
+static int l_getBuildingFlag(lua_State *L) {
+	town* twn = (town*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 1));
+	bool yesno = twn->GetBuildingFlag();
+	lua_pushboolean(L, yesno);
+	return 1;
+}
+
+static int l_setBuildingFlag(lua_State *L) {
+	town* twn = (town*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 2));
+	if (lua_isboolean(L, 2))
+	{
+		bool yesno = lua_toboolean(L, 2);
+		twn->SetBuildingFlag(yesno);
+	}
+	return 0;
+}
+
 static void register_town_funcs(lua_State *L) {
   lua_register(L, "GetCurrentTown", l_getCurrentTown);
   lua_register(L, "HasVisitingHero", l_hasVisitingHero);
@@ -1452,6 +1469,8 @@ static void register_town_funcs(lua_State *L) {
   lua_register(L, "SetNumGuildSpells", l_setNumGuildSpells);
   lua_register(L, "SetGuildSpell", l_setGuildSpell);
   lua_register(L, "GetGuildSpell", l_getGuildSpell);
+  lua_register(L, "GetBuildingFlag", l_getBuildingFlag);
+  lua_register(L, "SetBuildingFlag", l_setBuildingFlag);
 }
 
 /************************************* Battle ******************************************/

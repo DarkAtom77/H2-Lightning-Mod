@@ -2180,22 +2180,22 @@ namespace ironfist_save
     void
     field_2773 (const field_2773_sequence& s);
 
-    // field_27BB
+    // builtThisDay
     // 
-    typedef ::ironfist_save::arrayInt_t field_27BB_type;
-    typedef ::xsd::cxx::tree::sequence< field_27BB_type > field_27BB_sequence;
-    typedef field_27BB_sequence::iterator field_27BB_iterator;
-    typedef field_27BB_sequence::const_iterator field_27BB_const_iterator;
-    typedef ::xsd::cxx::tree::traits< field_27BB_type, char > field_27BB_traits;
+    typedef ::ironfist_save::arrayInt_t builtThisDay_type;
+    typedef ::xsd::cxx::tree::sequence< builtThisDay_type > builtThisDay_sequence;
+    typedef builtThisDay_sequence::iterator builtThisDay_iterator;
+    typedef builtThisDay_sequence::const_iterator builtThisDay_const_iterator;
+    typedef ::xsd::cxx::tree::traits< builtThisDay_type, char > builtThisDay_traits;
 
-    const field_27BB_sequence&
-    field_27BB () const;
+    const builtThisDay_sequence&
+    builtThisDay () const;
 
-    field_27BB_sequence&
-    field_27BB ();
+    builtThisDay_sequence&
+    builtThisDay ();
 
     void
-    field_27BB (const field_27BB_sequence& s);
+    builtThisDay (const builtThisDay_sequence& s);
 
     // field_60A6
     // 
@@ -2556,7 +2556,7 @@ namespace ironfist_save
     ::xsd::cxx::tree::one< difficulty_type > difficulty_;
     ::xsd::cxx::tree::one< mapFilename_type > mapFilename_;
     field_2773_sequence field_2773_;
-    field_27BB_sequence field_27BB_;
+    builtThisDay_sequence builtThisDay_;
     field_60A6_sequence field_60A6_;
     randomArtifacts_sequence randomArtifacts_;
     boatBuilt_sequence boatBuilt_;
