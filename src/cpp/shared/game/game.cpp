@@ -532,3 +532,10 @@ void game::ProcessOnMapHeroes() {
     }
   }
 }
+
+int GetPlayerNumber(playerData* p)
+{
+	for (int i = 0; i < 6; i++)
+		if (p->color == gpGame->players[i].color)
+			return i;
+}

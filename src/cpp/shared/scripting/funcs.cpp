@@ -121,8 +121,9 @@ static int l_getCurrentPlayer(lua_State *L) {
   return 1;
 }
 
-static int l_getCurrentPlayerNumber(lua_State *L) {
-	lua_pushinteger(L, giCurPlayer);
+static int l_getPlayerNumber(lua_State *L) {
+	playerData* p = (playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 1));
+	lua_pushinteger(L, GetPlayerNumber(p));
 	return 1;
 }
 
@@ -176,16 +177,16 @@ static int l_getResource(lua_State *L) {
 }
 
 static int l_shareVision(lua_State *L) {
-  int sourcePlayer = (int)luaL_checknumber(L, 1);
-  int destPlayer = (int)luaL_checknumber(L, 2);
-  gpGame->ShareVision(sourcePlayer, destPlayer);
+  playerData* sourcePlayer = (playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 2));
+  playerData* destPlayer = (playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(2, 2));
+  gpGame->ShareVision(GetPlayerNumber(sourcePlayer), GetPlayerNumber(destPlayer));
   return 0;
 }
 
 static int l_cancelShareVision(lua_State *L) {
-  int sourcePlayer = (int)luaL_checknumber(L, 1);
-  int destPlayer = (int)luaL_checknumber(L, 2);
-  gpGame->CancelShareVision(sourcePlayer, destPlayer);
+  playerData* sourcePlayer = (playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 2));
+  playerData* destPlayer = (playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(2, 2));
+  gpGame->CancelShareVision(GetPlayerNumber(sourcePlayer), GetPlayerNumber(destPlayer));
   return 0;
 }
 
@@ -221,7 +222,7 @@ static void register_player_funcs(lua_State *L) {
   lua_register(L, "GetPlayer", l_getPlayer);
   lua_register(L, "GetPlayerPersonality", l_getPlayerPersonality);
   lua_register(L, "GetCurrentPlayer", l_getCurrentPlayer);
-  lua_register(L, "GetCurrentPlayerNumber", l_getCurrentPlayerNumber);
+  lua_register(L, "GetPlayerNumber", l_getPlayerNumber);
   lua_register(L, "GetPlayerColor", l_getPlayerColor);
   lua_register(L, "GetNumHeroes", l_getNumHeroes);
   lua_register(L, "GetHero", l_getHero);
@@ -382,6 +383,14 @@ static int l_getArtifactAtIndex(lua_State* L) {
 	int idx = (int)luaL_checknumber(L, 2);
 	lua_pushinteger(L, hro->artifacts[idx]);
 	return 1;
+}
+
+static int l_setArtifactAtIndex(lua_State* L) {
+	hero* hro = (hero*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 3));
+	int idx = (int)luaL_checknumber(L, 2);
+	int artifact = (int)luaL_checknumber(L, 3);
+	hro->artifacts[idx] = artifact;
+	return 0;
 }
 
 static int l_takeArtifact(lua_State *L) {
@@ -561,9 +570,9 @@ static int l_hasSpellScroll(lua_State* L) {
 static int l_getHeroSex(lua_State* L) {
 	hero* hro = (hero*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 1));
 	if (HeroExtras[hro->idx]->GetHeroSex() == Sex::Male)
-		lua_pushnumber(L, 0);
+		lua_pushinteger(L, 0);
 	else
-		lua_pushnumber(L, 1);
+		lua_pushinteger(L, 1);
 	return 1;
 }
 
@@ -593,6 +602,7 @@ static void register_hero_funcs(lua_State *L) {
   lua_register(L, "GrantArtifact", l_grantArtifact);
   lua_register(L, "HasArtifact", l_hasArtifact);
   lua_register(L, "GetArtifactAtIndex", l_getArtifactAtIndex);
+  lua_register(L, "SetArtifactAtIndex", l_setArtifactAtIndex);
   lua_register(L, "TakeArtifact", l_takeArtifact);
   lua_register(L, "CountEmptyArtifactSlots", l_countEmptyArtifactSlots);
   lua_register(L, "CountEmptyCreatureSlots", l_countEmptyCreatureSlots);
@@ -802,7 +812,7 @@ static int l_getDwellingQuantity(lua_State* L)
 	mapCell* cell = gpAdvManager->GetCell(x, y);
 	int locType = cell->objType & 0x7F;
 	if (locType == LOCATION_EXPANSION_DWELLING)
-		lua_pushinteger(L, cell->extraInfo / 5);
+		lua_pushinteger(L, cell->extraInfo / 8);
 	else if (locType == LOCATION_TROLL_BRIDGE || locType == LOCATION_CITY_OF_DEAD || locType == LOCATION_DRAGON_CITY)
 	{
 		if (cell->extraInfo > 255)
@@ -871,9 +881,13 @@ static int l_setExpansionDwellingQuantity(lua_State *L)
 	int x = (int)luaL_checknumber(L, 1);
 	int y = (int)luaL_checknumber(L, 2);
 	int qty = (int)luaL_checknumber(L, 3);
-	int creature = (int)luaL_checknumber(L, 4);
+	//int creature = (int)luaL_checknumber(L, 4);
 	mapCell* cell = gpAdvManager->GetCell(x, y);
+	//MessageBoxA(NULL, std::to_string(cell->extraInfo).c_str(), "", MB_OK);
 	int locType = cell->objType & 0x7F;
+	cell->extraInfo = 8 * qty + cell->extraInfo % 8;
+	return 0;
+	int creature;
 	if (locType == LOCATION_EXPANSION_DWELLING)
 	{
 		cell->extraInfo = 8 * qty;
@@ -1326,15 +1340,21 @@ static int l_getPlayerTown(lua_State *L) {
   int index = (int)luaL_checknumber(L, 2);
 
   if (index < MAX_TOWNS) {
-    deepbound_push(L, deepbind<town*>(&gpGame->castles[player->castlesOwned[index]]));
+	  deepbound_push(L, deepbind<town*>(&gpGame->castles[player->castlesOwned[index]]));
+	  return 1;
   }
-  return 1;
+  return 0;
 }
 
 static int l_buildInTown(lua_State *L) {
   town* twn = (town*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 2));
   int building = (int)luaL_checknumber(L, 2);
-  twn->BuildBuilding(building);
+  if (gpTownManager->castle == NULL)
+		twn->BuildBuilding(building);
+  else if (gpTownManager->castle->idx == twn->idx)
+		gpTownManager->BuildObj(building);
+  else
+		twn->BuildBuilding(building);
   return 0;
 }
 
@@ -1363,14 +1383,14 @@ static int l_getCreatureCost(lua_State *L) {
 
 static int l_getTownOwner(lua_State *L) {
   town* twn = (town*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 1));
-  lua_pushinteger(L, twn->ownerIdx);
+  deepbound_push(L, deepbind<playerData*>(&gpGame->players[twn->ownerIdx]));
   return 1;
 }
 
 static int l_setTownOwner(lua_State *L) {
-  int townIdx = (int)luaL_checknumber(L, 1);
-  int playerIdx = (int)luaL_checknumber(L, 2);
-  gpGame->ClaimTown(townIdx, playerIdx, 0);
+  town* twn = (town*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 2));
+  playerData *player = (playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(2, 2));
+  gpGame->ClaimTown(twn->idx, GetPlayerNumber(player), 0);
   return 0;
 }
 
@@ -1391,6 +1411,13 @@ static int l_getTownIDFromPos(lua_State *L) {
   int y = (int)luaL_checknumber(L, 2);
   lua_pushinteger(L, gpGame->GetTownId(x, y));
   return 1;
+}
+
+static int l_getNumberOfCreatures(lua_State *L) {
+	town* cstle = (town*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 2));
+	int dwllng = (int)luaL_checknumber(L, 2);
+	lua_pushinteger(L, cstle->numCreaturesInDwelling[dwllng]);
+	return 1;
 }
 
 static int l_setNumberOfCreatures(lua_State *L) {
@@ -1465,6 +1492,7 @@ static void register_town_funcs(lua_State *L) {
   lua_register(L, "GetTownX", l_getTownX);
   lua_register(L, "GetTownY", l_getTownY);
   lua_register(L, "GetTownIdFromPos", l_getTownIDFromPos);
+  lua_register(L, "GetNumberOfCreatures", l_getNumberOfCreatures);
   lua_register(L, "SetNumberOfCreatures", l_setNumberOfCreatures);
   lua_register(L, "SetNumGuildSpells", l_setNumGuildSpells);
   lua_register(L, "SetGuildSpell", l_setGuildSpell);

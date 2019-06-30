@@ -286,6 +286,8 @@ extern int neutralTownCreatureTypes[MAX_FACTIONS][5];
 extern signed __int8 gHeroSkillBonus[MAX_FACTIONS][2][4];
 extern HeroExtraII* HeroExtras[MAX_HEROES];
 
+int GetPlayerNumber(playerData* p);
+
 #pragma pack(pop)
 
 #endif
