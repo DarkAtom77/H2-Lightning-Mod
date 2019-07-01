@@ -360,6 +360,12 @@ public:
   void ShrineQuickInfo(int xLoc, int yLoc);
   void WitchHutQuickInfo(int xLoc, int yLoc);
   void ArtifactQuickInfo(int xLoc, int yLoc);
+
+  void PlayerMonsterInteract(mapCell *cell, mapCell *other, hero *player, int *window, int a1, int a2, int a3, int a4, int a5);
+  void PlayerMonsterInteract_orig(mapCell *cell, mapCell *other, hero *player, int *window, int a1, int a2, int a3, int a4, int a5);
+
+  void ComputerMonsterInteract(mapCell *cell, hero *computer, int *a1);
+  void ComputerMonsterInteract_orig(mapCell *cell, hero *computer, int *a1);
 };
 
 class ExpCampaign {
@@ -387,6 +393,8 @@ extern int giAdjacentMonsterY;
 extern int giAdjacentMonsterLowerBoundX;
 extern int giAdjacentMonsterLowerBoundY;
 extern ExpCampaign xCampaign;
+
+bool GetMapCellXY(mapCell* cell, int* x, int* y);
 
 hero* GetCurrentHero();
 extern unsigned char PlayerVisitedShrine[144][144];
