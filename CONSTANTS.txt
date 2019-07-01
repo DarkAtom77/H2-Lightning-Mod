@@ -614,6 +614,7 @@ LOCATION_EXPANSION_DWELLING = 121
 LOCATION_ALCHEMIST_TOWER = 122
 LOCATION_JAIL = 123
 
+UNOWNED = nil
 
 -------------------------------------------------------------MAP-------------------------------------------------------------
 

@@ -105,7 +105,7 @@ town_mt = {
 		elseif k == "y" then
 			return GetTownY(t)
 		elseif k == "hasVisitingHero" then
-			return HasVisitingHero(t) --I prefer writing "if t.visitingHero >= 0 then ..."
+			return HasVisitingHero(t)
 		elseif k == "visitingHero" then
 			return GetVisitingHero(t)
 		elseif k == "builtToday" then

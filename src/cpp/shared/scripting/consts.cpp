@@ -566,6 +566,7 @@ void set_location_consts(lua_State *L) {
   lua_setconst(L, "LOCATION_EXPANSION_DWELLING", LOCATION_EXPANSION_DWELLING);
   lua_setconst(L, "LOCATION_ALCHEMIST_TOWER", LOCATION_ALCHEMIST_TOWER);
   lua_setconst(L, "LOCATION_JAIL", LOCATION_JAIL);
+  lua_setconst_nil(L, "UNOWNED");
 }
 
 void set_map_cell_consts(lua_State *L) {

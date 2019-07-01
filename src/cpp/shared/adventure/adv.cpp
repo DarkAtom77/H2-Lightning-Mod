@@ -724,33 +724,67 @@ int GetWagonType(int x, int y)
 		return 1;
 }
 
-bool isDwelling(int x, int y)
+bool isDwelling(int x, int y, int* monsterType)
 {
-	//This function has no use yet
 	mapCell* cell = gpAdvManager->GetCell(x, y);
 	int locationType = cell->objType & 0x7F;
+	int dummy;
+	if (monsterType == nullptr || monsterType == NULL)
+		monsterType = &dummy; //if we get NULL the we don't return anything
 	switch (locationType)
 	{
 	case LOCATION_ANCIENT_LAMP:
+		*monsterType = CREATURE_GENIE;
 	case LOCATION_ARCHERS_HOUSE:
+		*monsterType = CREATURE_ARCHER;
 	case LOCATION_GOBLIN_HUT:
+		*monsterType = CREATURE_GOBLIN;
 	case LOCATION_DWARF_COTTAGE:
+		*monsterType = CREATURE_DWARF;
 	case LOCATION_PEASANT_HUT:
+		*monsterType = CREATURE_PEASANT;
 	case LOCATION_LOG_CABIN:
+		*monsterType = CREATURE_DWARF;
 	case LOCATION_DRAGON_CITY:
+		*monsterType = CREATURE_RED_DRAGON;
 	case LOCATION_DESERT_TENT:
+		*monsterType = CREATURE_NOMAD;
 	case LOCATION_WAGON_CAMP:
+		*monsterType = CREATURE_ROGUE;
 	case LOCATION_WATCH_TOWER:
+		*monsterType = CREATURE_ORC;
 	case LOCATION_TREE_HOUSE:
+		*monsterType = CREATURE_SPRITE;
 	case LOCATION_TREE_CITY:
+		*monsterType = CREATURE_SPRITE;
 	case LOCATION_RUINS:
+		*monsterType = CREATURE_MEDUSA;
 	case LOCATION_DWARF_CABIN:
+		*monsterType = CREATURE_DWARF;
 	case LOCATION_HALFLING_HOLE:
+		*monsterType = CREATURE_HALFLING;
 	case LOCATION_CITY_OF_DEAD:
+		*monsterType = CREATURE_POWER_LICH;
 	case LOCATION_EXCAVATION:
+		*monsterType = CREATURE_SKELETON;
 	case LOCATION_TROLL_BRIDGE:
+		*monsterType = CREATURE_TROLL;
+	case LOCATION_CAVE:
+		*monsterType = CREATURE_CENTAUR;
 	case LOCATION_EXPANSION_DWELLING:
-		//hopefully these are all of them
+		switch (cell->extraInfo % 8)
+		{
+		case 0:
+			*monsterType = CREATURE_GHOST;
+		case 1:
+			*monsterType = CREATURE_EARTH_ELEMENTAL;
+		case 2:
+			*monsterType = CREATURE_AIR_ELEMENTAL;
+		case 3:
+			*monsterType = CREATURE_FIRE_ELEMENTAL;
+		case 4:
+			*monsterType = CREATURE_WATER_ELEMENTAL;
+		}
 		return true;
 	default:
 		return false;

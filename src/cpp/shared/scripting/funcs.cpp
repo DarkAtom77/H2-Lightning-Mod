@@ -768,15 +768,25 @@ static int l_getMineOwner(lua_State *L)
 {
 	int id = (int)luaL_checknumber(L, 1);
 	mine* mn = &gpGame->mines[id];
-	lua_pushinteger(L, mn->owner);
+	if (mn->owner == -1)
+		lua_pushnil(L);
+	else
+		deepbound_push(L, deepbind<playerData*>(&gpGame->players[mn->owner]));
 	return 1;
 }
 
 static int l_setMineOwner(lua_State *L)
 {
 	int id = (int)luaL_checknumber(L, 1);
-	int player = (int)luaL_checknumber(L, 2);
-	gpGame->ClaimMine(id, player);
+	int idx;
+	if (lua_isnil(L, 2))
+	{
+		lua_pop(L, 2);
+		idx = -1;
+	}
+	else
+		idx = GetPlayerNumber((playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(2, 2)));
+	gpGame->ClaimMine(id, idx);
 	return 0;
 }
 
@@ -839,6 +849,8 @@ static int l_setDwellingQuantity(lua_State *L)
 			cell->extraInfo = qty + 256;
 		else
 			cell->extraInfo = qty;
+	else if (locType == LOCATION_EXPANSION_DWELLING)
+		cell->extraInfo = qty * 8 + cell->extraInfo % 8;
 	else
 		cell->extraInfo = qty;
 	return 0;
@@ -875,42 +887,6 @@ static int l_setDwellingHasGuards(lua_State *L)
 			else if (!yes && cell->extraInfo > 255)
 				cell->extraInfo -= 256;
 		}
-	return 0;
-}
-
-static int l_setExpansionDwellingQuantity(lua_State *L)
-{
-	int x = (int)luaL_checknumber(L, 1);
-	int y = (int)luaL_checknumber(L, 2);
-	int qty = (int)luaL_checknumber(L, 3);
-	//int creature = (int)luaL_checknumber(L, 4);
-	mapCell* cell = gpAdvManager->GetCell(x, y);
-	//MessageBoxA(NULL, std::to_string(cell->extraInfo).c_str(), "", MB_OK);
-	int locType = cell->objType & 0x7F;
-	cell->extraInfo = 8 * qty + cell->extraInfo % 8;
-	return 0;
-	int creature;
-	if (locType == LOCATION_EXPANSION_DWELLING)
-	{
-		cell->extraInfo = 8 * qty;
-		switch (creature)
-		{
-			case CREATURE_EARTH_ELEMENTAL:
-				cell->extraInfo += 1;
-				break;
-			case CREATURE_AIR_ELEMENTAL:
-				cell->extraInfo += 2;
-				break;
-			case CREATURE_FIRE_ELEMENTAL:
-				cell->extraInfo += 3;
-				break;
-			case CREATURE_WATER_ELEMENTAL:
-				cell->extraInfo += 4;
-				break;
-			default:
-				break;
-		}
-	}
 	return 0;
 }
 
@@ -1256,7 +1232,6 @@ static void register_map_funcs(lua_State *L) {
   lua_register(L, "SetDwellingQuantity", l_setDwellingQuantity);
   lua_register(L, "DwellingHasGuards", l_dwellingHasGuards);
   lua_register(L, "SetDwellingHasGuards", l_setDwellingHasGuards);
-  lua_register(L, "SetExpansionDwellingQuantity", l_setExpansionDwellingQuantity);
   lua_register(L, "GetCampfireResource", l_getCampfireResource);
   lua_register(L, "GetCampfireResourceCount", l_getCampfireResourceCount);
   lua_register(L, "SetCampfireResource", l_setCampfireResource);
@@ -1385,14 +1360,25 @@ static int l_getCreatureCost(lua_State *L) {
 
 static int l_getTownOwner(lua_State *L) {
   town* twn = (town*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 1));
-  deepbound_push(L, deepbind<playerData*>(&gpGame->players[twn->ownerIdx]));
+  if (twn->ownerIdx == -1)
+	  lua_pushnil(L);
+  else
+	deepbound_push(L, deepbind<playerData*>(&gpGame->players[twn->ownerIdx]));
   return 1;
 }
 
 static int l_setTownOwner(lua_State *L) {
   town* twn = (town*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 2));
-  playerData *player = (playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(2, 2));
-  gpGame->ClaimTown(twn->idx, GetPlayerNumber(player), 0);
+  if (lua_isnil(L, 2))
+  {
+	  lua_pop(L, 2);
+	  gpGame->ClaimTown(twn->idx, -1, 0);
+  }
+  else
+  {
+	  playerData *player = (playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(2, 2));
+	  gpGame->ClaimTown(twn->idx, GetPlayerNumber(player), 0);
+  }
   return 0;
 }
 
