@@ -43,6 +43,7 @@ void set_dialog_consts(lua_State *L) {
 	lua_setconst(L, "DIALOG_YES_NO", DIALOG_YES_NO);
 	lua_setconst(L, "DIALOG_OKAY", DIALOG_OKAY);
 	lua_setconst(L, "DIALOG_OK", DIALOG_OKAY);
+	lua_setconst(L, "DIALOG_CANCEL", 3);
 	lua_setconst(L, "DIALOG_NO_OR", 0);
 	lua_setconst(L, "DIALOG_OR", DIALOG_OR);
 	lua_setconst(L, "DIALOG_EMPTY", DIALOG_EMPTY);

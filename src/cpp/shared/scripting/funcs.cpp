@@ -389,6 +389,8 @@ static int l_setArtifactAtIndex(lua_State* L) {
 	hero* hro = (hero*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 3));
 	int idx = (int)luaL_checknumber(L, 2);
 	int artifact = (int)luaL_checknumber(L, 3);
+	GiveTakeArtifactStat(hro, hro->artifacts[idx], 1);
+	GiveTakeArtifactStat(hro, artifact, 0);
 	hro->artifacts[idx] = artifact;
 	return 0;
 }
