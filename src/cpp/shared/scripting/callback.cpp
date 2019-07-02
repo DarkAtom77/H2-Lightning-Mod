@@ -34,9 +34,14 @@ nonstd::optional<bool> PopLuaResult(lua_State *L, int arg) {
     const bool retVal = (lua_toboolean(L, arg) != 0);
     lua_remove(L, arg);
     return retVal;
-  } else {
+  }
+  else if (lua_isnil(L, arg)) {
+	  lua_remove(L, arg);
+	  return false;
+  }
+  else {
     DisplayError("Incorrect return value: expected bool; got something else", "Script error");
-    return {};
+	return {};
   }
 }
 

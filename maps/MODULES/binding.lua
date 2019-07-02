@@ -110,6 +110,8 @@ town_mt = {
 			return GetVisitingHero(t)
 		elseif k == "builtToday" then
 		    return GetBuildingFlag(t)
+		elseif k == "spells" then
+			return TownSpellTable(t)
 		else
 			return MethodTable(t, k, "town")
 		end
@@ -275,6 +277,15 @@ artifact_mt = {
 	end;
 }
 
+spell_mt = {
+	__index = function (t, k)
+		return GetGuildSpell(t.one_up.ptrToObject, t.this_lvl, k);
+	end;
+	__newindex = function (table, key, value)
+		SetGuildSpell(table.one_up.ptrToObject, table.this_lvl, key, value);
+	end;
+}
+
 func_mt = {
 	__call = function (tbl, ...)
 		return tbl.func(tbl.ptrToObject, ...);
@@ -299,6 +310,19 @@ function HeroArtifactTable(hero)
 	local tbl = {};
 	tbl.ptrToObject = hero;
 	setmetatable(tbl, artifact_mt);
+	return tbl;
+end;
+
+function TownSpellTable(town)
+	local tbl = {};
+	tbl.ptrToObject = town;
+	local i;
+	for i = 0, 4 do
+		tbl[i] = {};
+		tbl[i].one_up = tbl;
+		tbl[i].this_lvl = i;
+		setmetatable(tbl[i], spell_mt);
+	end;
 	return tbl;
 end;
 
