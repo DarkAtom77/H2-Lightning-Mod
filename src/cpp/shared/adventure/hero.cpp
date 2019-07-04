@@ -11,6 +11,7 @@
 
 #include<io.h>
 #include<stddef.h>
+#include<string.h>
 
 char cHeroTypeInitial[MAX_FACTIONS] = {'k', 'b', 's', 'w', 'z', 'n',
                                        '\0','\0','\0','\0','\0','\0',
@@ -323,6 +324,7 @@ HeroExtraII::HeroExtraII(hero* hro) : hro(*hro)
 			sex = Sex::Male;
 			break;
 	}
+	memset(this->objectsVisited, 0, sizeof objectsVisited);
 }
 
 void hero::CheckLevel(void)
@@ -335,12 +337,13 @@ void hero::CheckLevel(void)
 
 HeroExtraII::HeroExtraII(hero& hro) : hro(hro)
 {
-	HeroExtraII h (&hro); //lazy...don't want to fill the page with that thing again
+	HeroExtraII h (&hro);
 	sex = h.GetHeroSex();
+	memset(this->objectsVisited, 0, sizeof objectsVisited);
 }
 
-HeroExtraII::HeroExtraII(hero* hro, Sex sex) : hro(*hro), sex(sex) {}
-HeroExtraII::HeroExtraII(hero& hro, Sex sex) : hro(hro), sex(sex) {}
+HeroExtraII::HeroExtraII(hero* hro, Sex sex) : hro(*hro), sex(sex) { memset(this->objectsVisited, 0, sizeof objectsVisited); }
+HeroExtraII::HeroExtraII(hero& hro, Sex sex) : hro(hro), sex(sex) { memset(this->objectsVisited, 0, sizeof objectsVisited); }
 
 Sex HeroExtraII::GetHeroSex()
 {
@@ -354,6 +357,16 @@ void HeroExtraII::SetHeroSex(Sex sex)
 
 void HeroExtraII::ResetHeroSex()
 {
-	HeroExtraII h = *this; //again lazy
+	HeroExtraII h = *this;
 	sex = h.GetHeroSex();
+}
+
+void HeroExtraII::VisitArena(int x, int y, bool set)
+{
+	this->objectsVisited[x][y] = set;
+}
+
+bool HeroExtraII::HasVisitedArena(int x, int y)
+{
+	return this->objectsVisited[x][y];
 }

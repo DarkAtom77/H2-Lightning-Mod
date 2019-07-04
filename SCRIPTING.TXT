@@ -1196,7 +1196,7 @@ ACTIVATES THE SKELETON. USE THOSE COORDINATES FOR THESE FUNCTIONS
   Arguments:
    spell: The spell to check the level for
   Return:
-   The level of the spell (1-5).
+   The level of the spell (1 - 5).
 
 171. string GetSpellName(int spell)
   Arguments:

@@ -255,6 +255,8 @@ public:
 	HeroExtraII(hero* hro, Sex sex);
 	HeroExtraII(hero& hro);
 	HeroExtraII(hero& hro, Sex sex);
+	void VisitArena(int x, int y, bool set);
+	bool HasVisitedArena(int x, int y);
 	Sex GetHeroSex();
 	void ResetHeroSex(); //automatic by the portrait
 	void SetHeroSex(Sex sex);
@@ -262,6 +264,7 @@ public:
 private:
 	Sex sex;
 	int specialty; //for the future, not used right now
+	bool objectsVisited[144][144]; //vector<bool> is more space-effiecient, but this is a matrix :(
 };
 
 enum HERO_FLAGS {
@@ -348,6 +351,9 @@ public:
   void HandleSpellShrine(class mapCell *cell, int LocationType, hero *hro, SAMPLE2* res2, int locX, int locY);
   void HandlePyramid(class mapCell *cell, int LocationType, hero *hro, SAMPLE2* res2, int locX, int locY);
   void HandleWitchHut(class mapCell *cell, int LocationType, hero *hro, SAMPLE2* res2, int locX, int locY);
+  void HandleArena(class mapCell *cell, int LocationType, hero *hro, SAMPLE2* res2, int locX, int locY);
+  void HandleAlchemistTower(class mapCell *cell, int locType, hero *hro, SAMPLE2 *res2, int locX, int locY);
+  //Need a better way to structure the way to handle objects, otherwise, in the future, there will be about 100 lines of these HandleObject declarations
 
   int CombatMonsterEvent(class hero *hero, int mon1, int mon1quantity, class mapCell *mapcell, int locX, int locY, int switchSides, int locX2, int locY2, int mon2, int mon2quantity, int mon2stacks, int mon3, int mon3quantity, int mon3stacks);
   int MapPutArmy(int x, int y, int monIdx, int monQty);
@@ -360,6 +366,7 @@ public:
   void ShrineQuickInfo(int xLoc, int yLoc);
   void WitchHutQuickInfo(int xLoc, int yLoc);
   void ArtifactQuickInfo(int xLoc, int yLoc);
+  void ArenaQuickInfo(int xLoc, int yLoc);
 
   void PlayerMonsterInteract(mapCell *cell, mapCell *other, hero *player, int *window, int a1, int a2, int a3, int a4, int a5);
   void PlayerMonsterInteract_orig(mapCell *cell, mapCell *other, hero *player, int *window, int a1, int a2, int a3, int a4, int a5);
@@ -397,7 +404,7 @@ extern ExpCampaign xCampaign;
 bool GetMapCellXY(mapCell* cell, int* x, int* y);
 
 hero* GetCurrentHero();
-extern unsigned char PlayerVisitedShrine[144][144];
+extern unsigned char PlayerVisitedObject[144][144];
 
 int __fastcall GiveArtifact(hero*, int artifact, int checkEndGame, signed char scrollSpell);
 void __fastcall GiveTakeArtifactStat(hero *h, int art, int take);

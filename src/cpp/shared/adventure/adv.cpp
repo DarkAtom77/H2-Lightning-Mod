@@ -18,7 +18,7 @@
 #include <cmath>
 
 static const int END_TURN_BUTTON = 4;
-unsigned char PlayerVisitedShrine[144][144] = { 0 };
+unsigned char PlayerVisitedObject[144][144] = { 0 };
 static const std::string secondarySkillNames[] = {
 	//Does this exist already elsewhere in the code?
 	"Pathfinding",
@@ -158,15 +158,26 @@ void advManager::DoEvent(class mapCell *cell, int locX, int locY) {
 		  case LOCATION_SHRINE_FIRST_ORDER:
 		  case LOCATION_SHRINE_SECOND_ORDER:
 		  case LOCATION_SHRINE_THIRD_ORDER:
-			  PlayerVisitedShrine[locX][locY] |= 1u << gpCurPlayer->color;
+			  PlayerVisitedObject[locX][locY] |= 1u << gpCurPlayer->color;
 			  this->HandleSpellShrine(cell, locationType, hro, &res2, locX, locY);
 			  break;
 		  case LOCATION_PYRAMID:
 			  this->HandlePyramid(cell, locationType, hro, &res2, locX, locY);
 			  break;
 		  case LOCATION_WITCH_HUT:
-			  PlayerVisitedShrine[locX][locY] |= 1u << gpCurPlayer->color;
+			  PlayerVisitedObject[locX][locY] |= 1u << gpCurPlayer->color;
 			  this->HandleWitchHut(cell, locationType, hro, &res2, locX, locY);
+			  break;
+		  case LOCATION_ALCHEMIST_TOWER:
+			  switch (cell->extraInfo)
+			  {
+			      case 0: //Alchemist Tower
+					  this->HandleAlchemistTower(cell, locationType, hro, &res2, locX, locY);
+					  break;
+			      case 1: //Arena
+					  this->HandleArena(cell, locationType, hro, &res2, locX, locY);
+					  break;
+			  }
 			  break;
 		  default:
 			  this->DoEvent_orig(cell, locX, locY);
@@ -307,6 +318,62 @@ void advManager::HandleWitchHut(class mapCell *cell, int locType, hero *hro, SAM
 		hro->SetSS(skill, 1);
 }
 
+void advManager::HandleArena(class mapCell *cell, int locType, hero *hro, SAMPLE2 *res2, int locX, int locY)
+{
+	HeroExtraII* hero_extra = HeroExtras[hro->idx];
+	if (hero_extra->HasVisitedArena(locX, locY))
+		hro->flags |= 0x400000;
+	else
+		hro->flags &= ~(0x400000);
+	DoEvent_orig(cell, locX, locY);
+	hero_extra->VisitArena(locX, locY, true);
+}
+
+void advManager::HandleAlchemistTower(class mapCell *cell, int locType, hero *hro, SAMPLE2 *res2, int locX, int locY)
+{
+	int cursedArtifacts = 0;
+	for (int i = 0; i < MAX_ARTIFACTS; i++)
+		if (IsCursedItem(hro->artifacts[i]))
+			cursedArtifacts++;
+	if (cursedArtifacts >= 1)
+	{
+		this->EventSound(locType, 0, res2);
+		std::string str = "As you enter the Alchemist's Tower, a hobbled, graying man in a brown cloak makes his way towards you.  He checks your pack, and sees that you have ";
+		str += std::to_string(cursedArtifacts);
+		str += " cursed item";
+		if (cursedArtifacts != 1)
+			str += "s";
+		str += ".  The alchemist will remove your cursed artifacts for 750 gold each (you can choose what to keep).  Do you pay?";
+		bool res = H2QuestionBox(&str[0]);
+		for (int i = 0; res && i < MAX_ARTIFACTS; i++)
+			if (IsCursedItem(hro->artifacts[i]))
+			{
+				str = "Would you like to remove the ";
+				str += GetArtifactName(hro->artifacts[i]);
+				str += " for 750 gold";
+				int answer = H2NormalDialog(&str[0], DIALOG_YES_NO, -1, -1, IMAGE_GROUP_ARTIFACTS, hro->artifacts[i], IMAGE_GOLD, 750, 0);
+				if (answer == BUTTON_CODE_OKAY)
+					if (gpCurPlayer->resources[RESOURCE_GOLD] >= 750)
+					{
+						gpCurPlayer->resources[RESOURCE_GOLD] -= 750;
+						GiveTakeArtifactStat(hro, hro->artifacts[i], 1);
+						hro->artifacts[i] = -1;
+					}
+					else
+					{
+						str = "You hear a voice from behind the locked door, \"You don't have enough gold to pay for my services.\"";
+						H2NormalDialog(&str[0], DIALOG_OKAY, -1, -1, IMAGE_GOLD, 750, IMAGE_GOLD, gpCurPlayer->resources[RESOURCE_GOLD], 0);
+						break;
+					}
+			}
+	}
+	else
+	{
+		char str[] = "You hear a voice from high above in the tower, \"Go away! I can't help you!\"";
+		H2MessageBox(str);
+	}
+}
+
 int advManager::MapPutArmy(int x, int y, int monIdx, int monQty) {
   int cellIdx = y * gpGame->map.height + x;
   gpGame->map.tiles[cellIdx].objectIndex = monIdx;
@@ -339,7 +406,7 @@ void advManager::QuickInfo(int x, int y) {
     // Lua error occurred or tooltip text not overridden.
 	  if (locationType == LOCATION_SHRINE_FIRST_ORDER || locationType == LOCATION_SHRINE_SECOND_ORDER || locationType == LOCATION_SHRINE_THIRD_ORDER)
 	  {
-		  unsigned char visited = (PlayerVisitedShrine[xLoc][yLoc] >> gpCurPlayer->color) & 1u;
+		  unsigned char visited = (PlayerVisitedObject[xLoc][yLoc] >> gpCurPlayer->color) & 1u;
 		  if (visited)
 		  {
 			  ShrineQuickInfo(xLoc, yLoc);
@@ -348,8 +415,8 @@ void advManager::QuickInfo(int x, int y) {
 	  }
 	  else if (locationType == LOCATION_WITCH_HUT)
 	  {
-		  unsigned char visited = (PlayerVisitedShrine[xLoc][yLoc] >> gpCurPlayer->color) & 1u;
-		  unsigned char visited2 = (PlayerVisitedShrine[xLoc][yLoc + 1] >> gpCurPlayer->color) & 1u;
+		  unsigned char visited = (PlayerVisitedObject[xLoc][yLoc] >> gpCurPlayer->color) & 1u;
+		  unsigned char visited2 = (PlayerVisitedObject[xLoc][yLoc + 1] >> gpCurPlayer->color) & 1u;
 		  //The Witch's Hut extends across 3 cells on the y-axis
 		  //We only check for the bottom 2 because the player is
 		  //REALLY unlikely to right-click the top one and it would
@@ -369,6 +436,15 @@ void advManager::QuickInfo(int x, int y) {
 	  {
 		  ArtifactQuickInfo(xLoc, yLoc);
 		  return;
+	  }
+	  else if (locationType == LOCATION_ALCHEMIST_TOWER)
+	  {
+		  if (mapCell->extraInfo == 1)
+		  {
+			  //unfortunately, only the trigger-cell shows something
+			  ArenaQuickInfo(xLoc, yLoc);
+			  return;
+		  }
 	  }
     QuickInfo_orig(x, y);
     return;
@@ -562,6 +638,21 @@ void advManager::ArtifactQuickInfo(int xLoc, int yLoc)
 	gpWindowManager->AddWindow(&tooltip, 1, -1);
 	QuickViewWait();
 	gpWindowManager->RemoveWindow(&tooltip);
+}
+
+void advManager::ArenaQuickInfo(int xLoc, int yLoc)
+{
+	const int x = xLoc - viewX;
+	const int y = yLoc - viewY;
+	if (gpCurPlayer->curHeroIdx != -1)
+	{
+		HeroExtraII* hero_extra = HeroExtras[gpCurPlayer->curHeroIdx];
+		if (hero_extra->HasVisitedArena(xLoc, yLoc))
+			gpGame->heroes[gpCurPlayer->curHeroIdx].flags |= 0x400000u;
+		else
+			gpGame->heroes[gpCurPlayer->curHeroIdx].flags &= ~(0x400000u);
+	}
+	QuickInfo_orig(x, y);
 }
 
 int advManager::ProcessSearch(int x, int y)
