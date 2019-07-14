@@ -778,14 +778,11 @@ static int l_setPlayerVisitedShrine(lua_State *L)
 	playerData* p = (playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 4));
 	int x = (int)luaL_checknumber(L, 2);
 	int y = (int)luaL_checknumber(L, 3);
-	if (lua_isboolean(L, 4))
-	{
-		bool yes = lua_toboolean(L, 4);
-		if (yes)
-			PlayerVisitedObject[x][y] |= 1u << p->color;
-		else
-			PlayerVisitedObject[x][y] &= ~(1u << p->color);
-	}
+	bool yes = CheckBoolean(L, 4);
+	if (yes)
+		PlayerVisitedObject[x][y] |= 1u << p->color;
+	else
+		PlayerVisitedObject[x][y] &= ~(1u << p->color);
 	return 0;
 }
 
@@ -877,8 +874,8 @@ static int l_getDwellingQuantity(lua_State* L)
 		lua_pushinteger(L, cell->extraInfo / 8);
 	else if (locType == LOCATION_TROLL_BRIDGE || locType == LOCATION_CITY_OF_DEAD || locType == LOCATION_DRAGON_CITY)
 	{
-		if (cell->extraInfo > 255)
-			lua_pushinteger(L, cell->extraInfo - 256);
+		if (cell->extraInfo & 0x100)
+			lua_pushinteger(L, cell->extraInfo & (~0x100));
 		else
 			lua_pushinteger(L, cell->extraInfo);
 	}
@@ -895,8 +892,8 @@ static int l_setDwellingQuantity(lua_State *L)
 	mapCell* cell = gpAdvManager->GetCell(x, y);
 	int locType = cell->objType & 0x7F;
 	if (locType == LOCATION_TROLL_BRIDGE || locType == LOCATION_CITY_OF_DEAD || locType == LOCATION_DRAGON_CITY)
-		if (cell->extraInfo > 255)
-			cell->extraInfo = qty + 256;
+		if (cell->extraInfo & 0x100)
+			cell->extraInfo = qty | 0x100;
 		else
 			cell->extraInfo = qty;
 	else if (locType == LOCATION_EXPANSION_DWELLING)
@@ -913,7 +910,7 @@ static int l_dwellingHasGuards(lua_State *L)
 	mapCell* cell = gpAdvManager->GetCell(x, y);
 	int locType = cell->objType & 0x7F;
 	if (locType == LOCATION_TROLL_BRIDGE || locType == LOCATION_CITY_OF_DEAD || locType == LOCATION_DRAGON_CITY)
-		if (cell->extraInfo > 255)
+		if (cell->extraInfo & 0x100)
 			lua_pushboolean(L, true);
 		else
 			lua_pushboolean(L, false);
@@ -926,17 +923,14 @@ static int l_setDwellingHasGuards(lua_State *L)
 {
 	int x = (int)luaL_checknumber(L, 1);
 	int y = (int)luaL_checknumber(L, 2);
+	bool yes = CheckBoolean(L, 3);
 	mapCell* cell = gpAdvManager->GetCell(x, y);
 	int locType = cell->objType & 0x7F;
 	if (locType == LOCATION_TROLL_BRIDGE || locType == LOCATION_CITY_OF_DEAD || locType == LOCATION_DRAGON_CITY)
-		if (lua_isboolean(L, 3))
-		{
-			bool yes = lua_toboolean(L, 3);
-			if (yes && cell->extraInfo < 256)
-				cell->extraInfo += 256;
-			else if (!yes && cell->extraInfo > 255)
-				cell->extraInfo -= 256;
-		}
+		if (yes)
+			cell->extraInfo |= 0x100;
+		else if (!yes)
+			cell->extraInfo &= ~0x100;
 	return 0;
 }
 
@@ -1527,11 +1521,8 @@ static int l_getBuildingFlag(lua_State *L) {
 
 static int l_setBuildingFlag(lua_State *L) {
 	town* twn = (town*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 2));
-	if (lua_isboolean(L, 2))
-	{
-		bool yesno = lua_toboolean(L, 2);
-		twn->SetBuildingFlag(yesno);
-	}
+	bool yesno = CheckBoolean(L, 2);
+	twn->SetBuildingFlag(yesno);
 	return 0;
 }
 

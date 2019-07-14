@@ -492,22 +492,34 @@ Functions (C-style types are included for more readability):
    y: The Y coordinate of the location
   Return: None
 
-69. MapSetTileTerrain(int x, int y, int tile, int flip)
+69. void MapSetTileTerrain(int x, int y, int tile, int flip)
   Arguments:
    x, y: The coordinates
    tile: The new tile
    flip: MAP_CELL_NO_FLIP, MAP_CELL_FLIP_HORIZONTALLY, MAP_CELL_FLIP_VERTICALLY, MAP_CELL_FLIP_DIAGONALLY
   Return: None
 
+70. bool GetInclinedToJoin(int x, int y)
+  Arguments:
+   x, y: The coordinates
+  Return: True if a monster (located at x, y) is likely to join a hero, false otherwise
+
+71. void SetInclinedToJoin(int x, int y, bool inclined)
+  Arguments:
+   x, y: The coordinates
+   inclined: True if a monster (located at x, y) is likely to join a hero, false otherwise
+  Return: None
+  Notes: It is not possible (for now) to make the creature ALWAYS join the hero, because if the army is stronger than the hero, it may choose to fight
+
 ---------------------------------------------------------SHRINES---------------------------------------------------------
-70. int GetShrineSpell(int x, int y)
+72. int GetShrineSpell(int x, int y)
   Arguments:
    x: The X coordinate of the Shrine/Pyramid
    y: The Y coordinate of the Shrine/Pyramid
   Return: The spell ID which is located in the specified Shrine/Pyramid
   Notes: This function works with both Shrines (of any level) and Pyramids
 
-71. void SetShrineSpell(int x, int y, int spell)
+73. void SetShrineSpell(int x, int y, int spell)
   Arguments:
    x: The X coordinate of the Shrine/Pyramid
    y: The Y coordinate of the Shrine/Pyramid
@@ -515,7 +527,7 @@ Functions (C-style types are included for more readability):
   Return: None
   Notes: This function works with both Shrines (of any level) and Pyramids
 
-72. bool GetPlayerVisitedShrine(player p, int x, int y)
+74. bool GetPlayerVisitedShrine(player p, int x, int y)
   Arguments:
    p: The player to check for
    x: The X coordinate of the Shrine
@@ -523,7 +535,7 @@ Functions (C-style types are included for more readability):
   Return: True if the player can see the spell at the shrine (either by having visited it, or by SetPlayerVisitedShrine()), false otherwise.
   Notes: What this function checks for is actually if the Shrine displays its spell to the specified player (on right-click). Doesn't work with AI (will return false).
 
-73. void SetPlayerVisitedShrine(player p, int x, int y, bool yesno)
+75. void SetPlayerVisitedShrine(player p, int x, int y, bool yesno)
   Arguments:
    p: The player desired
    x: The X coordinate of the Shrine
@@ -533,22 +545,22 @@ Functions (C-style types are included for more readability):
   Notes: If you set this to true, the player will be able to see the spell at the said Shrine when right-clicking, even if he didn't visit it. This will not affect the AI in any way.
   This can also be used to not allow a player to see the spell even after visiting, by setting it to false.
 
----------------------------------------------------------WITCH's HUTS---------------------------------------------------------
+---------------------------------------------------------WITCH'S HUTS---------------------------------------------------------
 
-74. int GetWitchHutSkill(int x, int y)
+76. int GetWitchHutSkill(int x, int y)
   Arguments:
    x: The X coordinate of the Witch's Hut
    y: The Y coordinate of the Witch's Hut
   Return: The skill in the Witch's Hut
 
-75. void SetWitchHutSkill(int x, int y, int skill)
+77. void SetWitchHutSkill(int x, int y, int skill)
   Arguments:
    x: The X coordinate of the Witch's Hut
    y: The Y coordinate of the Witch's Hut
    skill: The skill to be set (can be any skill, including Necromancy, which cannot appear normally in Witch's Huts)
   Return: None
 
-76. bool GetPlayerVisitedWitchHut(player p, int x, int y)
+78. bool GetPlayerVisitedWitchHut(player p, int x, int y)
   Arguments:
    p: The player to check for
    x: The X coordinate of the Witch Hut
@@ -556,7 +568,7 @@ Functions (C-style types are included for more readability):
   Return: True if the player can see the skill at the witch hut (either by having visited it, or by SetPlayerVisitedWitchHut()), false otherwise.
   Notes: What this function checks for is actually if the Witch Hut displays its skill to the specified player (on right-click). Doesn't work with AI (will return false).
 
-77. void SetPlayerVisitedWitchHut(player p, int x, int y, bool yesno)
+79. void SetPlayerVisitedWitchHut(player p, int x, int y, bool yesno)
   Arguments:
    p: The player desired
    x: The X coordinate of the Witch Hut
@@ -568,23 +580,23 @@ Functions (C-style types are included for more readability):
 
 ---------------------------------------------------------ULTIMATE ARTIFACT---------------------------------------------------------
 
-78. int GetUltimateArtifactX(void)
+80. int GetUltimateArtifactX(void)
   Return: The X coordinate of the Ultimate Artifact
 
-79. int GetUltimateArtifactY(void)
+81. int GetUltimateArtifactY(void)
   Return: The Y coordinate of the Ultimate Artifact
 
-80. int GetUltimateArtifact(void)
+82. int GetUltimateArtifact(void)
   Return: The ID of the Ultimate Artifact
 
-81. void SetUltimateArtifactPos(int x, int y)
+83. void SetUltimateArtifactPos(int x, int y)
   Arguments:
    x: The new X coordinate of the Ultimate Artifact
    y: The new Y coordinate of the Ultimate Artifact
   Return: None
   Notes: You can even set this to the edge of the map (the Map Editor would complain). The puzzle map adjusts accordingly, even if some pieces were revealed.
 
-82. void SetUltimateArtifact(int artifact)
+84. void SetUltimateArtifact(int artifact)
   Arguments:
    artifact: The ID of the new Ultimate Artifact
   Return: None
@@ -592,7 +604,7 @@ Functions (C-style types are included for more readability):
 
 ---------------------------------------------------------MINES---------------------------------------------------------
 
-83. int GetMineId(int x, int y)
+85. int GetMineId(int x, int y)
   Arguments:
    x: The X coordinate of the Mine/Lighthouse
    y: The Y coordinate of the Mine/Lighthouse
@@ -600,29 +612,29 @@ Functions (C-style types are included for more readability):
   Notes: Because of how the game works, all other mine-related functions require this ID instead of the usual x and y coordinates
   This functions works with all 8 types of mines (7 resources + abandoned) and Lighthouses as well.
 
-84. int GetMineOwner(int id)
+86. int GetMineOwner(int id)
   Arguments:
    id: The id of the Mine/Lighthouse
   Return: The player who owns the mine, or UNOWNED if it is unowned
   Notes: This function works with all 7 resource mines (abandoned mines cannot be owned) and Lighthouses.
 
-85. void SetMineOwner(int id, int player)
+87. void SetMineOwner(int id, int player)
   Arguments:
    id: The id of the Mine/Lighthouse
    player: The player who will own the mine, or UNOWNED if it should have no owner
   Notes: This function works with all 7 resource mines (abandoned mines cannot be owned) and Lighthouses.
 
-86. int GetMineGuards(int id)
+88. int GetMineGuards(int id)
   Arguments:
    id: The id of the Mine
   Return: The monster type that guards the mine.
 
-87. int GetMineGuardCount(int id)
+89. int GetMineGuardCount(int id)
   Arguments:
    id: The id of the Mine
   Return: The quantity of monsters that guard the mine.
 
-88. void SetMineGuards(int id, int type, int count)
+90. void SetMineGuards(int id, int type, int count)
   Arguments:
    id: The id of the Mine
    type: The type of the monster (for now this can only be Ghosts or Elementals)
@@ -631,27 +643,27 @@ Functions (C-style types are included for more readability):
 
 ---------------------------------------------------------DWELLINGS---------------------------------------------------------
 
-89. int GetDwellingQuantity(int x, int y)
+91. int GetDwellingQuantity(int x, int y)
   Arguments:
    x: The X coordinate of the dwelling
    y: The Y coordinate of the dwelling
   Return: The number of monsters that can be recruited from the dwelling
 
-90. void SetDwellingQuantity(int x, int y, int qty)
+92. void SetDwellingQuantity(int x, int y, int qty)
   Arguments:
    x: The X coordinate of the dwelling
    y: The Y coordinate of the dwelling
    qty: The number of monsters that will be available for recruit
   Return: None
 
-91. bool DwellingHasGuards(int x, int y)
+93. bool DwellingHasGuards(int x, int y)
   Arguments:
    x: The X coordinate of the dwelling
    y: The Y coordinate of the dwelling
   Return: If the dwelling has guards, it returns true, otherwise false.
   Notes: Only Troll Bridges, Cities of the Dead and Dragon Cities can have guards. For everything else, the function makes no check and returns false.
 
-92. void SetDwellingHasGuards(int x, int y, bool yesno)
+94. void SetDwellingHasGuards(int x, int y, bool yesno)
   Arguments:
    x: The X coordinate of the dwelling
    y: The Y coordinate of the dwelling
@@ -661,13 +673,13 @@ Functions (C-style types are included for more readability):
 
 ---------------------------------------------------------SIGNS---------------------------------------------------------
 
-93. string GetSignText(int x, int y)
+95. string GetSignText(int x, int y)
   Arguments:
    x: The X coordinate of the Sign/Bottle
    y: The Y coordinate of the Sign/Bottle
   Return: The message that's on the sign. Works with bottles as well (if they are still there).
 
-94. void SetSignText(int x, int y, string msg)
+96. void SetSignText(int x, int y, string msg)
   Arguments:
    x: The X coordinate of the Sign/Bottle
    y: The Y coordinate of the Sign/Bottle
@@ -675,20 +687,20 @@ Functions (C-style types are included for more readability):
 
 ---------------------------------------------------------CAMPFIRES---------------------------------------------------------
 
-95. int GetCampfireResource(int x, int y)
+97. int GetCampfireResource(int x, int y)
   Arguments:
    x: The X coordinate of the Campfire
    y: The Y coordinate of the Campfire
   Return: The resource type located at the specified campfire (aside from the Gold).
 
-96. int GetCampfireResourceCount(int x, int y)
+98. int GetCampfireResourceCount(int x, int y)
   Arguments:
    x: The X coordinate of the Campfire
    y: The Y coordinate of the Campfire
   Return: The resource amount in the specified campfire. The amount of gold is 100 times this value, while the amount
   of rare resource is exactly this value.
 
-97. void SetCampfireResource(int x, int y, int resource, int qty)
+99. void SetCampfireResource(int x, int y, int resource, int qty)
   Arguments:
    x: The X coordinate of the Campfire
    y: The Y coordinate of the Campfire
@@ -697,19 +709,19 @@ Functions (C-style types are included for more readability):
 
 ---------------------------------------------------------LEAN-TO---------------------------------------------------------
 
-98. int GetLeanToResource(int x, int y)
+100. int GetLeanToResource(int x, int y)
   Arguments:
    x: The X coordinate of the Lean-To
    y: The Y coordinate of the Lean-To
   Return: The resource type located at the specified Lean-To. -1 if it is empty
 
-99. int GetLeanToResourceCount(int x, int y)
+101. int GetLeanToResourceCount(int x, int y)
   Arguments:
    x: The X coordinate of the Lean-To
    y: The Y coordinate of the Lean-To
   Return: The resource amount in the specified Lean-To. 0 if it is empty
 
-100. void SetLeanToResource(int x, int y, int resource, int qty)
+102. void SetLeanToResource(int x, int y, int resource, int qty)
   Arguments:
    x: The X coordinate of the Lean-To
    y: The Y coordinate of the Lean-To
@@ -719,31 +731,31 @@ Functions (C-style types are included for more readability):
 
 ---------------------------------------------------------WAGONS---------------------------------------------------------
 
-101. int GetWagonType(int x, int y)
+103. int GetWagonType(int x, int y)
   Arguments:
    x: The X coordinate of the Wagon
    y: The Y coordinate of the Wagon
   Return: 0 if the wagon is empty, 1 if the wagon contains a resource, 2 if it contains an artifact
 
-102. int GetWagonResource(int x, int y)
+104. int GetWagonResource(int x, int y)
   Arguments:
    x: The X coordinate of the Wagon
    y: The Y coordinate of the Wagon
   Return: The resource type in the wagon. Returns nil if the wagon's type is not 1 (see GetWagonType())
 
-103. int GetWagonResourceCount(int x, int y)
+105. int GetWagonResourceCount(int x, int y)
   Arguments:
    x: The X coordinate of the Wagon
    y: The Y coordinate of the Wagon
   Return: The resource count in the wagon. Returns nil if the wagon's type is not 1 (see GetWagonType())
 
-104. int GetWagonArtifact(int x, int y)
+106. int GetWagonArtifact(int x, int y)
   Arguments:
    x: The X coordinate of the Wagon
    y: The Y coordinate of the Wagon
   Return: The artifact in the wagon. Returns nil if the wagon's type is not 2 (see GetWagonType())
 
-105. void SetWagonResource(int x, int y, int resource, int qty)
+107. void SetWagonResource(int x, int y, int resource, int qty)
   Arguments:
    x: The X coordinate of the Wagon
    y: The Y coordinate of the Wagon
@@ -752,7 +764,7 @@ Functions (C-style types are included for more readability):
   Note: The function auto-sets the type of the wagon to 1. If you set the resource to -1 or the count to 0, the type will be set to 0,
   and the Wagon will be empty.
 
-106. void SetWagonArtifact(int x, int y, int artifact)
+108. void SetWagonArtifact(int x, int y, int artifact)
   Arguments:
    x: The X coordinate of the Wagon
    y: The Y coordinate of the Wagon
@@ -764,13 +776,13 @@ Functions (C-style types are included for more readability):
 NOTE: ALTHOUGH THE MAP EDITOR HIGHLIGHTS BOTH OF THE CELLS OF THE SKELETON AS TRIGGER CELLS, ONLY THE RIGHT CELL
 ACTIVATES THE SKELETON. USE THOSE COORDINATES FOR THESE FUNCTIONS
 
-107. void GetSkeletonArtifact(int x, int y)
+109. void GetSkeletonArtifact(int x, int y)
   Arguments:
    x: The X coordinate of the Skeleton
    y: The Y coordinate of the Skeleton
   Return: The artifact located at the Skeleton, or -1 if it is empty
 
-108. void SetSkeletonArtifact(int x, int y, int artifact)
+110. void SetSkeletonArtifact(int x, int y, int artifact)
   Arguments:
    x: The X coordinate of the Skeleton
    y: The Y coordinate of the Skeleton
@@ -778,13 +790,13 @@ ACTIVATES THE SKELETON. USE THOSE COORDINATES FOR THESE FUNCTIONS
 
 ---------------------------------------------------------RESOURCES---------------------------------------------------------
 
-109. int GetResourcePileCount(int x, int y)
+111. int GetResourcePileCount(int x, int y)
   Arguments:
    x: The X coordinate of the resource pile
    y: The Y coordinate of the resource pile
   Return: The amount of resources in the pile
 
-110. void SetResourcePileCount(int x, int y, int qty)
+112. void SetResourcePileCount(int x, int y, int qty)
   Arguments:
    x: The X coordinate of the resource pile
    y: The Y coordinate of the resource pile
@@ -793,26 +805,26 @@ ACTIVATES THE SKELETON. USE THOSE COORDINATES FOR THESE FUNCTIONS
 ---------------------------------------------------------TREASURE CHESTS---------------------------------------------------------
 
 
-111. int GetTreasureChestType(int x, int y)
+113. int GetTreasureChestType(int x, int y)
   Arguments:
    x: The X coordinate of the Treasure Chest
    y: The Y coordinate of the Treasure Chest
   Return:  1 if the chest contains a gold/exp, 2 if it contains an artifact
 
-112. int GetTreasureChestLevel(int x, int y)
+114. int GetTreasureChestLevel(int x, int y)
   Arguments:
    x: The X coordinate of the Treasure Chest
    y: The Y coordinate of the Treasure Chest
   Return: The level of the chest. Returns nil if the chest's type is not 1 (see GetTreasureChestType()).
   The amount of gold is level * 500. The amount of exp is (level * 500) - 500. Standard chests use levels 2, 3 and 4.
 
-113. int GetTreasureChestArtifact(int x, int y)
+115. int GetTreasureChestArtifact(int x, int y)
   Arguments:
    x: The X coordinate of the Treasure Chest
    y: The Y coordinate of the Treasure Chest
   Return: The artifact in the chest. Returns nil if the chest's type is not 2 (see GetTreasureChestType())
 
-114. void SetTreasureChestLevel(int x, int y, int lvl)
+116. void SetTreasureChestLevel(int x, int y, int lvl)
   Arguments:
    x: The X coordinate of the Treasure Chest
    y: The Y coordinate of the Treasure Chest
@@ -820,7 +832,7 @@ ACTIVATES THE SKELETON. USE THOSE COORDINATES FOR THESE FUNCTIONS
   Note: The function auto-sets the type of the chest to 1. Gold amount = lvl * 500. Exp amount = lvl * 500 - 500.
   At level 0, you get 0 gold or -500 experience. The regular chests use levels 2, 3 and 4.
 
-115. void SetTreasureChestArtifact(int x, int y, int artifact)
+117. void SetTreasureChestArtifact(int x, int y, int artifact)
   Arguments:
    x: The X coordinate of the Treasure Chest
    y: The Y coordinate of the Treasure Chest
@@ -829,57 +841,57 @@ ACTIVATES THE SKELETON. USE THOSE COORDINATES FOR THESE FUNCTIONS
 
 ---------------------------------------------------------TOWN---------------------------------------------------------
 
-116. int GetTownIdFromPos(int x, int y)
+118. int GetTownIdFromPos(int x, int y)
   Arguments:
    x: The X coordinate of the town
    y: The Y coordinate of the town
   Return: The town ID
   Notes: This ID can then be passed to GetTown().
 
-117. town GetTown(int id)
+119. town GetTown(int id)
   Arguments:
    id: The ID of the town (see GetTownIdFromPos())
   Return: The town object
 
-118. town GetTownByName(string name)
+120. town GetTownByName(string name)
   Arguments:
    name: The name of the town
   Return: The town object
 
-119. town GetPlayerTown(player p, int idx)
+121. town GetPlayerTown(player p, int idx)
      p.town(idx)
   Arguments:
    p: The player who owns the town
    idx: The index of the town (the Nth town in the list, from the player's perspective)
   Return: The town object
 
-120. town GetCurrentTown(void)
+122. town GetCurrentTown(void)
   Arguments:
    None
   Return: The current town (the town who's Town Screen is displayed); if not in town screen, then twn.ptr will be 0 (twn is the returned object)
   Notes: OnTownOpen() passes the current town as a parameter, so this function will likely be rarely called
 
-121. bool HasVisitingHero(town twn)
+123. bool HasVisitingHero(town twn)
      twn.hasVisitingHero
   Arguments:
    twn: The town
   Return: True if there is a visiting hero in the town, false otherwise
 
-122. hero GetVisitingHero(town twn)
+124. hero GetVisitingHero(town twn)
      twn.visitingHero
   Arguments:
    twn: The town
   Return: The visiting hero
   Notes: First check if the hero exists with HasVisitingHero(), and only if it returns true call this
 
-123. void BuildInCurrentTown(int building)
+125. void BuildInCurrentTown(int building)
   Arguments:
    building: The buildig to be built
   Return: None
   Notes: This is equivalent to BuildInTown(GetCurrentTown(), building) and is present for legacy purposes.
   Before, calling BuildInTown() would not update the town screen properly. Note that this function sets twn.builtToday to true.
 
-124. void BuildInTown(town twn, int building)
+126. void BuildInTown(town twn, int building)
      twn.build(building)
   Arguments:
    twn: The town
@@ -888,26 +900,26 @@ ACTIVATES THE SKELETON. USE THOSE COORDINATES FOR THESE FUNCTIONS
   Notes: This function works properly both in and outside the town and it updates the town screen properly.
   Note that this function sets twn.builtToday to true.
 
-125. string GetTownName(town twn)
+127. string GetTownName(town twn)
      twn.name
   Arguments:
    twn: The town
   Return: The name of the town
 
-126. void SetTownName(town twn, string name)
+128. void SetTownName(town twn, string name)
      twn.name
   Arguments:
    twn: The town
    name: The new name
   Return: None
 
-127. int GetTownFaction(town twn)
+129. int GetTownFaction(town twn)
      twn.faction
   Arguments:
    twn: The town
   Return: The faction of the town (FACTION_KNIGHT etc.)
 
-128. void SetTownFaction(town twn, int faction)
+130. void SetTownFaction(town twn, int faction)
      twn.faction
   Arguments:
    twn: The town
@@ -915,39 +927,39 @@ ACTIVATES THE SKELETON. USE THOSE COORDINATES FOR THESE FUNCTIONS
   Return: None
   Notes: This doesn't change the outside appearance of the town
   
-129. player GetTownOwner(town twn)
+131. player GetTownOwner(town twn)
      twn.owner
   Arguments:
    twn: The town
   Return: The player who owns the town, or UNOWNED if there is no owner
 
-130. void SetTownOwner(town twn, player p)
+132. void SetTownOwner(town twn, player p)
      twn.owner
   Arguments:
    twn: The town
    p: The player who will own the town, or UNOWNED if no owner
   Return: None
 
-131. int GetTownX(town twn)
+133. int GetTownX(town twn)
      twn.x
   Arguments:
    twn: The town
   Return: The X coordinate of the town
 
-132. int GetTownY(town twn)
+134. int GetTownY(town twn)
      twn.y
   Arguments:
    twn: The town
   Return: The Y coordinate of the town
 
-133. int GetNumberOfCreatures(town twn, int dwelling)
+135. int GetNumberOfCreatures(town twn, int dwelling)
      twn.getDwelling(dwelling)
   Arguments:
    twn: The town
    dwelling: The dwelling to check (BUILDING_DWELLING_1 etc.)
   Return: The amount of creatures available for hire
 
-134. void SetNumberOfCreatures(town twn, int dwelling, int number)
+136. void SetNumberOfCreatures(town twn, int dwelling, int number)
      twn.setDwelling(dwelling, number)
   Arguments:
    twn: The town
@@ -955,7 +967,7 @@ ACTIVATES THE SKELETON. USE THOSE COORDINATES FOR THESE FUNCTIONS
    number: The number of available creatures
   Return: None
 
-135. void SetNumGuildSpells(town twn, int level, int number)
+137. void SetNumGuildSpells(town twn, int level, int number)
      twn.setNumGuildSpells(level, number)
   Arguments:
    twn: The town
@@ -964,7 +976,7 @@ ACTIVATES THE SKELETON. USE THOSE COORDINATES FOR THESE FUNCTIONS
   Return: None
   BUG: The function also reveals the spells on that level
 
-136. int GetGuildSpell(town twn, int level, int idx)
+138. int GetGuildSpell(town twn, int level, int idx)
      twn.spells[level][idx]
   Arguments:
    twn: The town
@@ -972,7 +984,7 @@ ACTIVATES THE SKELETON. USE THOSE COORDINATES FOR THESE FUNCTIONS
    idx: The index of the spell in the guild (0 - 3)
   Return: The spell at that specified place
 
-137. void SetGuildSpell(town twn, int level, int idx, int spell)
+139. void SetGuildSpell(town twn, int level, int idx, int spell)
      twn.spells[level][idx]
   Arguments:
    twn: The town
@@ -982,13 +994,13 @@ ACTIVATES THE SKELETON. USE THOSE COORDINATES FOR THESE FUNCTIONS
   Return: None
   Notes: You can set spells of a different level (e.g. SetGuildSpell(t, 0, 0, SPELL_MASS_SLOW) is valid)
 
-138. bool GetBuildingFlag(town twn)
+140. bool GetBuildingFlag(town twn)
      twn.builtToday
   Arguments:
    twn: The town in question
   Return: True if a building can be built in the specified town in that turn
 
-139. void SetBuildingFlag(town twn, bool yesno)
+141. void SetBuildingFlag(town twn, bool yesno)
      twn.builtToday
   Arguments:
    twn: The town in question
@@ -998,7 +1010,7 @@ ACTIVATES THE SKELETON. USE THOSE COORDINATES FOR THESE FUNCTIONS
 
 ---------------------------------------------------------BATTLE---------------------------------------------------------
 
-140. void BattleSummonCreature(int side, int hex, int creature, int amount)
+142. void BattleSummonCreature(int side, int hex, int creature, int amount)
   Arguments:
    side: 0 for attacker, 1 for defender
    hex: The hex to summon at (0 - 116)
@@ -1006,72 +1018,72 @@ ACTIVATES THE SKELETON. USE THOSE COORDINATES FOR THESE FUNCTIONS
    amount: The amount of creatures to summon
   Return: None
 
-141. bool IsHexEmpty(int hex))
+143. bool IsHexEmpty(int hex))
   Arguments:
    hex: The hex (0 - 116)
   Return: True if there are no creatures on that hex, false otherwise
 
-142. bool BattleHasHero(int side)
+144. bool BattleHasHero(int side)
   Arguments:
    side: The side to check (0 for attacker, 1 for defender)
   Return: True if the side has a hero
   Notes: The attacker always has a hero
 
-143. hero BattleGetHero(int side)
+145. hero BattleGetHero(int side)
   Arguments:
    side: The side to check (0 for attacker, 1 for defender)
   Return: The hero on that side
   Notes: Changing the heroes stats in battle does not take effect until the end of the battle
 
-144. void BattleMessage(string msg)
+146. void BattleMessage(string msg)
   Arguments:
    msg: The message to show
   Return: None
   Notes: The message is displayed in the bottom status bar
 
-145. int BattleGetNumStacks(int side)
+147. int BattleGetNumStacks(int side)
   Arguments:
    side: The side to check (0 for attacker, 1 for defender)
   Return: The number of stacks the side has
 
-146. stack BattleGetStack(int side, int idx)
+148. stack BattleGetStack(int side, int idx)
   Arguments:
    side: The side (0 for attacker, 1 for defender)
    idx: The index of the stack
   Return: The stack object
 
-147. int GetStackSide(stack stk)
+149. int GetStackSide(stack stk)
      stk.side
   Arguments:
    stk: The stack of interest
   Return: 0 if the stack is owned by the attacker, 1 if owned by the defender
 
-148. int GetStackType(stack stk)
+150. int GetStackType(stack stk)
      stk.type
   Arguments:
    stk: The stack of interest
   Return: The creature type of the stack
 
-149. int GetStackQuantity(stack stk)
+151. int GetStackQuantity(stack stk)
      stk.quantity
   Arguments
    stk: The stack of interest
   Return: The amount of creatures in the stack
 
-150. void SetStackQuantity(stack stk, int qty)
+152. void SetStackQuantity(stack stk, int qty)
      stk.quantity
   Arguments:
    stk: The stack of interest
    qty: The new quantity
   Return: None
 
-151. int GetStackInitialQuantity(stack stk)
+153. int GetStackInitialQuantity(stack stk)
      stk.initialQuantity
   Arguments:
    stk: The stack of interest
   Return: The initial quantity of the stack
 
-152. void SetStackInitialQuantity(stack stk, int qty)
+154. void SetStackInitialQuantity(stack stk, int qty)
      stk.initialQuantity
   Arguments:
    stk: The stack of interest
@@ -1079,84 +1091,84 @@ ACTIVATES THE SKELETON. USE THOSE COORDINATES FOR THESE FUNCTIONS
   Return: None
   Notes: This quantity affects Resurrection spells and the Vampire Lord's Life Drain
 
-153. int GetStackHex(stack stk)
+155. int GetStackHex(stack stk)
      stk.hex
   Arguments:
    stk: The stack
   Return: The hex that the stack is standing on (0- 116)
 
-154. int GetStackMorale(stack stk)
+156. int GetStackMorale(stack stk)
      stk.morale
   Arguments:
    stk: The stack
   Return: The morale of the stack
 
-155. void SetStackMorale(stack stk, int morale)
+157. void SetStackMorale(stack stk, int morale)
      stk.morale
   Arguments:
    stk: The stack of interest
    morale: The morale value to set
   Return: None
 
-156. int GetStackLuck(stack stk)
+158. int GetStackLuck(stack stk)
      stk.luck
   Arguments:
    stk: The stack
   Return: The luck of the stack
 
-157. void SetStackLuck(stack stk, int luck)
+159. void SetStackLuck(stack stk, int luck)
      stk.luck
   Arguments:
    stk: The stack of interest
    luck: The luck value to set
   Return: None
 
-158. int GetStackAttack(stack stk)
+160. int GetStackAttack(stack stk)
      stk.attack
   Arguments:
    stk: The stack
   Return: The attack skill of the stack
 
-159. void SetStackAttack(stack stk, int attack)
+161. void SetStackAttack(stack stk, int attack)
      stk.attack
   Arguments:
    stk: The stack of interest
    attack: The attack value to set
   Return: None
 
-160. int GetStackDefense(stack stk)
+162. int GetStackDefense(stack stk)
      stk.defense
   Arguments:
    stk: The stack
   Return: The defense skill of the stack
 
-161. void SetStackDefense(stack stk, int defense)
+163. void SetStackDefense(stack stk, int defense)
      stk.defense
   Arguments:
    stk: The stack of interest
    defense: The defense value to set
   Return: None
 
-162. int GetStackSpeed(stack stk)
+164. int GetStackSpeed(stack stk)
      stk.speed
   Arguments:
    stk: The stack
   Return: The speed of the stack
 
-163. void SetStackSpeed(stack stk, int speed)
+165. void SetStackSpeed(stack stk, int speed)
      stk.speed
   Arguments:
    stk: The stack of interest
    speed: The speed value to set
   Return: None
 
-164. int GetStackShots(stack stk)
+166. int GetStackShots(stack stk)
      stk.shots
   Arguments:
    stk: The stack
   Return: The shots of the stack
 
-165. void SetStackSpeed(stack stk, int shots)
+167. void SetStackShots(stack stk, int shots)
      stk.shots
   Arguments:
    stk: The stack of interest
@@ -1164,13 +1176,13 @@ ACTIVATES THE SKELETON. USE THOSE COORDINATES FOR THESE FUNCTIONS
   Return: None
   Notes: Only use this on shooters
 
-166. int GetStackHp(stack stk)
+168. int GetStackHp(stack stk)
      stk.hp
   Arguments:
    stk: The stack
   Return: The hp of the stack
 
-167. void SetStackHp(stack stk, int hp)
+169. void SetStackHp(stack stk, int hp)
      stk.hp
   Arguments:
    stk: The stack of interest
@@ -1179,7 +1191,7 @@ ACTIVATES THE SKELETON. USE THOSE COORDINATES FOR THESE FUNCTIONS
 
 ---------------------------------------------------------MISCELLANEOUS---------------------------------------------------------
 
-168. int StartBattle(hero hro, int creature, int creatureQty, int switchSides)
+170. int StartBattle(hero hro, int creature, int creatureQty, int switchSides)
   Arguments:
    hro: The hero who will fight the battle
    creature: The creature to fight against
@@ -1187,30 +1199,44 @@ ACTIVATES THE SKELETON. USE THOSE COORDINATES FOR THESE FUNCTIONS
    switchSides: 0 if the hero should be on the left side, 1 if he should be on the right
   Return: 0 if the left side won, 1 if the right side won
 
-169. void ToggleAIArmySharing(int yesno)
+171. void ToggleAIArmySharing(int yesno)
   Arguments:
    yesno: 1 if the AI can share armies, 0 otherwise
   Return: None
 
-170. int GetSpellLevel(int spell)
+172. int GetSpellLevel(int spell)
   Arguments:
    spell: The spell to check the level for
   Return:
    The level of the spell (1 - 5).
 
-171. string GetSpellName(int spell)
+173. string GetSpellName(int spell)
   Arguments:
    spell: The spell to get the name for
   Return:
    The name of the spell (e.g. for SPELL_LIGHTNING_BOLT, the name is "Lightning Bolt")
 
-172. string GetArtifactName(int artifact)
+174. string GetArtifactName(int artifact)
   Arguments:
    artifact: The artifact to get the name for
   Return:
    The name of the artifact (e.g. for ARTIFACT_MAGES_RING_OF_POWER, the name is "Mage's Ring of Power")
   Notes:
    The game will crash if the argument is not a valid artifact number. Check it first.
+
+175. void MapFizzle(int x, int y, bool sound)
+  Arguments:
+   x: The X coordinate
+   y: The Y coordinate
+   sound: Whether an appropriate sound (either "killfade.82m" or a resource pick-up sound, depending on the location)
+  Return: None
+  Notes: Fades out a specific map object
+
+176. void PlaySoundEffect(string sound)
+  Arguments:
+   sound: The name of the sound to play (an 82m file in the AGG; please omit the .82M extension)
+  Return: None
+  Notes: Plays a sound (pauses the game while playing it)
 
 Callbacks:
 1. void OnMapStart(void)
