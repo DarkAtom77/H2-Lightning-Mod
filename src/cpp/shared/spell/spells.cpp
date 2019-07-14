@@ -76,7 +76,8 @@ char *gSpellDesc[] =
   "{Set Fire Guardian}\n\nSets Fire Elementals to guard a mine against enemy armies.",
   "{Set Water Guardian}\n\nSets Water Elementals to guard a mine against enemy armies.",
   "{Awareness}\n\nExplores a large area around your hero.",
-  "{Shadow Mark}\n\nMarked creature receives 150% damage from your troops for 1 turn"
+  "{Shadow Mark}\n\nMarked creature receives 150% damage from your troops for 1 turn",
+  "{Disenchant}\n\nRemoves all positive spells from the selected target",
 };
 
 SSpellInfo gsSpellInfo[] = {
@@ -86,7 +87,7 @@ SSpellInfo gsSpellInfo[] = {
 	{"chainlte", 4, 5, 15, 650, 15, 10, 0x0A0A0A0A, 0x0A, ATTR_COMMON_SPELL | ATTR_COMBAT_SPELL},
 	{"telptout", 3, 10, 0, 30, 9, 10, 0x0A0A0A0A, 0x0A, ATTR_COMBAT_SPELL},
 	{"cure", 1, 6, 1, 250, 6, 10, 0x0A0A0A0A, 0x0A, ATTR_COMBAT_SPELL},
-	{"masscure", 4, 6, 1, 700, 15, 10, 0x0A0A0A0A, 0x0A, ATTR_COMBAT_SPELL},
+	{"cure", 4, 6, 1, 700, 15, 10, 0x0A0A0A0A, 0x0A, ATTR_COMBAT_SPELL},
 	{"resurect", 4, 13, 1, 400, 12, 10, 0x0A0A0A0A, 0x0A, ATTR_COMMON_SPELL | ATTR_COMBAT_SPELL},
 	{"resurtru", 5, 12, 1, 550, 15, 10, 0x0A0A0A0A, 0x0A, ATTR_COMMON_SPELL | ATTR_COMBAT_SPELL},
 	{"haste", 1, 14, 24, 300, 3, 10, 0x0A0A0A0A, 0x0A, ATTR_COMMON_SPELL | ATTR_COMBAT_SPELL | ATTR_DURATIONED_SPELL},
@@ -148,8 +149,10 @@ SSpellInfo gsSpellInfo[] = {
 
 	//awareness
 	{"", 1, 55, 0, 700, 20, 10, 0x0A0A0A0A, 0x0A, ATTR_ADVENTURE_SPELL},
-  //shadow mark
-  {"shdwmark", 2, 66, 33, 150, 3, 10, 0x0A0A0A0A, 0x0A, ATTR_COMMON_SPELL | ATTR_COMBAT_SPELL | ATTR_DURATIONED_SPELL}
+	//shadow mark
+	{"shdwmark", 2, 66, 33, 150, 3, 10, 0x0A0A0A0A, 0x0A, ATTR_COMMON_SPELL | ATTR_COMBAT_SPELL | ATTR_DURATIONED_SPELL},
+	//disenchant
+	{"masscure", 2, 6, 1, 250, 4, 10, 0x0A0A0A0A, 0x0A, ATTR_COMMON_SPELL | ATTR_COMBAT_SPELL},
 };
 
 #define DD_MOVEMENT_COST 225

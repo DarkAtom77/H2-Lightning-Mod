@@ -94,6 +94,7 @@ enum Spell : int {
 
   SPELL_AWARENESS = 65,
   SPELL_SHADOW_MARK = 66,
+  SPELL_DISENCHANT = 67,
 };
 
 

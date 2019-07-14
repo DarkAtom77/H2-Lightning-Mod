@@ -1,0 +1,95 @@
+First the artwork:
+The standard icon (displayed in the Mage Guild and the Spell Book) goes in SPELLS.ICN. Find the last icon (with the name in the form of 00XX.bmp) and add your icon with the name <00XX+1>.bmp.
+
+If your spell is going to be a combat spell, you will need an icon for the cursor (when you hover the spell over a creature). This icon goes in SPELCO.ICN. Do the same as for the standard icon (however the name of the bmp will probably not be the same, but a lower number).
+
+If your spell is going to be a durationed spell (that has an effect), you will need 2 additional icons. One of them is for right-clicking on the creature to see the info. The other (smaller one) is for the creature information side-window that can be activated in Combat Options. The big icon goes in SPELLINL.ICN, while the small icon goes in SPELLINF.ICN.
+
+The combat animation (if it is a combat spell, of course) is placed in an ICN with the name of your choice. Pick an intuitive name, like <spellname>.ICN (8.3 format!!!).
+
+For the sound of the spell, pick an 8 character short name for the spell like <spellnam> and save the sound as <spellnam>.82M. Put the sound directly into ironfist.agg.
+
+
+
+Now for the code:
+Add a new line in the Spells enum (file spells.h) with the next ID and the constant name:
+Example:
+enum Spell : int {
+	//... (previous spells)
+	SPELL_MYNEWSPELL = <nextId>,
+};
+
+Add a new line in gSpellNames array (file spell_constants.cpp) with the name of the spell:
+Example:
+char* *gSpellNames[] = {
+	//... (previous spells)
+	"MyNewSpell",
+};
+
+Add a new line in gSpellDesc array (file spells.cpp) with your description:
+Example:
+char* gSpellDesc[] = 
+{
+	//... (previous spells)
+	"{MyNewSpell}\n\nMy new spell does bla bla bla",
+};
+
+Add a new line in gCombatFxNames array (file army.cpp) with the combat animation of the spell:
+Example:
+char *gCombatFxNames[] =
+{
+	//... (previous animations)
+	"<animation>.icn",
+};
+
+Add a new line in giNumPowFrames array (file army.cpp) with the number of frames in the combat animation of the spell:
+Example:
+unsigned __int8 giNumPowFrames[] =
+{
+	//... (previous animations)
+	<numframes>u, //(don't forget the u at the end of the number, you need to mark it as unsigned)
+};
+
+Add a new line in gsSpellInfo array (file spell.cpp) with the attributes of the spell:
+Example:
+SSpellInfo gsSpellInfo[] = {
+	//... (previous spells)
+	{"shortname", <spell_level>, <spellBookIconIdx>, <animationIdx>, <appearingChance>, <mana_cost>, <nonMagicFactionAppearingChance>, 0x0A0A0A0A, 0x0A, <attributes>},
+};
+The shortname is the filename (without the extension) of the sound of the spell.
+The level of the spell determines where it appears in the mage guild.
+SpellBookIconIdx is the ID of the icon in SPELLS.ICN. (If the icon is 00XX.bmp, then the ID is that XX).
+animationIdx is the index of the animation in gCombatFxNames. If it is an adventure spell (and thus has no animation), fill 0.
+appearingChance is the chance of the spell to appear in a mage guild. Look at what other spells have and decide how frequent you want your spell to be.
+The mana cost is how much mana you want your spell to cost.
+nonMagicFactionAppearingChance is always 10.
+Attributes are a list of constant values ORed together. For combat spells, use ATTR_COMBAT_SPELL. For
+ adventure spells, use ATTR_ADVENTURE_SPELL. If you also OR this value with ATTR_COMMON_SPELL, the chance of it appearing in the Mage Guild is much greater.
+ For durationed spells, also OR the value with ATTR_DURATIONED_SPELL.
+
+Increase the number of spells in the game by 1 (file spell_constants.h):
+Example:
+#define NUM_SPELLS <one more than before>
+
+Add a new line in the set_spell_consts function (file consts.cpp) with the constant name which will be used in Lua scripts:
+Example:
+void set_spell_consts(lua_State *L) {
+	//... (previous spells)
+	lua_setconst(L, "SPELL_MYNEWSPELL", SPELL_MYNEWSPELL); //this should be the same name as in the Spells enum
+}
+
+ONLY FOR DURATIONED SPELLS:
+Add a new line in the STACK_MODIFYING_EFFECT enum (file spells.h) with the next ID and the constant name:
+enum STACK_MODIFYING_EFFECT {
+	//... (previous effects)
+	EFFECT_MYSPELLEFFECT = <nextId>,
+};
+
+Now you are ready to add the logic that will give the spell the behaviour you want!
+
+
+A few directions for implementing the game logic:
+1. You have to add a new entry in the big switch statement in the CastSpell function (either combatManager::CastSpell, combat_spells.cpp, for combat spells, or advManager::CastSpell, spells.cpp, for adventure spells)
+   This entry should contain what should happen right when the spell is cast (like increase stats, update variables etc.)
+2. For combat spells, you have to add a new entry in combatManager::ValidSpellTarget. In this method you need to specify on what can your spell be cast.
+3. If you want specific creature immunities for your spells, add them in army::SpellCastWorkChance.

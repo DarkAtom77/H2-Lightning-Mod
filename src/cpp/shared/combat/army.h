@@ -137,6 +137,7 @@ public:
   bool TargetOnStraightLine(int targHex);
   int GetStraightLineDirection(int targHex);
   int GetStraightLineDistanceToHex(int hex);
+  void Disenchant(void);
 private:
   void RevertChargingMoveAnimation();
   void SetChargingMoveAnimation(CHARGING_DIRECTION dir);

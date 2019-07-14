@@ -42,7 +42,7 @@ bool gMoveAttack; // ironfist var to differentiate between move/move and attack
 bool gChargePathDamage;
 bool gCharging;
 
-char *gCombatFxNames[34] =
+char *gCombatFxNames[] =
 {
   "",
   "magic01.icn",
@@ -80,7 +80,7 @@ char *gCombatFxNames[34] =
   "shdwmark.icn"
 };
 
-unsigned __int8 giNumPowFrames[34] =
+unsigned __int8 giNumPowFrames[] =
 {
   10u,
   10u,
@@ -2463,4 +2463,15 @@ int army::GetStraightLineDistanceToHex(int hex) {
     }
   }
   return distance;
+}
+
+void army::Disenchant(void)
+{
+	this->CancelIndividualSpell(EFFECT_HASTE);
+	this->CancelIndividualSpell(EFFECT_BLESS);
+	this->CancelIndividualSpell(EFFECT_DRAGON_SLAYER);
+	this->CancelIndividualSpell(EFFECT_BLOOD_LUST);
+	this->CancelIndividualSpell(EFFECT_SHIELD);
+	this->CancelIndividualSpell(EFFECT_STONESKIN);
+	this->CancelIndividualSpell(EFFECT_STEELSKIN);
 }

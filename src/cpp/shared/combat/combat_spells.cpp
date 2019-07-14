@@ -164,8 +164,7 @@ float army::SpellCastWorkChance(int spell) {
 
   if (spell == SPELL_SHADOW_MARK && this->dead)
     return 0.0;
-
-	return this->SpellCastWorkChance_orig(spell);
+  return this->SpellCastWorkChance_orig(spell);
 }
 
 void combatManager::CastSpell(int proto_spell, int hexIdx, int isCreatureAbility, int a5) {
@@ -607,6 +606,12 @@ void combatManager::CastSpell(int proto_spell, int hexIdx, int isCreatureAbility
         stack->SetSpellInfluence(EFFECT_SHADOW_MARK, 1);
         stack->SpellEffect(gsSpellInfo[SPELL_SHADOW_MARK].creatureEffectAnimationIdx, 0, 0);
       break;
+	case SPELL_DISENCHANT:
+		this->ShowSpellMessage(isCreatureAbility, proto_spell, stack);
+		stack->SpellEffect(gsSpellInfo[SPELL_DISENCHANT].creatureEffectAnimationIdx, 0, 0);
+		stack->Disenchant();
+		this->DrawFrame(1, 0, 0, 0, 75, 1, 1);
+		break;
     default:
       this->DefaultSpell(hexIdx);
       break;
