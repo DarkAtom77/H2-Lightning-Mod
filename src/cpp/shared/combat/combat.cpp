@@ -328,7 +328,6 @@ int combatManager::ValidSpellTarget(int spell, int hexIdx) {
       return 0;
     } else {
       switch (spell) {
-      case SPELL_HOLY_WORD:
       case SPELL_HOLY_SHOUT:
       case SPELL_DISPEL_MAGIC:
       case SPELL_MASS_DISPEL:
@@ -375,6 +374,7 @@ int combatManager::ValidSpellTarget(int spell, int hexIdx) {
       case SPELL_BLIND:
       case SPELL_CURSE:
       case SPELL_MASS_CURSE:
+	  case SPELL_HOLY_WORD:
       case SPELL_MAGIC_ARROW:
       case SPELL_BERZERKER:
       case SPELL_PARALYZE:

@@ -232,7 +232,6 @@ void combatManager::CastSpell(int proto_spell, int hexIdx, int isCreatureAbility
     && proto_spell != SPELL_EARTHQUAKE
     && proto_spell != SPELL_MASS_CURSE
     && proto_spell != SPELL_MASS_CURE
-    && proto_spell != SPELL_HOLY_WORD
     && proto_spell != SPELL_HOLY_SHOUT
     && proto_spell != SPELL_DEATH_RIPPLE
     && proto_spell != SPELL_DEATH_WAVE
@@ -472,12 +471,25 @@ void combatManager::CastSpell(int proto_spell, int hexIdx, int isCreatureAbility
       stack->PowEffect(-1, 1, -1, -1);
       break;
     }
+	case SPELL_HOLY_WORD: {
+		long damage = 20 * spellpower;
+		char* creatureName;
+		if (stack->quantity <= 1)
+			creatureName = GetCreatureName(stack->creatureIdx);
+		else
+			creatureName = GetCreaturePluralName(stack->creatureIdx);
+		sprintf(gText, "The holy word does %d\n damage to the %s", damage, creatureName);
+		this->CombatMessage(gText, 1, 1, 0);
+		stack->Damage(damage, SPELL_NONE);
+		stack->SpellEffect(gsSpellInfo[SPELL_HOLY_WORD].creatureEffectAnimationIdx, 0, 0);
+		stack->PowEffect(-1, 1, -1, -1);
+	}
+	break;
     case SPELL_MASS_CURE:
     case SPELL_MASS_HASTE:
     case SPELL_MASS_SLOW:
     case SPELL_MASS_BLESS:
     case SPELL_MASS_CURSE:
-    case SPELL_HOLY_WORD:
     case SPELL_HOLY_SHOUT:
     case SPELL_MASS_DISPEL:
     case SPELL_DEATH_RIPPLE:
@@ -731,9 +743,9 @@ void combatManager::CastMassSpell(int spell, signed int spellpower)
 	{
 		case SPELL_MASS_DISENCHANT:
 		{
+			ShowSpellMessage(0, SPELL_MASS_DISENCHANT, 0);
 			int otherSide = (!this->currentActionSide);
 			signed char stacksAffected[2][20] = { 0 };
-			bool anyoneAffected;
 			for (int i = 0; i < this->numCreatures[otherSide]; i++)
 			{
 				army* thisStack = &this->creatures[otherSide][i];
@@ -741,16 +753,9 @@ void combatManager::CastMassSpell(int spell, signed int spellpower)
 				{
 					thisStack->Disenchant();
 					stacksAffected[otherSide][i] = 1;
-					anyoneAffected = true;
 				}
 			}
 			ShowMassSpell(stacksAffected, gsSpellInfo[SPELL_MASS_DISENCHANT].creatureEffectAnimationIdx, 0);
-			if (anyoneAffected)
-			{
-				//I am sure I am not supposed to display the message here, but I don't know where to do it
-				sprintf(gText, "%s casts \"%s\"", this->heroes[this->currentActionSide]->name, gSpellNames[SPELL_MASS_DISENCHANT]);
-				CombatMessage(gText);
-			}
 		}
 		break;
 		default:
@@ -820,7 +825,6 @@ int __thiscall combatManager::ViewSpells(int)
 			case SPELL_MASS_SLOW:
 			case SPELL_MASS_BLESS:
 			case SPELL_MASS_CURSE:
-			case SPELL_HOLY_WORD:
 			case SPELL_HOLY_SHOUT:
 			case SPELL_MASS_DISPEL:
 			case SPELL_ARMAGEDDON:
