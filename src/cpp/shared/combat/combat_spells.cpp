@@ -9,6 +9,10 @@
 #include "base.h"
 #include "skills.h"
 #include "sound/sound.h"
+#include "gui/dialog.h"
+#include "mouse.h"
+
+#include <string>
 
 extern SCmbtHero sCmbtHero[13];
 extern int castX;
@@ -16,7 +20,19 @@ extern int castY;
 
 extern void __fastcall IconToBitmap(icon*,bitmap*,int,int,int,int,int,int,int,int,int);
 
+extern int gCurLoadedSpellEffect;
+extern icon *gCurLoadedSpellIcon;
+extern int gCurSpellEffectFrame;
+
+extern int giCurGeneral;
+extern int giNextAction;
+extern int giNextActionExtra;
+
+extern int __fastcall CombatSpecialHandler(struct tag_message &);
+extern int __fastcall HandleCastSpell(struct tag_message &);
+
 extern heroWindowManager *gpWindowManager;
+extern mouseManager* gpMouseManager;
 
 #define RESURRECT_ANIMATION_LENGTH 22
 #define RESURRECT_ANIMATION_NUM_STANDING_FRAMES 4
@@ -223,7 +239,8 @@ void combatManager::CastSpell(int proto_spell, int hexIdx, int isCreatureAbility
     && proto_spell != SPELL_MASS_SHIELD
     && proto_spell != SPELL_ARMAGEDDON
     && proto_spell != SPELL_ELEMENTAL_STORM
-    && proto_spell != SPELL_MASS_DISPEL) {
+    && proto_spell != SPELL_MASS_DISPEL
+	&& proto_spell != SPELL_MASS_DISENCHANT) {
     int targetedUnitOwner = this->combatGrid[hexIdx].unitOwner;
     int targetedUnitStackIdx = this->combatGrid[hexIdx].stackIdx;
     if (ValidHex(hexIdx) && targetedUnitOwner >= 0) {
@@ -466,6 +483,7 @@ void combatManager::CastSpell(int proto_spell, int hexIdx, int isCreatureAbility
     case SPELL_DEATH_RIPPLE:
     case SPELL_DEATH_WAVE:
     case SPELL_MASS_SHIELD:
+	case SPELL_MASS_DISENCHANT:
       this->CastMassSpell(proto_spell, spellpower);
       break;
     case SPELL_MIRROR_IMAGE:
@@ -705,4 +723,172 @@ void __thiscall combatManager::ModifyDamageForArtifacts(long* damage, int spell,
 			}
 		}
 	}
+}
+
+void combatManager::CastMassSpell(int spell, signed int spellpower)
+{
+	switch (spell)
+	{
+		case SPELL_MASS_DISENCHANT:
+		{
+			int otherSide = (!this->currentActionSide);
+			signed char stacksAffected[2][20] = { 0 };
+			bool anyoneAffected;
+			for (int i = 0; i < this->numCreatures[otherSide]; i++)
+			{
+				army* thisStack = &this->creatures[otherSide][i];
+				if (thisStack->SpellCastWorks(SPELL_MASS_DISENCHANT))
+				{
+					thisStack->Disenchant();
+					stacksAffected[otherSide][i] = 1;
+					anyoneAffected = true;
+				}
+			}
+			ShowMassSpell(stacksAffected, gsSpellInfo[SPELL_MASS_DISENCHANT].creatureEffectAnimationIdx, 0);
+			if (anyoneAffected)
+			{
+				//I am sure I am not supposed to display the message here, but I don't know where to do it
+				sprintf(gText, "%s casts \"%s\"", this->heroes[this->currentActionSide]->name, gSpellNames[SPELL_MASS_DISENCHANT]);
+				CombatMessage(gText);
+			}
+		}
+		break;
+		default:
+			this->CastMassSpell_orig(spell, spellpower);
+	}
+}
+
+int __thiscall combatManager::ViewSpells(int)
+{
+	int result;
+	int elemental_type;
+	this->current_spell_id = gpGame->ViewSpells(this->heroes[giCurGeneral], SPELL_CATEGORY_COMBAT, CombatSpecialHandler, 0);
+	if (this->current_spell_id == -1)
+		result = 0;
+	else
+	{
+		switch (this->current_spell_id)
+		{
+			case SPELL_EARTHQUAKE:
+				if (this->castles[1])
+				{
+					giNextAction = 1;
+					giNextActionExtra = this->current_spell_id;
+					gpMouseManager->SetPointer("cmbtmous.mse", 0, -999);
+					result = 1;
+				}
+				else
+				{
+					H2MessageBox("An earthquake will do you no good unless there are town walls to damage.");
+					gpMouseManager->SetPointer("cmbtmous.mse", 0, -999);
+					result = 0;
+				}
+				break;
+			case SPELL_SUMMON_EARTH_ELEMENTAL:
+			case SPELL_SUMMON_FIRE_ELEMENTAL:
+			case SPELL_SUMMON_AIR_ELEMENTAL:
+			case SPELL_SUMMON_WATER_ELEMENTAL:
+				elemental_type = this->current_spell_id + 19;
+				if (this->summonedCreatureType[this->currentActionSide] && this->summonedCreatureType[this->currentActionSide] != elemental_type)
+				{
+					H2MessageBox("You may only summon one type of elemental per combat.");
+					result = 0;
+				}
+				else if (this->numCreatures[this->currentActionSide] >= 20)
+				{
+					std::string text = "You already have ";
+					text += std::to_string(this->numCreatures[this->currentActionSide]);
+					text += " creatures groups in combat and cannot add any more.";
+					H2MessageBox(text);
+					result = 0;
+				}
+				else if (!this->SpaceForElementalExists())
+				{
+					H2MessageBox("There is no open space adjacent to your hero to summon an Elemental to.");
+					result = 0;
+				}
+				else
+				{
+					giNextAction = 1;
+					giNextActionExtra = this->current_spell_id;
+					gpMouseManager->SetPointer("cmbtmous.mse", 0, -999);
+					result = 1;
+				}
+				break;
+			case SPELL_MASS_CURE:
+			case SPELL_MASS_HASTE:
+			case SPELL_MASS_SLOW:
+			case SPELL_MASS_BLESS:
+			case SPELL_MASS_CURSE:
+			case SPELL_HOLY_WORD:
+			case SPELL_HOLY_SHOUT:
+			case SPELL_MASS_DISPEL:
+			case SPELL_ARMAGEDDON:
+			case SPELL_ELEMENTAL_STORM:
+			case SPELL_DEATH_RIPPLE:
+			case SPELL_DEATH_WAVE:
+			case SPELL_MASS_SHIELD:
+			case SPELL_MASS_DISENCHANT:
+				if (this->HasValidSpellTarget(this->current_spell_id))
+				{
+					giNextAction = 1;
+					giNextActionExtra = this->current_spell_id;
+					gpMouseManager->SetPointer("cmbtmous.mse", 0, -999);
+					result = 1;
+				}
+				else
+				{
+					H2MessageBox("That spell will affect no one!");
+					result = 0;
+				}
+				break;
+			case SPELL_MIRROR_IMAGE:
+				if (this->numCreatures[this->currentActionSide] >= 20)
+				{
+					std::string text = "You already have ";
+					text += std::to_string(this->numCreatures[this->currentActionSide]);
+					text += " creatures groups in combat and cannot add any more.";
+					H2MessageBox(text);
+					result = 0;
+				}
+				else if (!this->HasValidSpellTarget(this->current_spell_id))
+				{
+					H2MessageBox("That spell will affect no one!");
+					result = 0;
+				}
+				else
+				{
+					giNextAction = 1;
+					giNextActionExtra = this->current_spell_id;
+					gpMouseManager->SetPointer("spelmous.mse", gsSpellInfo[this->current_spell_id].magicBookIconIdx, -999);
+					gpWindowManager->DoDialog( 0, HandleCastSpell, 0);
+					gpMouseManager->SetPointer("cmbtmous.mse", 0, -999);
+					if (this->current_spell_id == -1)
+						result = 0;
+					else
+						result = 1;
+				}
+				break;
+			default:
+				if (!this->HasValidSpellTarget(this->current_spell_id))
+				{
+					H2MessageBox("That spell will affect no one!");
+					result = 0;
+				}
+				else
+				{
+					giNextAction = 1;
+					giNextActionExtra = this->current_spell_id;
+					gpMouseManager->SetPointer("spelmous.mse", gsSpellInfo[this->current_spell_id].magicBookIconIdx, -999);
+					gpWindowManager->DoDialog(0, HandleCastSpell, 0);
+					gpMouseManager->SetPointer("cmbtmous.mse", 0, -999);
+					if (this->current_spell_id == -1)
+						result = 0;
+					else
+						result = 1;
+				}
+				break;
+		}
+	}
+	return result;
 }

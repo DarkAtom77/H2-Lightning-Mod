@@ -228,6 +228,7 @@ public:
   void SetRandomHeroArmies(int heroIdx, int isAI);
   void GiveTroopsToNeutralTown(int castleIdx);
   int RandomScan(signed char*, int, int, int, signed char);
+  int __thiscall ViewSpells(class hero *, int, int(__fastcall*)(struct tag_message &), int);
 
 private:
   void PropagateVision();

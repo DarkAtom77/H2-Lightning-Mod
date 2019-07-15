@@ -50,7 +50,7 @@ unsigned __int8 giNumPowFrames[] =
 	<numframes>u, //(don't forget the u at the end of the number, you need to mark it as unsigned)
 };
 
-Add a new line in gsSpellInfo array (file spell.cpp) with the attributes of the spell:
+Add a new line in gsSpellInfo array (file spells.cpp) with the attributes of the spell:
 Example:
 SSpellInfo gsSpellInfo[] = {
 	//... (previous spells)
@@ -91,5 +91,6 @@ Now you are ready to add the logic that will give the spell the behaviour you wa
 A few directions for implementing the game logic:
 1. You have to add a new entry in the big switch statement in the CastSpell function (either combatManager::CastSpell, combat_spells.cpp, for combat spells, or advManager::CastSpell, spells.cpp, for adventure spells)
    This entry should contain what should happen right when the spell is cast (like increase stats, update variables etc.)
-2. For combat spells, you have to add a new entry in combatManager::ValidSpellTarget. In this method you need to specify on what can your spell be cast.
-3. If you want specific creature immunities for your spells, add them in army::SpellCastWorkChance.
+2. For combat spells, you have to add a new entry in combatManager::ValidSpellTarget (combat.cpp). In this method you need to specify on what can your spell be cast.
+3. If you want specific creature immunities for your spells, add them in army::SpellCastWorkChance (combat_spells.cpp).
+4. For mass spells you also have to add a new entry in both combatManager::CastMassSpell and combatManager::ViewSpell (both in combat_spells.cpp)

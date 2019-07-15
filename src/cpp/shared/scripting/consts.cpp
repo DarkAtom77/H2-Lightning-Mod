@@ -169,6 +169,7 @@ void set_spell_consts(lua_State *L) {
   lua_setconst(L, "SPELL_AWARENESS", SPELL_AWARENESS);
   lua_setconst(L, "SPELL_SHADOW_MARK", SPELL_SHADOW_MARK);
   lua_setconst(L, "SPELL_DISENCHANT", SPELL_DISENCHANT);
+  lua_setconst(L, "SPELL_MASS_DISENCHANT", SPELL_MASS_DISENCHANT);
 }
 
 void set_artifact_consts(lua_State* L) {

@@ -204,6 +204,9 @@ public:
   void DoBlast(int hexIdx, int spell);
   void ChainLightning(int targetHex, int power);
   void CastMassSpell(int spell, signed int spellpower);
+  void CastMassSpell_orig(int spell, signed int spellpower);
+  void __thiscall ShowMassSpell(signed char stackAffected[][20], int animIdx, int isDamageSpell);
+  int __thiscall ViewSpells(int);
   void MirrorImage(int hex);
   void SpellMessage(int spell, int hex);
   void ShowSpellMessage(int isCreatureAbility, int spell, army *stack);
@@ -232,6 +235,8 @@ public:
   void SetCombatDirections(int hexIdx);
   void SetCombatDirections_orig(int hex);
   int ValidHexToStandOn(signed int a2);
+  int __thiscall SpaceForElementalExists(void);
+  int __thiscall HasValidSpellTarget(int);
 };
 
 extern combatManager* gpCombatManager;

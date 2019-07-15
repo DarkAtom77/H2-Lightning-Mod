@@ -43,9 +43,6 @@
     <Filter Include="Assembly Interop">
       <UniqueIdentifier>{da16eb6a-da1f-41dd-b995-1374ddcc3912}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\town">
-      <UniqueIdentifier>{473ac23d-c617-4e5c-9014-4143cc7bf115}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\town">
       <UniqueIdentifier>{24883924-e3bd-4ec2-83ec-441c388629fa}</UniqueIdentifier>
     </Filter>
@@ -84,6 +81,9 @@
     </Filter>
     <Filter Include="Header Files\resource">
       <UniqueIdentifier>{df03de58-af92-4c34-bab0-27d58ac51efc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\town">
+      <UniqueIdentifier>{473ac23d-c617-4e5c-9014-4143cc7bf115}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -514,6 +514,9 @@
     </ClInclude>
     <ClInclude Include="..\..\cpp\shared\game\game.h">
       <Filter>Header Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cpp\shared\mouse.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

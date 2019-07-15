@@ -177,6 +177,7 @@
     <ClInclude Include="..\..\cpp\shared\expansions.h" />
     <ClInclude Include="..\..\cpp\shared\lib\bass\bass.h" />
     <ClInclude Include="..\..\cpp\shared\lib\optional.hpp" />
+    <ClInclude Include="..\..\cpp\shared\mouse.h" />
     <ClInclude Include="..\..\cpp\shared\scripting\callback.h" />
     <ClInclude Include="..\..\cpp\shared\scripting\deepbinding.h" />
     <ClInclude Include="..\..\cpp\shared\scripting\lua_utils.h" />

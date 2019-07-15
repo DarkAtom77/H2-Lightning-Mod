@@ -12,6 +12,7 @@
 #include "scripting/callback.h"
 #include "sound/sound.h"
 #include "town/town.h"
+#include "mouse.h"
 
 #pragma pack(push,1)
 
@@ -31,13 +32,6 @@ class inputManager {
 public:
 	char _[2154];
 	inputManager();
-};
-
-class mouseManager {
-public:
-	char _[138];
-	mouseManager();
-	void ShowColorPointer();
 };
 
 class highScoreManager {

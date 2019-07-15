@@ -69,4 +69,5 @@ char *gSpellNames[] = {
   "Awareness",
   "Shadow Mark",
   "Disenchant",
+  "Mass Disenchant",
 };

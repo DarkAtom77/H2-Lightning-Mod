@@ -10,6 +10,9 @@
 
 #define NUM_SPELL_EFFECTS 19 // don't ever change it for now  
 
+extern char *gCombatFxNames[];
+extern unsigned __int8 giNumPowFrames[];
+
 enum CHARGING_DIRECTION {
   CHARGING_FORWARD,
   CHARGING_UP,

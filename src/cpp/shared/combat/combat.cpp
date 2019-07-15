@@ -383,6 +383,7 @@ int combatManager::ValidSpellTarget(int spell, int hexIdx) {
       case SPELL_DISRUPTING_RAY:
       case SPELL_SHADOW_MARK:
 	  case SPELL_DISENCHANT:
+	  case SPELL_MASS_DISENCHANT:
         if (this->combatGrid[hexIdx].unitOwner == 1 - this->currentActionSide)
           return 1;
         return 0;

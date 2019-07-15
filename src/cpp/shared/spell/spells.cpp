@@ -76,8 +76,9 @@ char *gSpellDesc[] =
   "{Set Fire Guardian}\n\nSets Fire Elementals to guard a mine against enemy armies.",
   "{Set Water Guardian}\n\nSets Water Elementals to guard a mine against enemy armies.",
   "{Awareness}\n\nExplores a large area around your hero.",
-  "{Shadow Mark}\n\nMarked creature receives 150% damage from your troops for 1 turn",
-  "{Disenchant}\n\nRemoves all positive spells from the selected target",
+  "{Shadow Mark}\n\nMarked creature receives 150% damage from your troops for 1 turn.",
+  "{Disenchant}\n\nRemoves all positive spells from the selected enemy target.",
+  "{Mass Disenchant}\n\nRemoves all positive spells from all enemy targets.",
 };
 
 SSpellInfo gsSpellInfo[] = {
@@ -152,7 +153,9 @@ SSpellInfo gsSpellInfo[] = {
 	//shadow mark
 	{"shdwmark", 2, 66, 33, 150, 3, 10, 0x0A0A0A0A, 0x0A, ATTR_COMMON_SPELL | ATTR_COMBAT_SPELL | ATTR_DURATIONED_SPELL},
 	//disenchant
-	{"masscure", 2, 6, 1, 250, 4, 10, 0x0A0A0A0A, 0x0A, ATTR_COMMON_SPELL | ATTR_COMBAT_SPELL},
+	{"masscure", 2, 2, 1, 250, 4, 10, 0x0A0A0A0A, 0x0A, ATTR_COMMON_SPELL | ATTR_COMBAT_SPELL},
+	//mass disenchant
+	{"masscure", 4, 2, 1, 500, 11, 10, 0x0A0A0A0A, 0x0A, ATTR_COMMON_SPELL | ATTR_COMBAT_SPELL},
 };
 
 #define DD_MOVEMENT_COST 225
