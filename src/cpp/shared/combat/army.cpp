@@ -2301,11 +2301,13 @@ signed int army::SetSpellInfluence(int effectType, signed int strength) {
       this->frameInfo.stepTime = (signed __int64)((double)this->frameInfo.stepTime * 0.65);
       break;
     case EFFECT_SLOW:
-      this->CancelIndividualSpell(0);
-      v4 = (signed int)this->creature.speed + 1;
-      this->creature.speed = ((signed int)v4 - v4) >> 1;
-      if (this->creature.creature_flags & 2)
-        this->creature.creature_flags -= 2;
+      this->CancelIndividualSpell(EFFECT_HASTE);
+	  if (this->creature.speed - 2 <= 0)
+		  this->creature.speed = 1;
+	  else
+		  this->creature.speed -= 2;
+      if (this->creature.creature_flags & FLYER)
+        this->creature.creature_flags &= ~(FLYER);
       this->frameInfo.stepTime = (signed __int64)((double)this->frameInfo.stepTime * 1.5);
       break;
     case EFFECT_BLESS:

@@ -12,6 +12,8 @@
 #include "gui/dialog.h"
 #include "mouse.h"
 
+#include <algorithm>
+#include <iterator>
 #include <string>
 
 extern SCmbtHero sCmbtHero[13];
@@ -177,7 +179,28 @@ float army::SpellCastWorkChance(int spell) {
 		&& (spell == SPELL_COLD_RAY
 		|| spell == SPELL_COLD_RING))
 		return 0.0;
-
+	if ((spell == SPELL_DISENCHANT || spell == SPELL_MASS_DISENCHANT)
+		&& !(this->effectStrengths[EFFECT_HASTE])
+		&& !(this->effectStrengths[EFFECT_BLESS])
+		&& !(this->effectStrengths[EFFECT_DRAGON_SLAYER])
+		&& !(this->effectStrengths[EFFECT_BLOOD_LUST])
+		&& !(this->effectStrengths[EFFECT_SHIELD])
+		&& !(this->effectStrengths[EFFECT_STONESKIN])
+		&& !(this->effectStrengths[EFFECT_STEELSKIN]))
+		return 0.0;
+	if ((spell == SPELL_DISPEL_MAGIC || spell == SPELL_MASS_DISPEL)
+		&& std::all_of(std::begin(this->effectStrengths), std::end(this->effectStrengths), [](int i){return i == 0;}))
+		return 0.0;
+	if ((spell == SPELL_CURE || spell == SPELL_MASS_CURE)
+		&& !(this->effectStrengths[EFFECT_SLOW])
+		&& !(this->effectStrengths[EFFECT_BLIND])
+		&& !(this->effectStrengths[EFFECT_CURSE])
+		&& !(this->effectStrengths[EFFECT_BERSERKER])
+		&& !(this->effectStrengths[EFFECT_PARALYZE])
+		&& !(this->effectStrengths[EFFECT_HYPNOTIZE])
+		&& !(this->effectStrengths[EFFECT_PETRIFY])
+		&& this->damage == 0)
+		return 0.0;
   if (spell == SPELL_SHADOW_MARK && this->dead)
     return 0.0;
   return this->SpellCastWorkChance_orig(spell);
