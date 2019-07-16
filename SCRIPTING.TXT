@@ -1216,7 +1216,17 @@ ACTIVATES THE SKELETON. USE THOSE COORDINATES FOR THESE FUNCTIONS
   Return:
    The name of the spell (e.g. for SPELL_LIGHTNING_BOLT, the name is "Lightning Bolt")
 
-174. string GetArtifactName(int artifact)
+174. int GetSpellManaCost(int spell)
+  Arguments:
+   spell: The spell to get the mana cost for
+  Return: The mana cost of the spell
+
+175. void SetSpellManaCost(int spell, int cost)
+  Arguments:
+   spell: The spell to set the mana cost for
+   cost: The new cost of the spell
+
+176. string GetArtifactName(int artifact)
   Arguments:
    artifact: The artifact to get the name for
   Return:
@@ -1224,7 +1234,7 @@ ACTIVATES THE SKELETON. USE THOSE COORDINATES FOR THESE FUNCTIONS
   Notes:
    The game will crash if the argument is not a valid artifact number. Check it first.
 
-175. void MapFizzle(int x, int y, bool sound)
+177. void MapFizzle(int x, int y, bool sound)
   Arguments:
    x: The X coordinate
    y: The Y coordinate
@@ -1232,7 +1242,7 @@ ACTIVATES THE SKELETON. USE THOSE COORDINATES FOR THESE FUNCTIONS
   Return: None
   Notes: Fades out a specific map object
 
-176. void PlaySoundEffect(string sound)
+178. void PlaySoundEffect(string sound)
   Arguments:
    sound: The name of the sound to play (an 82m file in the AGG; please omit the .82M extension)
   Return: None

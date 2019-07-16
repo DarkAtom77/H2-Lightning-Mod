@@ -1808,6 +1808,19 @@ static int l_getSpellName(lua_State *L) {
 	return 1;
 }
 
+static int l_getSpellManaCost(lua_State *L) {
+	int spell = luaL_checknumber(L, 1);
+	lua_pushinteger(L, gsSpellInfo[spell].cost);
+	return 1;
+}
+
+static int l_setSpellManaCost(lua_State *L) {
+	int spell = luaL_checknumber(L, 1);
+	int cost = luaL_checknumber(L, 2);
+	gsSpellInfo[spell].cost = cost;
+	return 0;
+}
+
 static int l_getArtifactName(lua_State *L) {
 	int artifact = luaL_checknumber(L, 1);
 	lua_pushstring(L, GetArtifactName(artifact).c_str());
@@ -1896,6 +1909,8 @@ static void register_uncategorized_funcs(lua_State *L) {
   lua_register(L, "ToggleAIArmySharing", l_toggleAIArmySharing);
   lua_register(L, "GetSpellLevel", l_getSpellLevel);
   lua_register(L, "GetSpellName", l_getSpellName);
+  lua_register(L, "GetSpellManaCost", l_getSpellManaCost);
+  lua_register(L, "SetSpellManaCost", l_setSpellManaCost);
   lua_register(L, "GetArtifactName", l_getArtifactName);
   lua_register(L, "GetUltimateArtifactX", l_getUltimateArtifactX);
   lua_register(L, "GetUltimateArtifactY", l_getUltimateArtifactY);

@@ -201,6 +201,12 @@ float army::SpellCastWorkChance(int spell) {
 		&& !(this->effectStrengths[EFFECT_PETRIFY])
 		&& this->damage == 0)
 		return 0.0;
+	if ((spell == SPELL_BLESS || spell == SPELL_MASS_BLESS)
+		&& this->creature.min_damage == this->creature.max_damage)
+		return 0.0;
+	if ((spell == SPELL_CURSE || spell == SPELL_MASS_CURSE)
+		&& this->creature.min_damage == this->creature.max_damage)
+		return 0.0;
   if (spell == SPELL_SHADOW_MARK && this->dead)
     return 0.0;
   return this->SpellCastWorkChance_orig(spell);
@@ -800,10 +806,17 @@ int __thiscall combatManager::ViewSpells(int)
 			case SPELL_EARTHQUAKE:
 				if (this->castles[1])
 				{
-					giNextAction = 1;
-					giNextActionExtra = this->current_spell_id;
-					gpMouseManager->SetPointer("cmbtmous.mse", 0, -999);
-					result = 1;
+					std::string str = std::string("Are you sure you want to cast ") + gSpellNames[this->current_spell_id] + "?";
+					int res = H2NormalDialog(&str[0], DIALOG_YES_NO, -1, -1, IMAGE_GROUP_SPELLS, this->current_spell_id, -1, 0, 0);
+					if (res == BUTTON_YES)
+					{
+						giNextAction = 1;
+						giNextActionExtra = this->current_spell_id;
+						gpMouseManager->SetPointer("cmbtmous.mse", 0, -999);
+						result = 1;
+					}
+					else
+						result = 0;
 				}
 				else
 				{
@@ -837,10 +850,17 @@ int __thiscall combatManager::ViewSpells(int)
 				}
 				else
 				{
-					giNextAction = 1;
-					giNextActionExtra = this->current_spell_id;
-					gpMouseManager->SetPointer("cmbtmous.mse", 0, -999);
-					result = 1;
+					std::string str = std::string("Are you sure you want to cast ") + gSpellNames[this->current_spell_id] + "?";
+					int res = H2NormalDialog(&str[0], DIALOG_YES_NO, -1, -1, IMAGE_GROUP_SPELLS, this->current_spell_id, -1, 0, 0);
+					if (res == BUTTON_YES)
+					{
+						giNextAction = 1;
+						giNextActionExtra = this->current_spell_id;
+						gpMouseManager->SetPointer("cmbtmous.mse", 0, -999);
+						result = 1;
+					}
+					else
+						result = 0;
 				}
 				break;
 			case SPELL_MASS_CURE:
@@ -858,10 +878,17 @@ int __thiscall combatManager::ViewSpells(int)
 			case SPELL_MASS_DISENCHANT:
 				if (this->HasValidSpellTarget(this->current_spell_id))
 				{
-					giNextAction = 1;
-					giNextActionExtra = this->current_spell_id;
-					gpMouseManager->SetPointer("cmbtmous.mse", 0, -999);
-					result = 1;
+					std::string str = std::string("Are you sure you want to cast ") + gSpellNames[this->current_spell_id] + "?";
+					int res = H2NormalDialog(&str[0], DIALOG_YES_NO, -1, -1, IMAGE_GROUP_SPELLS, this->current_spell_id, -1, 0, 0);
+					if (res == BUTTON_YES)
+					{
+						giNextAction = 1;
+						giNextActionExtra = this->current_spell_id;
+						gpMouseManager->SetPointer("cmbtmous.mse", 0, -999);
+						result = 1;
+					}
+					else
+						result = 0;
 				}
 				else
 				{
