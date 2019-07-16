@@ -192,10 +192,46 @@ void advManager::DoEvent(class mapCell *cell, int locX, int locY) {
   this->UpdateTownLocators(1, 1);
   this->UpdBottomView(1, 1, 1);
   this->UpdateScreen(0, 0);
-  ScriptCallback("AfterLocationVisit", locationType, locX, locY);
   gpSoundManager->SwitchAmbientMusic(giTerrainToMusicTrack[this->currentTerrain]);
   WaitEndSample(res2, res2.sample);
   CheckEndGame(0, 0);
+}
+
+void advManager::DoAIEvent(class mapCell * cell, class hero *hro, int locX, int locY)
+{
+	int locationType = cell->objType & 0x7F;
+	SAMPLE2 res2 = NULL_SAMPLE2;
+	nonstd::optional<bool> shouldSkip = ScriptCallbackResult<bool>("OnLocationVisit", locationType, locX, locY);
+	playerData* currentPlayer = &gpGame->players[hro->ownerIdx];
+	if (!shouldSkip.value_or(false))
+	{
+		switch (locationType)
+		{
+			case LOCATION_ALCHEMIST_TOWER:
+				switch (cell->extraInfo)
+				{
+					case 0: //Alchemist Tower
+						this->HandleAlchemistTower(cell, locationType, hro, &res2, locX, locY);
+						break;
+					case 1: //Arena
+						this->HandleArena(cell, locationType, hro, &res2, locX, locY);
+						break;
+				}
+				break;
+			case LOCATION_SHRINE_FIRST_ORDER:
+			case LOCATION_SHRINE_SECOND_ORDER:
+			case LOCATION_SHRINE_THIRD_ORDER:
+			case LOCATION_WITCH_HUT:
+				PlayerVisitedObject[locX][locY] |= 1u << currentPlayer->color;
+			default:
+				this->DoAIEvent_orig(cell, hro, locX, locY);
+				break;
+		}
+		ScriptCallback("AfterLocationVisit", locationType, locX, locY);
+		return;
+	}
+	CheckEndGame(0, 0);
+	return;
 }
 
 void advManager::HandleSpellShrine(class mapCell *cell, int locationType, hero *hro, SAMPLE2* res2, int locX, int locY) {
@@ -335,6 +371,21 @@ void advManager::HandleAlchemistTower(class mapCell *cell, int locType, hero *hr
 	for (int i = 0; i < MAX_ARTIFACTS; i++)
 		if (IsCursedItem(hro->artifacts[i]))
 			cursedArtifacts++;
+	if (gpGame->players[hro->ownerIdx].personality != PERSONALITY_HUMAN)
+	{
+		int cost = 750 * cursedArtifacts;
+		for (int i = 0; i < MAX_ARTIFACTS; i++)
+			if (IsCursedItem(hro->artifacts[i]))
+			{
+				GiveTakeArtifactStat(hro, hro->artifacts[i], 1);
+				hro->artifacts[i] = -1;
+			}
+		if (gpGame->players[hro->ownerIdx].resources[RESOURCE_GOLD] <= cost)
+			gpGame->players[hro->ownerIdx].resources[RESOURCE_GOLD] = 0;
+		else
+			gpGame->players[hro->ownerIdx].resources[RESOURCE_GOLD] -= cost;
+		return;
+	}
 	if (cursedArtifacts >= 1)
 	{
 		this->EventSound(locType, 0, res2);
@@ -667,6 +718,11 @@ int advManager::ProcessSearch(int x, int y)
 
 void __thiscall advManager::HouseEvent(class hero * hro, class mapCell * cell)
 {
+	if (gpGame->players[hro->ownerIdx].personality != PERSONALITY_HUMAN)
+	{
+		HouseEvent_orig(hro, cell);
+		return;
+	}
 	int locationType = cell->objType & 0x7F;
 	std::string askstring = "{%s}\n\nA group of " + std::to_string(cell->extraInfo) + " %s with a desire for greater glory wish to join you. Do you accept?";
 	std::string emptystring = "{%s}\n\nAs you approach the dwelling, you notice that there is no one here.";

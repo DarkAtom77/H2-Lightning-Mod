@@ -305,8 +305,6 @@ public:
   void __thiscall HouseEvent(class hero *, class mapCell *);
 
   void __thiscall HouseEvent_orig(class hero *, class mapCell *);
-  //Keeping this method just for the Log Cabin; is it supposed to hire Peasants or Dwarves?
-  //It says Peasants but it hires Dwarves :)
 
   void DemobilizeCurrHero();
 
@@ -347,6 +345,8 @@ public:
 
   void DoEvent_orig(class mapCell *, int, int);
   void DoEvent(class mapCell *cell, int locX, int locY);
+  void DoAIEvent_orig(class mapCell *, class hero *, int, int);
+  void DoAIEvent(class mapCell * cell, class hero *hro, int locX, int locY);
 
   void HandleSpellShrine(class mapCell *cell, int LocationType, hero *hro, SAMPLE2* res2, int locX, int locY);
   void HandlePyramid(class mapCell *cell, int LocationType, hero *hro, SAMPLE2* res2, int locX, int locY);

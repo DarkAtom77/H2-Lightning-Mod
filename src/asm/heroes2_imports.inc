@@ -271,6 +271,8 @@ IMPORT_?DoEvent@advManager@@QAEXPAVmapCell@@HH@Z = 1
 ?DoEvent@advManager@@QAEXPAVmapCell@@HH@Z_clone EQU ?DoEvent_orig@advManager@@QAEXPAVmapCell@@HH@Z
 IMPORT_?QuickInfo@advManager@@QAEXHH@Z = 1
 ?QuickInfo@advManager@@QAEXHH@Z_clone EQU ?QuickInfo_orig@advManager@@QAEXHH@Z
+IMPORT_?DoAIEvent@advManager@@QAEXPAVmapCell@@PAVhero@@HH@Z = 1
+?DoAIEvent@advManager@@QAEXPAVmapCell@@PAVhero@@HH@Z_clone EQU ?DoAIEvent_orig@advManager@@QAEXPAVmapCell@@PAVhero@@HH@Z
 
 IMPORT_?HouseEvent@advManager@@QAEXPAVhero@@PAVmapCell@@@Z = 1
 ?HouseEvent@advManager@@QAEXPAVhero@@PAVmapCell@@@Z_clone EQU ?HouseEvent_orig@advManager@@QAEXPAVhero@@PAVmapCell@@@Z
