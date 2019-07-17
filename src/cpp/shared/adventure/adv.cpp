@@ -177,6 +177,11 @@ void advManager::DoEvent(class mapCell *cell, int locX, int locY) {
 			      case 1: //Arena
 					  this->HandleArena(cell, locationType, hro, &res2, locX, locY);
 					  break;
+				  case 4: //Stables
+					  this->HandleOasisWateringHoleStables(cell, locationType, hro, &res2, locX, locY);
+					  break;
+				  default:
+					  this->DoEvent_orig(cell, locX, locY);
 			  }
 			  break;
 		  default:
@@ -216,6 +221,11 @@ void advManager::DoAIEvent(class mapCell * cell, class hero *hro, int locX, int 
 					case 1: //Arena
 						this->HandleArena(cell, locationType, hro, &res2, locX, locY);
 						break;
+					case 4: //Stables
+						this->HandleOasisWateringHoleStables(cell, locationType, hro, &res2, locX, locY);
+						break;
+					default:
+						this->DoAIEvent_orig(cell, hro, locX, locY);
 				}
 				break;
 			case LOCATION_SHRINE_FIRST_ORDER:
@@ -357,12 +367,15 @@ void advManager::HandleWitchHut(class mapCell *cell, int locType, hero *hro, SAM
 void advManager::HandleArena(class mapCell *cell, int locType, hero *hro, SAMPLE2 *res2, int locX, int locY)
 {
 	HeroExtraII* hero_extra = HeroExtras[hro->idx];
-	if (hero_extra->HasVisitedArena(locX, locY))
+	if (hero_extra->HasVisitedObject(locX, locY))
 		hro->flags |= 0x400000;
 	else
 		hro->flags &= ~(0x400000);
-	DoEvent_orig(cell, locX, locY);
-	hero_extra->VisitArena(locX, locY, true);
+	if (gpGame->players[hro->idx].personality == PERSONALITY_HUMAN)
+		DoEvent_orig(cell, locX, locY);
+	else
+		DoAIEvent_orig(cell, hro, locX, locY);
+	hero_extra->VisitObject(locX, locY, true);
 }
 
 void advManager::HandleAlchemistTower(class mapCell *cell, int locType, hero *hro, SAMPLE2 *res2, int locX, int locY)
@@ -422,6 +435,77 @@ void advManager::HandleAlchemistTower(class mapCell *cell, int locType, hero *hr
 	{
 		char str[] = "You hear a voice from high above in the tower, \"Go away! I can't help you!\"";
 		H2MessageBox(str);
+	}
+}
+
+void advManager::HandleOasisWateringHoleStables(class mapCell *cell, int locType, hero* hro, SAMPLE2 *res2, int locX, int locY)
+{
+	playerData* currentPlayer = &gpGame->players[hro->ownerIdx];
+	HeroExtraII* hero_extra = HeroExtras[hro->idx];
+	std::string msg = "";
+	int imgType = -1, imgSubtype = 0;
+	switch (locType)
+	{
+		case LOCATION_OASIS:
+			if (hero_extra->HasVisitedObject(locX, locY))
+				msg = "{Oasis}\n\nThe drink at the oasis is refreshing, but offers no further benefit.  The oasis might help again if you fought a battle first.";
+			else
+			{
+				msg = "{Oasis}\n\nA drink at the oasis fills your troops with strength and lifts their spirits.  You can travel a bit further today.";
+				hro->mobility += 800;
+				hro->remainingMobility += 800;
+				++hro->tempMoraleBonuses;
+				hero_extra->VisitObject(locX, locY, true);
+				imgType = IMAGE_GOOD_MORALE;
+			}
+			break;
+		case LOCATION_WATERING_HOLE:
+			if (hero_extra->HasVisitedObject(locX, locY))
+				msg = "{Watering Hole}\n\nThe drink at the watering hole is refreshing, but offers no further benefit.  The watering hole might help again if you fought a battle first.";
+			else
+			{
+				msg = "{Watering Hole}\n\nA drink at the watering hole fills your troops with strength and lifts their spirits.  You can travel a bit further today.";
+				hro->mobility += 400;
+				hro->remainingMobility += 400;
+				++hro->tempMoraleBonuses;
+				hero_extra->VisitObject(locX, locY, true);
+				imgType = IMAGE_GOOD_MORALE;
+			}
+			break;
+		case LOCATION_ALCHEMIST_TOWER: //Stables
+			if (hero_extra->HasVisitedObject(locX, locY))
+				if (hro->CreatureTypeCount(CREATURE_CAVALRY) >= 1)
+				{
+					hro->UpgradeCreatures(CREATURE_CAVALRY, CREATURE_CHAMPION);
+					msg = "The head groom speaks to you, \"That is a fine looking horse you have. I am afraid we can give you no better, but the horses your cavalry are riding look to be of poor breeding stock. We have many trained war horses which would aid your riders greatly. I insist you take them.\"";
+					imgType = IMAGE_GROUP_UNIT;
+					imgSubtype = CREATURE_CHAMPION;
+				}
+				else
+					msg = "The head groom approaches you and speaks, \"You already have a fine horse, and have no inexperienced cavalry which might make use of our trained war horses.\"";
+			else
+			{
+				hro->mobility += 400;
+				hro->remainingMobility += 400;
+				msg = "As you approach the stables, the head groom appears, leading a fine looking war horse. \"This steed will help speed you in your travels. Alas, his endurance will wane with a lot of heavy riding, and you must return for a fresh mount in a week. We also have many fine war horses which could benefit mounted soldiers, but we have none we can help.\"";
+				if (hro->CreatureTypeCount(CREATURE_CAVALRY) >= 1)
+				{
+					hro->UpgradeCreatures(CREATURE_CAVALRY, CREATURE_CHAMPION);
+					msg = "As you approach the stables, the head groom appears, leading a fine looking war horse. \"This steed will help speed you in your travels. Alas, he will grow tired in a week. You must also let me give better horses to your mounted soldiers, their horses look shoddy and weak.\"";
+					imgType = IMAGE_GROUP_UNIT;
+					imgSubtype = CREATURE_CHAMPION;
+				}
+				hero_extra->VisitObject(locX, locY, true);
+				hero_extra->stablesEnds[locX][locY].day = gpGame->day;
+				hero_extra->stablesEnds[locX][locY].week = gpGame->week;
+				hero_extra->stablesEnds[locX][locY].month = gpGame->month;
+			}
+			break;
+	}
+	if (currentPlayer->personality == PERSONALITY_HUMAN && msg != "")
+	{
+		this->EventSound(locType, cell->extraInfo, res2);
+		this->EventWindow(1, -1, &msg[0], imgType, imgSubtype, -1, 0, -1);
 	}
 }
 
@@ -698,7 +782,7 @@ void advManager::ArenaQuickInfo(int xLoc, int yLoc)
 	if (gpCurPlayer->curHeroIdx != -1)
 	{
 		HeroExtraII* hero_extra = HeroExtras[gpCurPlayer->curHeroIdx];
-		if (hero_extra->HasVisitedArena(xLoc, yLoc))
+		if (hero_extra->HasVisitedObject(xLoc, yLoc))
 			gpGame->heroes[gpCurPlayer->curHeroIdx].flags |= 0x400000u;
 		else
 			gpGame->heroes[gpCurPlayer->curHeroIdx].flags &= ~(0x400000u);

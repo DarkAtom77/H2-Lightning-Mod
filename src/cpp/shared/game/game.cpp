@@ -160,11 +160,30 @@ void game::NextPlayer() {
 
 void game::PerDay() {
 	this->PerDay_orig();
+	for (int i = 0; i < MAX_HEROES; ++i)
+	{
+		HeroExtraII* hero_extra = HeroExtras[i];
+		if (hero_extra->stablesEnds.day == day && hero_extra->stablesEnds.week == week && hero_extra->stablesEnds.month == month)
+		{
+			hero_extra->hro.flags &= ~HERO_VISITED_STABLES;
+			for (int i = 0; i < 144; i++)
+				for (int j = 0; j < 144; j++)
+					
+		}
+	}
 	ScriptCallback("OnNewDay", this->month, this->week, this->day);
 }
 
 void game::PerWeek() {
   PerWeek_orig();
+  for (int i = 0; i < MAX_HEROES; ++i)
+  {
+	  HeroExtraII* hero_extra = HeroExtras[i];
+	  for (int i = 0; i < 144; i++)
+		  for (int j = 0; j < 144; j++)
+			  if (hero_extra->stablesEnds[i][j].day != day || hero_extra->stablesEnds[i][j].week != week || hero_extra->stablesEnds[i][j].month != month)
+				  hero_extra->hro.flags |= HERO_VISITED_STABLES;
+  }
   if (!IsWellDisabled()) {
     return;
   }

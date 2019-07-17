@@ -238,6 +238,9 @@ public:
   int CalcMobility();
   int CalcMobility_orig();
 
+  int CreatureTypeCount(int);
+  void UpgradeCreatures(int, int);
+
   void Read(int, signed char);
   void ResetSpellsLearned();
 
@@ -255,12 +258,17 @@ public:
 	HeroExtraII(hero* hro, Sex sex);
 	HeroExtraII(hero& hro);
 	HeroExtraII(hero& hro, Sex sex);
-	void VisitArena(int x, int y, bool set);
-	bool HasVisitedArena(int x, int y);
+	void VisitObject(int x, int y, bool set);
+	bool HasVisitedObject(int x, int y);
 	Sex GetHeroSex();
 	void ResetHeroSex(); //automatic by the portrait
 	void SetHeroSex(Sex sex);
 	hero& hro;
+	struct {
+		unsigned char day = 0;
+		unsigned char week = 0;
+		unsigned char month = 0;
+	} stablesEnds[144][144];
 private:
 	Sex sex;
 	int specialty; //for the future, not used right now
@@ -268,9 +276,15 @@ private:
 };
 
 enum HERO_FLAGS {
+	HERO_VISITED_OASIS = 0x8,
 	HERO_AT_SEA = 0x80,
+	HERO_VISITED_WATERING_HOLE = 0x200,
 	HERO_FLAG_RELATED_TO_PYRAMID = 0x4000,
-	HERO_ARMY_COMPACT = 0x8000
+	HERO_ARMY_COMPACT = 0x8000,
+
+	//Price of Loyalty flags
+	HERO_VISITED_ARENA = 0x400000,
+	HERO_VISITED_STABLES = 0x800000,
 };
 
 extern char cHeroTypeInitial[];
@@ -353,6 +367,7 @@ public:
   void HandleWitchHut(class mapCell *cell, int LocationType, hero *hro, SAMPLE2* res2, int locX, int locY);
   void HandleArena(class mapCell *cell, int LocationType, hero *hro, SAMPLE2* res2, int locX, int locY);
   void HandleAlchemistTower(class mapCell *cell, int locType, hero *hro, SAMPLE2 *res2, int locX, int locY);
+  void HandleOasisWateringHoleStables(class mapCell *cell, int locType, hero* hro, SAMPLE2 *res2, int locX, int locY);
   //Need a better way to structure the way to handle objects, otherwise, in the future, there will be about 100 lines of these HandleObject declarations
 
   int CombatMonsterEvent(class hero *hero, int mon1, int mon1quantity, class mapCell *mapcell, int locX, int locY, int switchSides, int locX2, int locY2, int mon2, int mon2quantity, int mon2stacks, int mon3, int mon3quantity, int mon3stacks);

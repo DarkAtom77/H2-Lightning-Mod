@@ -265,6 +265,9 @@ int hero::CalcMobility() {
       if (this->HasArtifact(ARTIFACT_TRUE_COMPASS_OF_MOBILITY)) {
         points += 500;
       }
+	  if (this->flags & HERO_VISITED_STABLES) {
+		  points += 400;
+	  }
       if (this->ownerIdx >= PLAYER_FIRST
           && this->ownerIdx <= PLAYER_LAST) {
         if (!gbHumanPlayer[ownerIdx]) {
@@ -361,12 +364,12 @@ void HeroExtraII::ResetHeroSex()
 	sex = h.GetHeroSex();
 }
 
-void HeroExtraII::VisitArena(int x, int y, bool set)
+void HeroExtraII::VisitObject(int x, int y, bool set)
 {
 	this->objectsVisited[x][y] = set;
 }
 
-bool HeroExtraII::HasVisitedArena(int x, int y)
+bool HeroExtraII::HasVisitedObject(int x, int y)
 {
 	return this->objectsVisited[x][y];
 }
