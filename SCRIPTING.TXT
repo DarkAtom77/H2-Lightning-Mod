@@ -5,7 +5,7 @@ Functions (C-style types are included for more readability):
 1. int AdvancedMessageBox(string msg, int dialogType, int pos1, int pos2, int img1Type, int img1Arg, int img2Type, int img2Arg, int writeOr, int a10)
   Arguments:
    msg: The message to display
-   dialogType: The type of the dialog (DIALOGG_EMPTY, DIALOG_OK, DIALOG_YES_NO, DIALOG_CANCEL, DIALOG_2_LEARN, DIALOG_LEFT_LEARN)
+   dialogType: The type of the dialog (DIALOG_EMPTY, DIALOG_OK, DIALOG_YES_NO, DIALOG_CANCEL, DIALOG_2_LEARN, DIALOG_LEFT_LEARN)
    pos1: Position (-1 for center)
    pos2: Position (-1 for center)
    img1Type and img2Type: The type of the image
@@ -19,8 +19,7 @@ Functions (C-style types are included for more readability):
      dialogType = DIALOG_2_LEARN: BUTTON_LEFT_LEARN or BUTTON_RIGHT_LEARN
      dialogType = DIALOG_LEFT_LEARN: BUTTON_LEFT_LEARN
    Notes: This function is documented in detail here (but there with no return values):
-    http://projectironfist.pbworks.com/w/page/128770743/AdvancedMessageBox
-    http://heroes2.forumactif.com/t630-advanced-dialogue-boxes-in-project-ironfist
+    http://projectironfist.pbworks.com/w/page/134600181/AdvancedMessageBox%20Documentation
 
 2. void MessageBox(string msg)
   Arguments:

@@ -177,6 +177,9 @@ void advManager::DoEvent(class mapCell *cell, int locX, int locY) {
 			      case 1: //Arena
 					  this->HandleArena(cell, locationType, hro, &res2, locX, locY);
 					  break;
+				  default:
+					  this->DoEvent_orig(cell, locX, locY);
+					  break;
 			  }
 			  break;
 		  default:
@@ -215,6 +218,9 @@ void advManager::DoAIEvent(class mapCell * cell, class hero *hro, int locX, int 
 						break;
 					case 1: //Arena
 						this->HandleArena(cell, locationType, hro, &res2, locX, locY);
+						break;
+					default:
+						this->DoAIEvent_orig(cell, hro, locX, locY);
 						break;
 				}
 				break;
@@ -361,7 +367,10 @@ void advManager::HandleArena(class mapCell *cell, int locType, hero *hro, SAMPLE
 		hro->flags |= 0x400000;
 	else
 		hro->flags &= ~(0x400000);
-	DoEvent_orig(cell, locX, locY);
+	if (gpGame->players[hro->idx].personality == PERSONALITY_HUMAN)
+		DoEvent_orig(cell, locX, locY);
+	else
+		DoAIEvent_orig(cell, hro, locX, locY);
 	hero_extra->VisitArena(locX, locY, true);
 }
 
@@ -371,6 +380,21 @@ void advManager::HandleAlchemistTower(class mapCell *cell, int locType, hero *hr
 	for (int i = 0; i < MAX_ARTIFACTS; i++)
 		if (IsCursedItem(hro->artifacts[i]))
 			cursedArtifacts++;
+	if (gpGame->players[hro->ownerIdx].personality != PERSONALITY_HUMAN)
+	{
+		int cost = 750 * cursedArtifacts;
+		for (int i = 0; i < MAX_ARTIFACTS; i++)
+			if (IsCursedItem(hro->artifacts[i]))
+			{
+				GiveTakeArtifactStat(hro, hro->artifacts[i], 1);
+				hro->artifacts[i] = -1;
+			}
+		if (gpGame->players[hro->ownerIdx].resources[RESOURCE_GOLD] <= cost)
+			gpGame->players[hro->ownerIdx].resources[RESOURCE_GOLD] = 0;
+		else
+			gpGame->players[hro->ownerIdx].resources[RESOURCE_GOLD] -= cost;
+		return;
+	}
 	if (gpGame->players[hro->ownerIdx].personality != PERSONALITY_HUMAN)
 	{
 		int cost = 750 * cursedArtifacts;
