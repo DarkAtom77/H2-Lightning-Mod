@@ -17,6 +17,7 @@ extern "C" {
 #include "scripting/register.h"
 
 #include "sound/sound.h"
+#include "mouse.h"
 
 enum SoundEffectWait { SND_DO_WAIT, SND_DONT_WAIT };
 
@@ -154,6 +155,11 @@ static void register_date_funcs(lua_State *L) {
 
 /************************************************ Player ********************************************************/
 
+static int l_getNumPlayers(lua_State *L) {
+	lua_pushinteger(L, gpGame->numPlayers);
+	return 1;
+}
+
 static int l_getPlayer(lua_State *L) {
   int n = (int)luaL_checknumber(L, 1);
   deepbound_push(L, deepbind<playerData*>(&gpGame->players[n]));
@@ -269,6 +275,7 @@ static int l_revealMap(lua_State *L) {
 }
 
 static void register_player_funcs(lua_State *L) {
+  lua_register(L, "GetNumPlayers", l_getNumPlayers);
   lua_register(L, "GetPlayer", l_getPlayer);
   lua_register(L, "GetPlayerPersonality", l_getPlayerPersonality);
   lua_register(L, "GetCurrentPlayer", l_getCurrentPlayer);
@@ -619,6 +626,19 @@ static int l_hasSpellScroll(lua_State* L) {
 	return 1;
 }
 
+static int l_getHeroFaction(lua_State *L) {
+	hero *hro = (hero*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 1));
+	lua_pushinteger(L, hro->factionID);
+	return 1;
+}
+
+static int l_setHeroFaction(lua_State *L) {
+	hero* hro = (hero*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 2));
+	int newFaction = (int)luaL_checknumber(L, 2);
+	hro->factionID = newFaction;
+	return 0;
+}
+
 static int l_getHeroSex(lua_State* L) {
 	hero* hro = (hero*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 1));
 	if (HeroExtras[hro->idx]->GetHeroSex() == Sex::Male)
@@ -680,6 +700,8 @@ static void register_hero_funcs(lua_State *L) {
   lua_register(L, "SetHeroTempLuckBonuses", l_setHeroTempLuckBonuses);
   lua_register(L, "GrantSpellScroll", l_grantSpellScroll);
   lua_register(L, "HasSpellScroll", l_hasSpellScroll);
+  lua_register(L, "GetHeroFaction", l_getHeroFaction);
+  lua_register(L, "SetHeroFaction", l_setHeroFaction);
   lua_register(L, "GetHeroSex", l_getHeroSex);
   lua_register(L, "SetHeroSex", l_setHeroSex);
 }
@@ -698,6 +720,29 @@ static int l_mapSetObject(lua_State *L) {
   cell->objType = obj & 0x7F;
   return 0;
 }
+
+/*static int l_mapEmptyCheck(lua_State *L) {
+	int x = (int)luaL_checknumber(L, 1);
+	int y = (int)luaL_checknumber(L, 2);
+
+	mapCell* cell = gpAdvManager->GetCell(x, y);
+	if (cell->objType & TILE_HAS_EVENT) {
+		lua_pushboolean(L, false);
+		return 1;
+	}
+	lua_pushboolean(L, true);
+	return 1;
+}
+
+static int l_mapPutResource(lua_State *L) {
+	int x = (int)luaL_checknumber(L, 1);
+	int y = (int)luaL_checknumber(L, 2);
+	int resIdx = (int)luaL_checknumber(L, 3);
+	int resQty = (int)luaL_checknumber(L, 4);
+
+	lua_pushinteger(L, gpAdvManager->MapPutResource(x, y, resIdx, resQty));
+	return 1;
+}*/
 
 static int l_getShrineSpell(lua_State *L)
 {
@@ -1276,6 +1321,8 @@ static int l_mapSetTerrainTile(lua_State *L) {
 
 static void register_map_funcs(lua_State *L) {
   lua_register(L, "MapSetObject", l_mapSetObject);
+  //lua_register(L, "MapEmptyCheck", l_mapEmptyCheck);
+  //lua_register(L, "MapPutResource", l_mapPutResource);
   lua_register(L, "MapPutArmy", l_mapPutArmy);
   lua_register(L, "MapEraseSquare", l_mapEraseObj);
   lua_register(L, "MapFizzle", l_mapFizzleObj);
@@ -1796,6 +1843,14 @@ static int l_toggleAIArmySharing(lua_State *L) {
   return 0;
 }
 
+static int l_forceComputerPlayerChase(lua_State *L) {
+	hero* src = (hero*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 3));
+	hero* dst = (hero*)GetPointerFromLuaClassTable(L, StackIndexOfArg(2, 3));
+	bool force = CheckBoolean(L, 3);
+	gpGame->ForceComputerPlayerChase(src, dst, force);
+	return 0;
+}
+
 static int l_getSpellLevel(lua_State *L) {
 	int spell = luaL_checknumber(L, 1);
 	lua_pushinteger(L, gsSpellInfo[spell].level);
@@ -1907,6 +1962,7 @@ static void register_uncategorized_funcs(lua_State *L) {
   lua_register(L, "SetInclinedToJoin", l_setinclinedtojoin);
   lua_register(L, "StartBattle", l_startbattle);
   lua_register(L, "ToggleAIArmySharing", l_toggleAIArmySharing);
+  lua_register(L, "ForceComputerPlayerChase", l_forceComputerPlayerChase);
   lua_register(L, "GetSpellLevel", l_getSpellLevel);
   lua_register(L, "GetSpellName", l_getSpellName);
   lua_register(L, "GetSpellManaCost", l_getSpellManaCost);

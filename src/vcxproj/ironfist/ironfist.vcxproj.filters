@@ -326,9 +326,6 @@
     <ClInclude Include="..\..\cpp\shared\manager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\cpp\shared\msg.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\cpp\shared\mss32.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -517,6 +514,9 @@
     </ClInclude>
     <ClInclude Include="..\..\cpp\shared\mouse.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cpp\shared\gui\msg.h">
+      <Filter>Header Files\gui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

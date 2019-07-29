@@ -3,13 +3,32 @@
 
 #include "base.h"
 #include "dialog.h"
+#include "mouse.h"
 #include "gui.h"
+#include "spell\spell_constants.h"
+#include "spell\spells.h"
+#include "combat\creatures.h"
 
 extern heroWindowManager *gpWindowManager;
+extern int gbRemoteOn;
+extern int giDialogTimeout;
+extern heroWindow *pNormalDialogWindow;
+extern int giResType1;
+extern int giResExtra1;
+extern int giResType2;
+extern int giResExtra2;
+extern font* bigFont;
+extern mouseManager* gpMouseManager;
+extern int __fastcall EventWindowHandler(struct tag_message &);
+extern int __fastcall WaitHandler(struct tag_message &);
+
 
 void H2MessageBox(char* msg) {
 	if (msg) {
-		NormalDialog(msg, DIALOG_OKAY, -1, -1, -1, 0, -1, 0, -1, 0);
+		char* str = new char[strlen(msg) + 1];
+		str = strcpy(str, msg);
+		NormalDialog(str, DIALOG_OKAY, -1, -1, -1, 0, -1, 0, -1, 0);
+		delete str;
 	}
 }
 

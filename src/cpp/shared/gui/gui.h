@@ -33,6 +33,26 @@ class textWidget : public widget {
   font *font;
   __int16 field_28;
   char field_2A;
+public:
+	textWidget(short, short, short, short, char*, char*, short, short, short, short);
+};
+
+class iconWidget : public widget {
+	icon *icon;
+	__int16 imgIdx;
+	char mirror;
+	__int16 field_27;
+	int iconFileID;
+public:
+	iconWidget(short, short, short, short, char*, short, signed char, short, short, short);
+};
+
+class border : public widget {
+	bitmap *bitmap;
+	icon *icon;
+	__int16 color;
+public:
+	border(short, short, short, short, short, short, short, char*);
 };
 
 class heroWindow {
@@ -54,6 +74,7 @@ public:
   heroWindow(int, int, char*);
   int BroadcastMessage(tag_message&);
   void DrawWindow();
+  void AddWidget(widget*, int);
 };
 
 class heroWindowManager : public baseManager

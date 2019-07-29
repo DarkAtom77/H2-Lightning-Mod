@@ -1,6 +1,7 @@
+#include "artifacts.h"
 #include "combat/creatures.h"
 #include "scripting/scripting.h"
-#include "artifacts.h"
+#include "town/town.h"
 #include "windows.h"
 
 extern void* hInstApp;
@@ -8,6 +9,9 @@ extern void* hInstApp;
 void IronfistInit() {
 	LoadCreatures();
 	LoadArtifacts();
+#ifndef EDITOR
+	InitializeTownConstants();
+#endif
 	//LoadMenu((HINSTANCE)hInstApp, "MNUADV");
 }
 

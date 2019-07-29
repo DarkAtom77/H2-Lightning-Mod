@@ -20,6 +20,8 @@ class mapCell;
 #define NUM_RESOURCES 7
 #define NUM_SECONDARY_RESOURCES 6
 
+extern char** gStatNames;
+extern char** gSecondarySkills;
 
 enum RESOURCES {
   RESOURCE_WOOD = 0,
@@ -357,6 +359,7 @@ public:
 
   int CombatMonsterEvent(class hero *hero, int mon1, int mon1quantity, class mapCell *mapcell, int locX, int locY, int switchSides, int locX2, int locY2, int mon2, int mon2quantity, int mon2stacks, int mon3, int mon3quantity, int mon3stacks);
   int MapPutArmy(int x, int y, int monIdx, int monQty);
+  //int MapPutResource(int x, int y, int resIdx, int resQty);
 
   int GiveExperience(class hero*, int, int);
 

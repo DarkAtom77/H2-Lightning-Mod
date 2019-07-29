@@ -819,6 +819,20 @@ static void WriteMapVariablesXML(ironfist_save::save_t& m) {
 
   std::map<std::string, mapVariable> mapVariables = LoadMapVariablesFromLUA();
 
+  for (int i = 0; i != MAX_HEROES; ++i) {
+	  for (int j = 0; j != MAX_HEROES; ++j) {
+		  if (gpGame->forcedComputerPlayerChases[i][j]) {
+			  std::string mapVariableId = "_AICHASE_" + std::to_string(i) + "_" + std::to_string(j) + "_";
+			  mapVariable mapVar;
+			  mapVar.singleValue = nullptr;
+			  mapVar.type = MAPVAR_TYPE_BOOLEAN;
+			  mapVariables[mapVariableId] = mapVar;
+			  mapVariables[mapVariableId].type = MAPVAR_TYPE_BOOLEAN;
+			  mapVariables[mapVariableId].singleValue = new std::string("true");
+		  }
+	  }
+  }
+
   for (std::map<std::string, mapVariable>::const_iterator it = mapVariables.begin(); it != mapVariables.end(); ++it) {
     ironfist_save::mapVariable_t mapVar;
     mapVar.id(it->first);
@@ -845,85 +859,93 @@ void game::LoadGame(char* filnam, int newGame, int a3) {
       //spellsLearned from an array to a pointer, so that actually NULLs it out
       this->heroes[i].ResetSpellsLearned();
     }
-  } else {
-    try {
-      char v8[100];
-      int v14 = 0;
-      gbGameOver = 0;
-      this->field_660E = 1;
-      sprintf(v8, "%s%s", ".\\GAMES\\", filnam);
-
-      /*
-       * Check if original save format
-       */
-      int fd = _open(v8, O_BINARY);
-      char first_byte;
-      _read(fd, &first_byte, sizeof(first_byte));
-      _close(fd);
-
-      if (first_byte != '<') {
-        this->LoadGame_orig(filnam, newGame, a3);
-        return;
-      }
-
-      std::auto_ptr<ironfist_save::save_t> mp = ironfist_save::save(std::string(v8));
-
-      int i = 0;
-      for (ironfist_save::save_t::hero_const_iterator it = mp->hero().begin();
-        it != mp->hero().end();
-        it++, i++) {
-        ironfist_save::hero_t hx = *it;
-        ReadHeroXML(hx, &this->heroes[i]);
-      }
-
-      if (mp->gamestate())
-        ReadGameStateXML(*mp->gamestate(), gpGame);
-
-      gpAdvManager->heroMobilized = 0;
-      gpCurPlayer = &gpGame->players[giCurPlayer];
-      giCurPlayerBit = 1 << giCurPlayer;
-      for (giCurWatchPlayer = giCurPlayer;
-        !gbThisNetHumanPlayer[giCurWatchPlayer];
-        giCurWatchPlayer = (giCurWatchPlayer + 1) % this->numPlayers)
-        ;
-      giCurWatchPlayerBit = 1 << giCurWatchPlayer;
-      bShowIt = gbThisNetHumanPlayer[giCurPlayer];
-      this->SetupAdjacentMons();
-      gpAdvManager->CheckSetEvilInterface(0, -1);
-
-      gpGame->ResetIronfistGameState();
-
-      if (mp->script().present()) {
-        ScriptingInitFromString(mp->script().get());
-      }
-
-      std::map<std::string, mapVariable> mapVariables;
-      for (ironfist_save::save_t::mapVariable_const_iterator it = mp->mapVariable().begin();
-        it != mp->mapVariable().end(); it++) {
-        mapVariable *mapVar = new mapVariable;
-        std::string mapVariableId = it->id().get();
-        MapVarType mapVariableType = StringToMapVarType(it->type());
-        mapVar->type = mapVariableType;
-        if (isTable(mapVariableType)) {
-          mapVar->tableValue = ReadMapVarXML(it->table().get());
-        } else if (isStringNumBool(mapVariableType)) {
-          std::string *sV = new std::string;
-          *sV = it->value().get();
-          mapVar->singleValue = sV;
-        } else {
-          ErrorLoadingMapVariable(mapVariableId, " A map variable can only be a table, number, string or boolean.");
-        }
-        mapVariables[mapVariableId] = *mapVar;
-      }
-      WriteMapVariablesToLUA(mapVariables);
-
-    }
-    catch (xml_schema::exception& e) {
-      DisplayError("Error parsing save file", "Fatal Error");
-      std::cerr << e << std::endl;
-      exit(1);
-    }
   }
+  else {
+	  try {
+		  char v8[100];
+		  int v14 = 0;
+		  gbGameOver = 0;
+		  this->field_660E = 1;
+		  sprintf(v8, "%s%s", ".\\GAMES\\", filnam);
+
+		  /*
+		   * Check if original save format
+		   */
+		  int fd = _open(v8, O_BINARY);
+		  char first_byte;
+		  _read(fd, &first_byte, sizeof(first_byte));
+		  _close(fd);
+
+		  if (first_byte != '<') {
+			  this->LoadGame_orig(filnam, newGame, a3);
+			  return;
+		  }
+
+		  std::auto_ptr<ironfist_save::save_t> mp = ironfist_save::save(std::string(v8));
+
+		  int i = 0;
+		  for (ironfist_save::save_t::hero_const_iterator it = mp->hero().begin();
+			  it != mp->hero().end();
+			  it++, i++) {
+			  ironfist_save::hero_t hx = *it;
+			  ReadHeroXML(hx, &this->heroes[i]);
+		  }
+
+		  if (mp->gamestate())
+			  ReadGameStateXML(*mp->gamestate(), gpGame);
+
+		  gpAdvManager->heroMobilized = 0;
+		  gpCurPlayer = &gpGame->players[giCurPlayer];
+		  giCurPlayerBit = 1 << giCurPlayer;
+		  for (giCurWatchPlayer = giCurPlayer;
+			  !gbThisNetHumanPlayer[giCurWatchPlayer];
+			  giCurWatchPlayer = (giCurWatchPlayer + 1) % this->numPlayers)
+			  ;
+		  giCurWatchPlayerBit = 1 << giCurWatchPlayer;
+		  bShowIt = gbThisNetHumanPlayer[giCurPlayer];
+		  this->SetupAdjacentMons();
+		  gpAdvManager->CheckSetEvilInterface(0, -1);
+
+		  gpGame->ResetIronfistGameState();
+
+		  if (mp->script().present()) {
+			  ScriptingInitFromString(mp->script().get());
+		  }
+
+		  std::map<std::string, mapVariable> mapVariables;
+		  for (ironfist_save::save_t::mapVariable_const_iterator it = mp->mapVariable().begin();
+			  it != mp->mapVariable().end(); it++) {
+			  std::string mapVariableId = it->id().get();
+			  MapVarType mapVariableType = StringToMapVarType(it->type());
+			  int x;
+			  int y;
+			  if ((mapVariableType == MAPVAR_TYPE_BOOLEAN) && (it->value().get() == "true") && (sscanf(mapVariableId.c_str(), "_AICHASE_%d_%d_", &x, &y))) {
+				  gpGame->forcedComputerPlayerChases[x][y] = true;
+			  }
+				  mapVariable *mapVar = new mapVariable;
+				  mapVar->type = mapVariableType;
+				  if (isTable(mapVariableType)) {
+					  mapVar->tableValue = ReadMapVarXML(it->table().get());
+				  }
+				  else if (isStringNumBool(mapVariableType)) {
+					  std::string *sV = new std::string;
+					  *sV = it->value().get();
+					  mapVar->singleValue = sV;
+				  }
+				  else {
+					  ErrorLoadingMapVariable(mapVariableId, " A map variable can only be a table, number, string or boolean.");
+				  }
+				  mapVariables[mapVariableId] = *mapVar;
+			  }
+			  WriteMapVariablesToLUA(mapVariables);
+
+		  }
+		  catch (xml_schema::exception& e) {
+			  DisplayError("Error parsing save file", "Fatal Error");
+			  std::cerr << e << std::endl;
+			  exit(1);
+		  }
+	  }
 }
 
 int game::SaveGame(char *saveFile, int autosave, signed char baseGame) {
