@@ -25,6 +25,7 @@ enum SECONDARY_SKILL {
   SECONDARY_SKILL_EAGLE_EYE = 11,
   SECONDARY_SKILL_NECROMANCY = 12,
   SECONDARY_SKILL_ESTATES = 13,
+  NUM_SECONDARY_SKILLS = 14
 };
 
 struct startingPrimarySkills {
@@ -34,5 +35,8 @@ struct startingPrimarySkills {
   __int8 knowledge;
   __int8 unused;
 };
+
+extern char *gSecondarySkills[];
+extern char *secondarySkillLevels[];
 
 #endif

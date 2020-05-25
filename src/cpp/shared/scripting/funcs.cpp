@@ -3,10 +3,10 @@ extern "C" {
 #include "lua/src/lualib.h"
 #include "lua/src/lauxlib.h"
 }
-#include <cmath>
 
 #include "adventure/adv.h"
 #include "adventure/map.h"
+#include "campaign/campaign.h"
 #include "combat/combat.h"
 #include "game/game.h"
 #include "gui/dialog.h"
@@ -17,7 +17,7 @@ extern "C" {
 #include "scripting/register.h"
 
 #include "sound/sound.h"
-#include "mouse.h"
+#include <cmath>
 
 enum SoundEffectWait { SND_DO_WAIT, SND_DONT_WAIT };
 
@@ -79,9 +79,11 @@ static int l_msgBox(lua_State *L) {
   return 0;
 }
 
+extern int gbFunctionComplete;
+
 static int l_AdvancedMessageBox(lua_State *L) {
   const char* msg = luaL_checkstring(L, 1);
-  int yesno = luaL_checkinteger(L, 2);
+  int dialogType = luaL_checkinteger(L, 2);
   int horizontal = luaL_checkinteger(L, 3);
   int vertical = luaL_checknumber(L, 4);
   int img1type = luaL_checknumber(L, 5);
@@ -90,8 +92,20 @@ static int l_AdvancedMessageBox(lua_State *L) {
   int img2arg = luaL_checknumber(L, 8);
   int writeOr = luaL_checknumber(L, 9);
   int a10 = luaL_checknumber(L, 10);
-  int answer = H2NormalDialog((char*)msg, (int)yesno, (int)horizontal, (int)vertical, (int)img1type, (int)img1arg, (int)img2type, (int)img2arg, (int)writeOr);
-  lua_pushinteger(L, answer);
+  
+  std::string msgCopy = msg;
+  NormalDialog(&msgCopy[0], dialogType, horizontal, vertical, img1type, img1arg, img2type, img2arg, writeOr, a10);
+ 
+  if (dialogType == DIALOG_LEARN_CHOICE) { // learn dialog
+    lua_pushboolean(L, gpWindowManager->buttonPressedCode == BUTTON_CODE_LEARN_LEFT);
+  } else if (dialogType == DIALOG_CANCEL_ALT) {
+    lua_pushboolean(L, gbFunctionComplete);
+  } else if (dialogType == DIALOG_YES_NO) {
+    lua_pushboolean(L, gpWindowManager->buttonPressedCode == BUTTON_CODE_OKAY);
+  } else {
+    lua_pushboolean(L, true);
+  }
+  
   return 1;
 }
 
@@ -167,9 +181,9 @@ static int l_getPlayer(lua_State *L) {
 }
 
 static int l_getPlayerPersonality(lua_State *L) {
-	playerData* p = (playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 1));
-	lua_pushinteger(L, p->personality);
-	return 1;
+				playerData* p = (playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 1));
+				lua_pushinteger(L, p->personality);
+				return 1;
 }
 
 static int l_getCurrentPlayer(lua_State *L) {
@@ -178,9 +192,9 @@ static int l_getCurrentPlayer(lua_State *L) {
 }
 
 static int l_getPlayerNumber(lua_State *L) {
-	playerData* p = (playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 1));
-	lua_pushinteger(L, GetPlayerNumber(p));
-	return 1;
+				playerData* p = (playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 1));
+				lua_pushinteger(L, GetPlayerNumber(p));
+				return 1;
 }
 
 static int l_getPlayerColor(lua_State *L) {
@@ -233,17 +247,17 @@ static int l_getResource(lua_State *L) {
 }
 
 static int l_shareVision(lua_State *L) {
-  playerData* sourcePlayer = (playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 2));
-  playerData* destPlayer = (playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(2, 2));
-  gpGame->ShareVision(GetPlayerNumber(sourcePlayer), GetPlayerNumber(destPlayer));
-  return 0;
+				playerData* sourcePlayer = (playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 2));
+				playerData* destPlayer = (playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(2, 2));
+				gpGame->ShareVision(GetPlayerNumber(sourcePlayer), GetPlayerNumber(destPlayer));
+    return 0;
 }
 
 static int l_cancelShareVision(lua_State *L) {
-  playerData* sourcePlayer = (playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 2));
-  playerData* destPlayer = (playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(2, 2));
-  gpGame->CancelShareVision(GetPlayerNumber(sourcePlayer), GetPlayerNumber(destPlayer));
-  return 0;
+				playerData* sourcePlayer = (playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 2));
+				playerData* destPlayer = (playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(2, 2));
+				gpGame->CancelShareVision(GetPlayerNumber(sourcePlayer), GetPlayerNumber(destPlayer));
+    return 0;
 }
 
 static int l_setDaysAfterTownLost(lua_State *L) {
@@ -274,12 +288,20 @@ static int l_revealMap(lua_State *L) {
   return 1;
 }
 
+int l_SetBarrierTentVisited(lua_State *L) {
+	playerData* plyd = (playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 2));
+	int tentcolor = luaL_checknumber(L, 2);
+	plyd->SetBarrierTentVisited(tentcolor);
+
+	return 0;
+}
+
 static void register_player_funcs(lua_State *L) {
   lua_register(L, "GetNumPlayers", l_getNumPlayers);
   lua_register(L, "GetPlayer", l_getPlayer);
-  lua_register(L, "GetPlayerPersonality", l_getPlayerPersonality);
+		lua_register(L, "GetPlayerPersonality", l_getPlayerPersonality);
   lua_register(L, "GetCurrentPlayer", l_getCurrentPlayer);
-  lua_register(L, "GetPlayerNumber", l_getPlayerNumber);
+		lua_register(L, "GetPlayerNumber", l_getPlayerNumber);
   lua_register(L, "GetPlayerColor", l_getPlayerColor);
   lua_register(L, "GetNumHeroes", l_getNumHeroes);
   lua_register(L, "GetHero", l_getHero);
@@ -292,6 +314,7 @@ static void register_player_funcs(lua_State *L) {
   lua_register(L, "SetDaysAfterTownLost", l_setDaysAfterTownLost);
   lua_register(L, "GetDaysAfterTownLost", l_getDaysAfterTownLost);
   lua_register(L, "RevealMap", l_revealMap);
+  lua_register(L, "SetBarrierTentVisited", l_SetBarrierTentVisited);
 }
 
 /************************************************ Heroes ********************************************************/
@@ -310,13 +333,45 @@ static int l_grantSpell(lua_State *L) {
 
 //this will only return true if the hero actually KNOWS the spell; sources like Spell Scrolls are ignored
 static int l_hasSpell(lua_State *L) {
-	hero* hro = (hero*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 2));
-	int spell = (int)luaL_checknumber(L, 2);
-	if (hro->spellsLearned[spell] == 1)
-		lua_pushboolean(L, true);
-	else
-		lua_pushboolean(L, false);
-	return 1;
+				hero* hro = (hero*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 2));
+				int spell = (int)luaL_checknumber(L, 2);
+				if (hro->spellsLearned[spell] == 1)
+								lua_pushboolean(L, true);
+				else
+								lua_pushboolean(L, false);
+				return 1;
+}
+
+static int l_hasSpellScroll(lua_State* L) {
+				hero* hro = (hero*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 2));
+				int spell = (int)luaL_checknumber(L, 2);
+				for (int i = 0; i < MAX_ARTIFACTS; i++)
+								if (hro->artifacts[i] == ARTIFACT_SPELL_SCROLL && hro->scrollSpell[i] == spell)
+								{
+												lua_pushboolean(L, true);
+												return 1;
+								}
+				lua_pushboolean(L, false);
+				return 1;
+}
+
+static int l_getHeroSex(lua_State* L) {
+				hero* hro = (hero*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 1));
+				if (HeroExtras[hro->idx]->GetHeroSex() == Sex::Male)
+								lua_pushinteger(L, 0);
+				else
+								lua_pushinteger(L, 1);
+				return 1;
+}
+
+static int l_setHeroSex(lua_State* L) {
+				hero* hro = (hero*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 2));
+				int sex = luaL_checkinteger(L, 2);
+				if (sex == 0)
+								HeroExtras[hro->idx]->SetHeroSex(Sex::Male);
+				else
+								HeroExtras[hro->idx]->SetHeroSex(Sex::Female);
+				return 0;
 }
 
 static int l_forgetSpell(lua_State *L) {
@@ -436,20 +491,20 @@ static int l_hasArtifact(lua_State *L) {
 }
 
 static int l_getArtifactAtIndex(lua_State* L) {
-	hero* hro = (hero*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 2));
-	int idx = (int)luaL_checknumber(L, 2);
-	lua_pushinteger(L, hro->artifacts[idx]);
-	return 1;
+				hero* hro = (hero*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 2));
+				int idx = (int)luaL_checknumber(L, 2);
+				lua_pushinteger(L, hro->artifacts[idx]);
+				return 1;
 }
 
 static int l_setArtifactAtIndex(lua_State* L) {
-	hero* hro = (hero*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 3));
-	int idx = (int)luaL_checknumber(L, 2);
-	int artifact = (int)luaL_checknumber(L, 3);
-	GiveTakeArtifactStat(hro, hro->artifacts[idx], 1);
-	GiveTakeArtifactStat(hro, artifact, 0);
-	hro->artifacts[idx] = artifact;
-	return 0;
+				hero* hro = (hero*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 3));
+				int idx = (int)luaL_checknumber(L, 2);
+				int artifact = (int)luaL_checknumber(L, 3);
+				GiveTakeArtifactStat(hro, hro->artifacts[idx], 1);
+				GiveTakeArtifactStat(hro, artifact, 0);
+				hro->artifacts[idx] = artifact;
+				return 0;
 }
 
 static int l_takeArtifact(lua_State *L) {
@@ -613,55 +668,23 @@ static int l_grantSpellScroll(lua_State *L) {
   return 0;
 }
 
-static int l_hasSpellScroll(lua_State* L) {
-	hero* hro = (hero*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 2));
-	int spell = (int)luaL_checknumber(L, 2);
-	for (int i = 0; i < MAX_ARTIFACTS; i++)
-		if (hro->artifacts[i] == ARTIFACT_SPELL_SCROLL && hro->scrollSpell[i] == spell)
-		{
-			lua_pushboolean(L, true);
-			return 1;
-		}
-	lua_pushboolean(L, false);
-	return 1;
-}
-
 static int l_getHeroFaction(lua_State *L) {
-	hero *hro = (hero*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 1));
-	lua_pushinteger(L, hro->factionID);
-	return 1;
+  hero *hro = (hero*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 1));
+  lua_pushinteger(L, hro->factionID);
+  return 1;
 }
 
 static int l_setHeroFaction(lua_State *L) {
-	hero* hro = (hero*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 2));
-	int newFaction = (int)luaL_checknumber(L, 2);
-	hro->factionID = newFaction;
-	return 0;
-}
-
-static int l_getHeroSex(lua_State* L) {
-	hero* hro = (hero*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 1));
-	if (HeroExtras[hro->idx]->GetHeroSex() == Sex::Male)
-		lua_pushinteger(L, 0);
-	else
-		lua_pushinteger(L, 1);
-	return 1;
-}
-
-static int l_setHeroSex(lua_State* L) {
-	hero* hro = (hero*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 2));
-	int sex = luaL_checkinteger(L, 2);
-	if (sex == 0)
-		HeroExtras[hro->idx]->SetHeroSex(Sex::Male);
-	else
-		HeroExtras[hro->idx]->SetHeroSex(Sex::Female);
-	return 0;
+  hero* hro = (hero*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 2));
+  int newFaction = (int)luaL_checknumber(L, 2);
+  hro->factionID = newFaction;
+  return 0;
 }
 
 static void register_hero_funcs(lua_State *L) {
   lua_register(L, "GetCurrentHero", l_getCurrentHero);
   lua_register(L, "GrantSpell", l_grantSpell);
-  lua_register(L, "HasSpell", l_hasSpell);
+		lua_register(L, "HasSpell", l_hasSpell);
   lua_register(L, "ForgetSpell", l_forgetSpell);
   lua_register(L, "HasTroop", l_hasTroop);
   lua_register(L, "GetCreatureAmount", l_getCreatureAmount);
@@ -673,8 +696,8 @@ static void register_hero_funcs(lua_State *L) {
   lua_register(L, "GetHeroOwner", l_getHeroOwner);
   lua_register(L, "GrantArtifact", l_grantArtifact);
   lua_register(L, "HasArtifact", l_hasArtifact);
-  lua_register(L, "GetArtifactAtIndex", l_getArtifactAtIndex);
-  lua_register(L, "SetArtifactAtIndex", l_setArtifactAtIndex);
+		lua_register(L, "GetArtifactAtIndex", l_getArtifactAtIndex);
+		lua_register(L, "SetArtifactAtIndex", l_setArtifactAtIndex);
   lua_register(L, "TakeArtifact", l_takeArtifact);
   lua_register(L, "CountEmptyArtifactSlots", l_countEmptyArtifactSlots);
   lua_register(L, "CountEmptyCreatureSlots", l_countEmptyCreatureSlots);
@@ -699,11 +722,11 @@ static void register_hero_funcs(lua_State *L) {
   lua_register(L, "GetHeroTempLuckBonuses", l_getHeroTempLuckBonuses);
   lua_register(L, "SetHeroTempLuckBonuses", l_setHeroTempLuckBonuses);
   lua_register(L, "GrantSpellScroll", l_grantSpellScroll);
-  lua_register(L, "HasSpellScroll", l_hasSpellScroll);
+		lua_register(L, "HasSpellScroll", l_hasSpellScroll);
+		lua_register(L, "GetHeroSex", l_getHeroSex);
+		lua_register(L, "SetHeroSex", l_setHeroSex);
   lua_register(L, "GetHeroFaction", l_getHeroFaction);
   lua_register(L, "SetHeroFaction", l_setHeroFaction);
-  lua_register(L, "GetHeroSex", l_getHeroSex);
-  lua_register(L, "SetHeroSex", l_setHeroSex);
 }
 
 /************************************** Map *******************************************/
@@ -744,509 +767,510 @@ static int l_mapPutResource(lua_State *L) {
 	return 1;
 }*/
 
-static int l_getShrineSpell(lua_State *L)
-{
-	int x = (int)luaL_checknumber(L, 1);
-	int y = (int)luaL_checknumber(L, 2);
-	int spell = GetShrineSpell(x, y);
-	if (spell != -1)
-	{
-		lua_pushinteger(L, spell);
-		return 1;
-	}
-	return 0;
+static int l_getShrineSpell(lua_State *L) {
+				int x = (int)luaL_checknumber(L, 1);
+				int y = (int)luaL_checknumber(L, 2);
+				int spell = GetShrineSpell(x, y);
+				if (spell != -1)
+				{
+								lua_pushinteger(L, spell);
+								return 1;
+				}
+				return 0;
 }
 
 static int l_setShrineSpell(lua_State *L)
 {
-	int x = (int)luaL_checknumber(L, 1);
-	int y = (int)luaL_checknumber(L, 2);
-	int spell = (int)luaL_checknumber(L, 3);
-	SetShrineSpell(x, y, spell);
-	return 0;
+				int x = (int)luaL_checknumber(L, 1);
+				int y = (int)luaL_checknumber(L, 2);
+				int spell = (int)luaL_checknumber(L, 3);
+				SetShrineSpell(x, y, spell);
+				return 0;
 }
 
 static int l_getWitchHutSkill(lua_State *L)
 {
-	int x = (int)luaL_checknumber(L, 1);
-	int y = (int)luaL_checknumber(L, 2);
-	int skill = GetWitchHutSkill(x, y);
-	if (skill != -1)
-	{
-		lua_pushinteger(L, skill);
-		return 1;
-	}
-	return 0;
+				int x = (int)luaL_checknumber(L, 1);
+				int y = (int)luaL_checknumber(L, 2);
+				int skill = GetWitchHutSkill(x, y);
+				if (skill != -1)
+				{
+								lua_pushinteger(L, skill);
+								return 1;
+				}
+				return 0;
 }
 
 static int l_setWitchHutSkill(lua_State *L)
 {
-	int x = (int)luaL_checknumber(L, 1);
-	int y = (int)luaL_checknumber(L, 2);
-	int skill = (int)luaL_checknumber(L, 3);
-	SetWitchHutSkill(x, y, skill);
-	return 0;
+				int x = (int)luaL_checknumber(L, 1);
+				int y = (int)luaL_checknumber(L, 2);
+				int skill = (int)luaL_checknumber(L, 3);
+				SetWitchHutSkill(x, y, skill);
+				return 0;
 }
 
 static int l_getSignText(lua_State *L)
 {
-	const char* signTexts[4] = {
-	"See Rock City",
-	"This space for rent",
-	"Next sign 50 miles",
-	"Burma shave"
-	}; //this DOES exist in the original code as off_4F70C8 but I don't know how to use it
-	int x = (int)luaL_checknumber(L, 1);
-	int y = (int)luaL_checknumber(L, 2);
-	mapCell* loc = gpAdvManager->GetCell(x, y);
-	SignExtra* sign = (SignExtra *)ppMapExtra[loc->extraInfo];
-	if (strlen(&sign->message) < 1)
-		lua_pushstring(L, signTexts[x % 4]);
-	else
-		lua_pushstring(L, &sign->message);
-	return 1;
+				const char* signTexts[4] = {
+								"See Rock City",
+								"This space for rent",
+								"Next sign 50 miles",
+								"Burma shave"
+				}; //this DOES exist in the original code as off_4F70C8 but I don't know how to use it
+				int x = (int)luaL_checknumber(L, 1);
+				int y = (int)luaL_checknumber(L, 2);
+				mapCell* loc = gpAdvManager->GetCell(x, y);
+				SignExtra* sign = (SignExtra *)ppMapExtra[loc->extraInfo];
+				if (strlen(&sign->message) < 1)
+								lua_pushstring(L, signTexts[x % 4]);
+				else
+								lua_pushstring(L, &sign->message);
+				return 1;
 }
 
 static int l_setSignText(lua_State *L)
 {
-	int x = (int)luaL_checknumber(L, 1);
-	int y = (int)luaL_checknumber(L, 2);
-	const char* text = (char*)luaL_checkstring(L, 3);
-	mapCell* loc = gpAdvManager->GetCell(x, y);
-	SignExtra* sign = (SignExtra *)ppMapExtra[loc->extraInfo];
-	strcpy(&sign->message, text);
-	return 0;
+				int x = (int)luaL_checknumber(L, 1);
+				int y = (int)luaL_checknumber(L, 2);
+				const char* text = (char*)luaL_checkstring(L, 3);
+				mapCell* loc = gpAdvManager->GetCell(x, y);
+				SignExtra* sign = (SignExtra *)ppMapExtra[loc->extraInfo];
+				strcpy(&sign->message, text);
+				return 0;
 }
 
 static int l_setPlayerVisitedShrine(lua_State *L)
 {
-	playerData* p = (playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 4));
-	int x = (int)luaL_checknumber(L, 2);
-	int y = (int)luaL_checknumber(L, 3);
-	bool yes = CheckBoolean(L, 4);
-	if (yes)
-		PlayerVisitedObject[x][y] |= 1u << p->color;
-	else
-		PlayerVisitedObject[x][y] &= ~(1u << p->color);
-	return 0;
+				playerData* p = (playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 4));
+				int x = (int)luaL_checknumber(L, 2);
+				int y = (int)luaL_checknumber(L, 3);
+				bool yes = CheckBoolean(L, 4);
+				if (yes)
+								PlayerVisitedObject[x][y] |= 1u << p->color;
+				else
+								PlayerVisitedObject[x][y] &= ~(1u << p->color);
+				return 0;
 }
 
 static int l_getPlayerVisitedShrine(lua_State *L)
 {
-	playerData* p = (playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 3));
-	int x = (int)luaL_checknumber(L, 2);
-	int y = (int)luaL_checknumber(L, 3);
-	int answer = (PlayerVisitedObject[x][y] >> p->color) & 1u;
-	if (answer)
-		lua_pushboolean(L, true);
-	else
-		lua_pushboolean(L, false);
-	return 1;
+				playerData* p = (playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 3));
+				int x = (int)luaL_checknumber(L, 2);
+				int y = (int)luaL_checknumber(L, 3);
+				int answer = (PlayerVisitedObject[x][y] >> p->color) & 1u;
+				if (answer)
+								lua_pushboolean(L, true);
+				else
+								lua_pushboolean(L, false);
+				return 1;
 }
 
 static int l_getMineId(lua_State *L)
 {
-	int x = (int)luaL_checknumber(L, 1);
-	int y = (int)luaL_checknumber(L, 2);
-	int id = gpGame->GetMineId(x, y);
-	if (id == -1)
-		lua_pushnil(L);
-	else
-		lua_pushinteger(L, id);
-	return 1;
+				int x = (int)luaL_checknumber(L, 1);
+				int y = (int)luaL_checknumber(L, 2);
+				int id = gpGame->GetMineId(x, y);
+				if (id == -1)
+								lua_pushnil(L);
+				else
+								lua_pushinteger(L, id);
+				return 1;
 }
 
 static int l_getMineOwner(lua_State *L)
 {
-	int id = (int)luaL_checknumber(L, 1);
-	mine* mn = &gpGame->mines[id];
-	if (mn->owner == -1)
-		lua_pushnil(L);
-	else
-		deepbound_push(L, deepbind<playerData*>(&gpGame->players[mn->owner]));
-	return 1;
+				int id = (int)luaL_checknumber(L, 1);
+				mine* mn = &gpGame->mines[id];
+				if (mn->owner == -1)
+								lua_pushnil(L);
+				else
+								deepbound_push(L, deepbind<playerData*>(&gpGame->players[mn->owner]));
+				return 1;
 }
 
 static int l_setMineOwner(lua_State *L)
 {
-	int id = (int)luaL_checknumber(L, 1);
-	int idx;
-	if (lua_isnil(L, 2))
-	{
-		lua_pop(L, 2);
-		idx = -1;
-	}
-	else
-		idx = GetPlayerNumber((playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(2, 2)));
-	gpGame->ClaimMine(id, idx);
-	return 0;
+				int id = (int)luaL_checknumber(L, 1);
+				int idx;
+				if (lua_isnil(L, 2))
+				{
+								lua_pop(L, 2);
+								idx = -1;
+				}
+				else
+								idx = GetPlayerNumber((playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(2, 2)));
+				gpGame->ClaimMine(id, idx);
+				return 0;
 }
 
 static int l_getMineGuards(lua_State *L)
 {
-	int id = (int)luaL_checknumber(L, 1);
-	mine* mn = &gpGame->mines[id];
-	lua_pushinteger(L, mn->guardianType);
-	return 1;
+				int id = (int)luaL_checknumber(L, 1);
+				mine* mn = &gpGame->mines[id];
+				lua_pushinteger(L, mn->guardianType);
+				return 1;
 }
 
 static int l_getMineGuardCount(lua_State *L)
 {
-	int id = (int)luaL_checknumber(L, 1);
-	mine* mn = &gpGame->mines[id];
-	lua_pushinteger(L, mn->guardianQty);
-	return 1;
+				int id = (int)luaL_checknumber(L, 1);
+				mine* mn = &gpGame->mines[id];
+				lua_pushinteger(L, mn->guardianQty);
+				return 1;
 }
 
 static int l_setMineGuards(lua_State *L)
 {
-	int id = (int)luaL_checknumber(L, 1);
-	int type = (int)luaL_checknumber(L, 2);
-	int qty = (int)luaL_checknumber(L, 3);
-	mine* mn = &gpGame->mines[id];
-	mn->guardianType = type;
-	mn->guardianQty = qty;
-	return 0;
+				int id = (int)luaL_checknumber(L, 1);
+				int type = (int)luaL_checknumber(L, 2);
+				int qty = (int)luaL_checknumber(L, 3);
+				mine* mn = &gpGame->mines[id];
+				mn->guardianType = type;
+				mn->guardianQty = qty;
+				return 0;
 }
 
 static int l_getDwellingQuantity(lua_State* L)
 {
-	int x = (int)luaL_checknumber(L, 1);
-	int y = (int)luaL_checknumber(L, 2);
-	mapCell* cell = gpAdvManager->GetCell(x, y);
-	int locType = cell->objType & 0x7F;
-	if (locType == LOCATION_EXPANSION_DWELLING)
-		lua_pushinteger(L, cell->extraInfo / 8);
-	else if (locType == LOCATION_TROLL_BRIDGE || locType == LOCATION_CITY_OF_DEAD || locType == LOCATION_DRAGON_CITY)
-	{
-		if (cell->extraInfo & 0x100)
-			lua_pushinteger(L, cell->extraInfo & (~0x100));
-		else
-			lua_pushinteger(L, cell->extraInfo);
-	}
-	else
-		lua_pushinteger(L, cell->extraInfo);
-	return 1;
+				int x = (int)luaL_checknumber(L, 1);
+				int y = (int)luaL_checknumber(L, 2);
+				mapCell* cell = gpAdvManager->GetCell(x, y);
+				int locType = cell->objType & 0x7F;
+				if (locType == LOCATION_EXPANSION_DWELLING)
+								lua_pushinteger(L, cell->extraInfo / 8);
+				else if (locType == LOCATION_TROLL_BRIDGE || locType == LOCATION_CITY_OF_DEAD || locType == LOCATION_DRAGON_CITY)
+				{
+								if (cell->extraInfo & 0x100)
+												lua_pushinteger(L, cell->extraInfo & (~0x100));
+								else
+												lua_pushinteger(L, cell->extraInfo);
+				}
+				else
+								lua_pushinteger(L, cell->extraInfo);
+				return 1;
 }
 
 static int l_setDwellingQuantity(lua_State *L)
 {
-	int x = (int)luaL_checknumber(L, 1);
-	int y = (int)luaL_checknumber(L, 2);
-	int qty = (int)luaL_checknumber(L, 3);
-	mapCell* cell = gpAdvManager->GetCell(x, y);
-	int locType = cell->objType & 0x7F;
-	if (locType == LOCATION_TROLL_BRIDGE || locType == LOCATION_CITY_OF_DEAD || locType == LOCATION_DRAGON_CITY)
-		if (cell->extraInfo & 0x100)
-			cell->extraInfo = qty | 0x100;
-		else
-			cell->extraInfo = qty;
-	else if (locType == LOCATION_EXPANSION_DWELLING)
-		cell->extraInfo = qty * 8 + cell->extraInfo % 8;
-	else
-		cell->extraInfo = qty;
-	return 0;
+				int x = (int)luaL_checknumber(L, 1);
+				int y = (int)luaL_checknumber(L, 2);
+				int qty = (int)luaL_checknumber(L, 3);
+				mapCell* cell = gpAdvManager->GetCell(x, y);
+				int locType = cell->objType & 0x7F;
+				if (locType == LOCATION_TROLL_BRIDGE || locType == LOCATION_CITY_OF_DEAD || locType == LOCATION_DRAGON_CITY)
+				{
+								if (cell->extraInfo & 0x100)
+												cell->extraInfo = qty | 0x100;
+								else
+												cell->extraInfo = qty;
+				}
+				else if (locType == LOCATION_EXPANSION_DWELLING)
+								cell->extraInfo = qty * 8 + cell->extraInfo % 8;
+				else
+								cell->extraInfo = qty;
+				return 0;
 }
 
 static int l_dwellingHasGuards(lua_State *L)
 {
-	int x = (int)luaL_checknumber(L, 1);
-	int y = (int)luaL_checknumber(L, 2);
-	mapCell* cell = gpAdvManager->GetCell(x, y);
-	int locType = cell->objType & 0x7F;
-	if (locType == LOCATION_TROLL_BRIDGE || locType == LOCATION_CITY_OF_DEAD || locType == LOCATION_DRAGON_CITY)
-		if (cell->extraInfo & 0x100)
-			lua_pushboolean(L, true);
-		else
-			lua_pushboolean(L, false);
-	else
-		lua_pushboolean(L, false);
-	return 1;
+				int x = (int)luaL_checknumber(L, 1);
+				int y = (int)luaL_checknumber(L, 2);
+				mapCell* cell = gpAdvManager->GetCell(x, y);
+				int locType = cell->objType & 0x7F;
+				if (locType == LOCATION_TROLL_BRIDGE || locType == LOCATION_CITY_OF_DEAD || locType == LOCATION_DRAGON_CITY)
+								if (cell->extraInfo & 0x100)
+												lua_pushboolean(L, true);
+								else
+												lua_pushboolean(L, false);
+				else
+								lua_pushboolean(L, false);
+				return 1;
 }
 
 static int l_setDwellingHasGuards(lua_State *L)
 {
-	int x = (int)luaL_checknumber(L, 1);
-	int y = (int)luaL_checknumber(L, 2);
-	bool yes = CheckBoolean(L, 3);
-	mapCell* cell = gpAdvManager->GetCell(x, y);
-	int locType = cell->objType & 0x7F;
-	if (locType == LOCATION_TROLL_BRIDGE || locType == LOCATION_CITY_OF_DEAD || locType == LOCATION_DRAGON_CITY)
-		if (yes)
-			cell->extraInfo |= 0x100;
-		else if (!yes)
-			cell->extraInfo &= ~0x100;
-	return 0;
+				int x = (int)luaL_checknumber(L, 1);
+				int y = (int)luaL_checknumber(L, 2);
+				bool yes = CheckBoolean(L, 3);
+				mapCell* cell = gpAdvManager->GetCell(x, y);
+				int locType = cell->objType & 0x7F;
+				if (locType == LOCATION_TROLL_BRIDGE || locType == LOCATION_CITY_OF_DEAD || locType == LOCATION_DRAGON_CITY)
+								if (yes)
+												cell->extraInfo |= 0x100;
+								else if (!yes)
+												cell->extraInfo &= ~0x100;
+				return 0;
 }
 
 static int l_getCampfireResource(lua_State *L) {
-	int x = (int)luaL_checknumber(L, 1);
-	int y = (int)luaL_checknumber(L, 2);
-	mapCell* cell = gpAdvManager->GetCell(x, y);
-	if ((cell->objType & 0x7F) != LOCATION_CAMPFIRE)
-	{
-		lua_pushnil(L);
-		return 1;
-	}
-	lua_pushinteger(L, cell->extraInfo & 0xF);
-	return 1;
+				int x = (int)luaL_checknumber(L, 1);
+				int y = (int)luaL_checknumber(L, 2);
+				mapCell* cell = gpAdvManager->GetCell(x, y);
+				if ((cell->objType & 0x7F) != LOCATION_CAMPFIRE)
+				{
+								lua_pushnil(L);
+								return 1;
+				}
+				lua_pushinteger(L, cell->extraInfo & 0xF);
+				return 1;
 }
 
 static int l_getCampfireResourceCount(lua_State *L) {
-	int x = (int)luaL_checknumber(L, 1);
-	int y = (int)luaL_checknumber(L, 2);
-	mapCell* cell = gpAdvManager->GetCell(x, y);
-	if ((cell->objType & 0x7F) != LOCATION_CAMPFIRE && (cell->objType & 0x7F) != LOCATION_LEAN_TO)
-	{
-		lua_pushnil(L);
-		return 1;
-	}
-	lua_pushinteger(L, cell->extraInfo >> 4);
-	return 1;
+				int x = (int)luaL_checknumber(L, 1);
+				int y = (int)luaL_checknumber(L, 2);
+				mapCell* cell = gpAdvManager->GetCell(x, y);
+				if ((cell->objType & 0x7F) != LOCATION_CAMPFIRE && (cell->objType & 0x7F) != LOCATION_LEAN_TO)
+				{
+								lua_pushnil(L);
+								return 1;
+				}
+				lua_pushinteger(L, cell->extraInfo >> 4);
+				return 1;
 }
 
 static int l_setCampfireResource(lua_State *L) {
-	int x = (int)luaL_checknumber(L, 1);
-	int y = (int)luaL_checknumber(L, 2);
-	int res = (int)luaL_checknumber(L, 3);
-	int qty = (int)luaL_checknumber(L, 4);
-	mapCell* cell = gpAdvManager->GetCell(x, y);
-	if ((cell->objType & 0x7F) != LOCATION_CAMPFIRE)
-		return 0;
-	cell->extraInfo = (qty << 4) + res;
-	return 0;
+				int x = (int)luaL_checknumber(L, 1);
+				int y = (int)luaL_checknumber(L, 2);
+				int res = (int)luaL_checknumber(L, 3);
+				int qty = (int)luaL_checknumber(L, 4);
+				mapCell* cell = gpAdvManager->GetCell(x, y);
+				if ((cell->objType & 0x7F) != LOCATION_CAMPFIRE)
+								return 0;
+				cell->extraInfo = (qty << 4) + res;
+				return 0;
 }
 
 static int l_getLeanToResource(lua_State *L) {
-	int x = (int)luaL_checknumber(L, 1);
-	int y = (int)luaL_checknumber(L, 2);
-	mapCell* cell = gpAdvManager->GetCell(x, y);
-	if ((cell->objType & 0x7F) != LOCATION_LEAN_TO)
-	{
-		lua_pushnil(L);
-		return 1;
-	}
-	if (cell->extraInfo == 0)
-		lua_pushinteger(L, -1);
-	else
-		lua_pushinteger(L, (cell->extraInfo & 0xF) - 1);
-	return 1;
+				int x = (int)luaL_checknumber(L, 1);
+				int y = (int)luaL_checknumber(L, 2);
+				mapCell* cell = gpAdvManager->GetCell(x, y);
+				if ((cell->objType & 0x7F) != LOCATION_LEAN_TO)
+				{
+								lua_pushnil(L);
+								return 1;
+				}
+				if (cell->extraInfo == 0)
+								lua_pushinteger(L, -1);
+				else
+								lua_pushinteger(L, (cell->extraInfo & 0xF) - 1);
+				return 1;
 }
 
 static int l_setLeanToResource(lua_State *L) {
-	int x = (int)luaL_checknumber(L, 1);
-	int y = (int)luaL_checknumber(L, 2);
-	int res = (int)luaL_checknumber(L, 3);
-	int qty = (int)luaL_checknumber(L, 4);
-	mapCell* cell = gpAdvManager->GetCell(x, y);
-	if ((cell->objType & 0x7F) != LOCATION_LEAN_TO)
-		return 0;
-	cell->extraInfo = (qty << 4) + res + 1;
-	return 0;
+				int x = (int)luaL_checknumber(L, 1);
+				int y = (int)luaL_checknumber(L, 2);
+				int res = (int)luaL_checknumber(L, 3);
+				int qty = (int)luaL_checknumber(L, 4);
+				mapCell* cell = gpAdvManager->GetCell(x, y);
+				if ((cell->objType & 0x7F) != LOCATION_LEAN_TO)
+								return 0;
+				cell->extraInfo = (qty << 4) + res + 1;
+				return 0;
 }
 
 static int l_getWagonType(lua_State *L) {
-	int x = (int)luaL_checknumber(L, 1);
-	int y = (int)luaL_checknumber(L, 2);
-	int type = GetWagonType(x, y);
-	if (type == -1)
-		lua_pushnil(L);
-	else
-		lua_pushinteger(L, type);
-	return 1;
+				int x = (int)luaL_checknumber(L, 1);
+				int y = (int)luaL_checknumber(L, 2);
+				int type = GetWagonType(x, y);
+				if (type == -1)
+								lua_pushnil(L);
+				else
+								lua_pushinteger(L, type);
+				return 1;
 }
 
 static int l_getWagonResource(lua_State *L) {
-	int x = (int)luaL_checknumber(L, 1);
-	int y = (int)luaL_checknumber(L, 2);
-	int type = GetWagonType(x, y);
-	if (type != 1)
-		lua_pushnil(L);
-	else
-		lua_pushinteger(L, (gpAdvManager->GetCell(x, y)->extraInfo & 0xF) - 1);
-	return 1;
+				int x = (int)luaL_checknumber(L, 1);
+				int y = (int)luaL_checknumber(L, 2);
+				int type = GetWagonType(x, y);
+				if (type != 1)
+								lua_pushnil(L);
+				else
+								lua_pushinteger(L, (gpAdvManager->GetCell(x, y)->extraInfo & 0xF) - 1);
+				return 1;
 }
 
 static int l_getWagonResourceCount(lua_State *L) {
-	int x = (int)luaL_checknumber(L, 1);
-	int y = (int)luaL_checknumber(L, 2);
-	int type = GetWagonType(x, y);
-	if (type != 1)
-		lua_pushnil(L);
-	else
-		lua_pushinteger(L, gpAdvManager->GetCell(x, y)->extraInfo >> 4);
-	return 1;
+				int x = (int)luaL_checknumber(L, 1);
+				int y = (int)luaL_checknumber(L, 2);
+				int type = GetWagonType(x, y);
+				if (type != 1)
+								lua_pushnil(L);
+				else
+								lua_pushinteger(L, gpAdvManager->GetCell(x, y)->extraInfo >> 4);
+				return 1;
 }
 
 static int l_getWagonArtifact(lua_State *L) {
-	int x = (int)luaL_checknumber(L, 1);
-	int y = (int)luaL_checknumber(L, 2);
-	int type = GetWagonType(x, y);
-	if (type != 2)
-		lua_pushnil(L);
-	else
-		lua_pushinteger(L, gpAdvManager->GetCell(x, y)->extraInfo & 0x7F);
-	return 1;
+				int x = (int)luaL_checknumber(L, 1);
+				int y = (int)luaL_checknumber(L, 2);
+				int type = GetWagonType(x, y);
+				if (type != 2)
+								lua_pushnil(L);
+				else
+								lua_pushinteger(L, gpAdvManager->GetCell(x, y)->extraInfo & 0x7F);
+				return 1;
 }
 
 static int l_setWagonResource(lua_State *L) {
-	int x = (int)luaL_checknumber(L, 1);
-	int y = (int)luaL_checknumber(L, 2);
-	int res = (int)luaL_checknumber(L, 3);
-	int count = (int)luaL_checknumber(L, 4);
-	mapCell* cell = gpAdvManager->GetCell(x, y);
-	if (count > 7)
-		count = 7;
-	if ((cell->objType & 0x7F) != LOCATION_WAGON)
-		return 0;
-	if (res < 0 || count <= 0)
-		cell->extraInfo = 0;
-	else
-		cell->extraInfo = (count << 4) + res + 1;
-	return 0;
+				int x = (int)luaL_checknumber(L, 1);
+				int y = (int)luaL_checknumber(L, 2);
+				int res = (int)luaL_checknumber(L, 3);
+				int count = (int)luaL_checknumber(L, 4);
+				mapCell* cell = gpAdvManager->GetCell(x, y);
+				if (count > 7)
+								count = 7;
+				if ((cell->objType & 0x7F) != LOCATION_WAGON)
+								return 0;
+				if (res < 0 || count <= 0)
+								cell->extraInfo = 0;
+				else
+								cell->extraInfo = (count << 4) + res + 1;
+				return 0;
 }
 
 static int l_setWagonArtifact(lua_State *L) {
-	int x = (int)luaL_checknumber(L, 1);
-	int y = (int)luaL_checknumber(L, 2);
-	int artifact = (int)luaL_checknumber(L, 3);
-	mapCell* cell = gpAdvManager->GetCell(x, y);
-	if ((cell->objType & 0x7F) != LOCATION_WAGON)
-		return 0;
-	if (artifact < 0)
-		cell->extraInfo = 0;
-	else
-		cell->extraInfo = (artifact & 0x7F) | 0x80;
-	return 0;
+				int x = (int)luaL_checknumber(L, 1);
+				int y = (int)luaL_checknumber(L, 2);
+				int artifact = (int)luaL_checknumber(L, 3);
+				mapCell* cell = gpAdvManager->GetCell(x, y);
+				if ((cell->objType & 0x7F) != LOCATION_WAGON)
+								return 0;
+				if (artifact < 0)
+								cell->extraInfo = 0;
+				else
+								cell->extraInfo = (artifact & 0x7F) | 0x80;
+				return 0;
 }
 
 static int l_getSkeletonArtifact(lua_State *L) {
-	int x = (int)luaL_checknumber(L, 1);
-	int y = (int)luaL_checknumber(L, 2);
-	mapCell* cell = gpAdvManager->GetCell(x, y);
-	if ((cell->objType & 0x7F) != LOCATION_SKELETON)
-	{
-		lua_pushnil(L);
-		return 1;
-	}
-	int artifact = cell->extraInfo;
-	artifact -= 2;
-	//the value cannot be pushed directly; cell->extraInfo is unsigned
-	//when it is 1 (empty Skeleton), the value pushed would not be -1, but rather 4294967295
-	lua_pushinteger(L, artifact);
-	return 1;
+				int x = (int)luaL_checknumber(L, 1);
+				int y = (int)luaL_checknumber(L, 2);
+				mapCell* cell = gpAdvManager->GetCell(x, y);
+				if ((cell->objType & 0x7F) != LOCATION_SKELETON)
+				{
+								lua_pushnil(L);
+								return 1;
+				}
+				int artifact = cell->extraInfo;
+				artifact -= 2;
+				//the value cannot be pushed directly; cell->extraInfo is unsigned
+				//when it is 1 (empty Skeleton), the value pushed would not be -1, but rather 4294967295
+				lua_pushinteger(L, artifact);
+				return 1;
 }
 
 static int l_setSkeletonArtifact(lua_State *L) {
-	int x = (int)luaL_checknumber(L, 1);
-	int y = (int)luaL_checknumber(L, 2);
-	int artifact = (int)luaL_checknumber(L, 3);
-	mapCell* cell = gpAdvManager->GetCell(x, y);
-	if ((cell->objType & 0x7F) != LOCATION_SKELETON)
-		return 0;
-	cell->extraInfo = artifact + 2;
-	return 0;
+				int x = (int)luaL_checknumber(L, 1);
+				int y = (int)luaL_checknumber(L, 2);
+				int artifact = (int)luaL_checknumber(L, 3);
+				mapCell* cell = gpAdvManager->GetCell(x, y);
+				if ((cell->objType & 0x7F) != LOCATION_SKELETON)
+								return 0;
+				cell->extraInfo = artifact + 2;
+				return 0;
 }
 
 static int l_getResourcePileCount(lua_State *L)
 {
-	int x = (int)luaL_checknumber(L, 1);
-	int y = (int)luaL_checknumber(L, 2);
-	mapCell* cell = gpAdvManager->GetCell(x, y);
-	if ((cell->objType & 0x7F) != LOCATION_RESOURCE)
-	{
-		lua_pushnil(L);
-		return 1;
-	}
-	lua_pushinteger(L, cell->extraInfo);
-	return 1;
+				int x = (int)luaL_checknumber(L, 1);
+				int y = (int)luaL_checknumber(L, 2);
+				mapCell* cell = gpAdvManager->GetCell(x, y);
+				if ((cell->objType & 0x7F) != LOCATION_RESOURCE)
+				{
+								lua_pushnil(L);
+								return 1;
+				}
+				lua_pushinteger(L, cell->extraInfo);
+				return 1;
 }
 
 static int l_setResourcePileCount(lua_State *L)
 {
-	int x = (int)luaL_checknumber(L, 1);
-	int y = (int)luaL_checknumber(L, 2);
-	int qty = (int)luaL_checknumber(L, 3);
-	mapCell* cell = gpAdvManager->GetCell(x, y);
-	if ((cell->objType & 0x7F) != LOCATION_RESOURCE)
-		return 0;
-	cell->extraInfo = qty;
-	return 0;
+				int x = (int)luaL_checknumber(L, 1);
+				int y = (int)luaL_checknumber(L, 2);
+				int qty = (int)luaL_checknumber(L, 3);
+				mapCell* cell = gpAdvManager->GetCell(x, y);
+				if ((cell->objType & 0x7F) != LOCATION_RESOURCE)
+								return 0;
+				cell->extraInfo = qty;
+				return 0;
 }
 
 static int l_getTreasureChestType(lua_State *L)
 {
-	int x = (int)luaL_checknumber(L, 1);
-	int y = (int)luaL_checknumber(L, 2);
-	mapCell* cell = gpAdvManager->GetCell(x, y);
-	if ((cell->objType & 0x7F) != LOCATION_TREASURE_CHEST)
-	{
-		lua_pushnil(L);
-		return 1;
-	}
-	if (cell->extraInfo & 0x100)
-		lua_pushinteger(L, 2);
-	else
-		lua_pushinteger(L, 1);
-	return 1;
+				int x = (int)luaL_checknumber(L, 1);
+				int y = (int)luaL_checknumber(L, 2);
+				mapCell* cell = gpAdvManager->GetCell(x, y);
+				if ((cell->objType & 0x7F) != LOCATION_TREASURE_CHEST)
+				{
+								lua_pushnil(L);
+								return 1;
+				}
+				if (cell->extraInfo & 0x100)
+								lua_pushinteger(L, 2);
+				else
+								lua_pushinteger(L, 1);
+				return 1;
 }
 
 static int l_getTreasureChestLevel(lua_State *L)
 {
-	int x = (int)luaL_checknumber(L, 1);
-	int y = (int)luaL_checknumber(L, 2);
-	mapCell* cell = gpAdvManager->GetCell(x, y);
-	if ((cell->objType & 0x7F) != LOCATION_TREASURE_CHEST)
-	{
-		lua_pushnil(L);
-		return 1;
-	}
-	if (cell->extraInfo & 0x100)
-		lua_pushnil(L);
-	else
-		lua_pushinteger(L, cell->extraInfo);
-	return 1;
+				int x = (int)luaL_checknumber(L, 1);
+				int y = (int)luaL_checknumber(L, 2);
+				mapCell* cell = gpAdvManager->GetCell(x, y);
+				if ((cell->objType & 0x7F) != LOCATION_TREASURE_CHEST)
+				{
+								lua_pushnil(L);
+								return 1;
+				}
+				if (cell->extraInfo & 0x100)
+								lua_pushnil(L);
+				else
+								lua_pushinteger(L, cell->extraInfo);
+				return 1;
 }
 
 static int l_getTreasureChestArtifact(lua_State *L)
 {
-	int x = (int)luaL_checknumber(L, 1);
-	int y = (int)luaL_checknumber(L, 2);
-	mapCell* cell = gpAdvManager->GetCell(x, y);
-	if ((cell->objType & 0x7F) != LOCATION_TREASURE_CHEST)
-	{
-		lua_pushnil(L);
-		return 1;
-	}
-	if (cell->extraInfo & 0x100)
-		lua_pushinteger(L, cell->extraInfo ^ 0x100);
-	else
-		lua_pushnil(L);
-	return 1;
+				int x = (int)luaL_checknumber(L, 1);
+				int y = (int)luaL_checknumber(L, 2);
+				mapCell* cell = gpAdvManager->GetCell(x, y);
+				if ((cell->objType & 0x7F) != LOCATION_TREASURE_CHEST)
+				{
+								lua_pushnil(L);
+								return 1;
+				}
+				if (cell->extraInfo & 0x100)
+								lua_pushinteger(L, cell->extraInfo ^ 0x100);
+				else
+								lua_pushnil(L);
+				return 1;
 }
 
 static int l_setTreasureChestLevel(lua_State *L)
 {
-	int x = (int)luaL_checknumber(L, 1);
-	int y = (int)luaL_checknumber(L, 2);
-	int lvl = (int)luaL_checknumber(L, 3);
-	mapCell* cell = gpAdvManager->GetCell(x, y);
-	if ((cell->objType & 0x7F) != LOCATION_TREASURE_CHEST)
-		return 0;
-	cell->extraInfo = lvl;
-	return 0;
+				int x = (int)luaL_checknumber(L, 1);
+				int y = (int)luaL_checknumber(L, 2);
+				int lvl = (int)luaL_checknumber(L, 3);
+				mapCell* cell = gpAdvManager->GetCell(x, y);
+				if ((cell->objType & 0x7F) != LOCATION_TREASURE_CHEST)
+								return 0;
+				cell->extraInfo = lvl;
+				return 0;
 }
 
 static int l_setTreasureChestArtifact(lua_State *L)
 {
-	int x = (int)luaL_checknumber(L, 1);
-	int y = (int)luaL_checknumber(L, 2);
-	int artifact = (int)luaL_checknumber(L, 3);
-	mapCell* cell = gpAdvManager->GetCell(x, y);
-	if ((cell->objType & 0x7F) != LOCATION_TREASURE_CHEST)
-		return 0;
-	cell->extraInfo = artifact | 0x100;
-	return 0;
+				int x = (int)luaL_checknumber(L, 1);
+				int y = (int)luaL_checknumber(L, 2);
+				int artifact = (int)luaL_checknumber(L, 3);
+				mapCell* cell = gpAdvManager->GetCell(x, y);
+				if ((cell->objType & 0x7F) != LOCATION_TREASURE_CHEST)
+								return 0;
+				cell->extraInfo = artifact | 0x100;
+				return 0;
 }
 
 static int l_mapPutArmy(lua_State *L) {
@@ -1288,7 +1312,7 @@ static int l_mapFizzleObj(lua_State *L) {
 	gpAdvManager->CompleteDraw(0);
 	gpWindowManager->SaveFizzleSource(gMapViewportRegion._left, gMapViewportRegion._top, gMapViewportRegion.getWidth(), gMapViewportRegion.getHeight());
 	if (snd) {
-		if (!PlaySoundEffect((!CheckLocationItem(cell) ? "killfade" : ("pickup0" + std::to_string(Random(1, 7)))), SND_DONT_WAIT, &res)) {
+		if (!PlaySoundEffect((!CheckLocationItem(cell)?"killfade":("pickup0"+std::to_string(Random(1, 7)))), SND_DONT_WAIT, &res)) {
 			snd = false;
 		}
 	}
@@ -1321,53 +1345,53 @@ static int l_mapSetTerrainTile(lua_State *L) {
 
 static void register_map_funcs(lua_State *L) {
   lua_register(L, "MapSetObject", l_mapSetObject);
-  //lua_register(L, "MapEmptyCheck", l_mapEmptyCheck);
-  //lua_register(L, "MapPutResource", l_mapPutResource);
+		//lua_register(L, "MapEmptyCheck", l_mapEmptyCheck);
+		//lua_register(L, "MapPutResource", l_mapPutResource);
   lua_register(L, "MapPutArmy", l_mapPutArmy);
   lua_register(L, "MapEraseSquare", l_mapEraseObj);
   lua_register(L, "MapFizzle", l_mapFizzleObj);
   lua_register(L, "MapSetTileTerrain", l_mapSetTerrainTile);
-  lua_register(L, "GetShrineSpell", l_getShrineSpell);
-  lua_register(L, "SetShrineSpell", l_setShrineSpell);
-  lua_register(L, "GetWitchHutSkill", l_getWitchHutSkill);
-  lua_register(L, "SetWitchHutSkill", l_setWitchHutSkill);
-  lua_register(L, "GetSignText", l_getSignText);
-  lua_register(L, "SetSignText", l_setSignText);
-  lua_register(L, "GetPlayerVisitedShrine", l_getPlayerVisitedShrine);
-  lua_register(L, "SetPlayerVisitedShrine", l_setPlayerVisitedShrine);
-  lua_register(L, "GetPlayerVisitedWitchHut", l_getPlayerVisitedShrine);
-  lua_register(L, "SetPlayerVisitedWitchHut", l_setPlayerVisitedShrine);
-  lua_register(L, "GetMineId", l_getMineId);
-  lua_register(L, "GetMineOwner", l_getMineOwner);
-  lua_register(L, "SetMineOwner", l_setMineOwner);
-  lua_register(L, "GetMineGuards", l_getMineGuards);
-  lua_register(L, "GetMineGuardCount", l_getMineGuardCount);
-  lua_register(L, "SetMineGuards", l_setMineGuards);
-  lua_register(L, "GetDwellingQuantity", l_getDwellingQuantity);
-  lua_register(L, "SetDwellingQuantity", l_setDwellingQuantity);
-  lua_register(L, "DwellingHasGuards", l_dwellingHasGuards);
-  lua_register(L, "SetDwellingHasGuards", l_setDwellingHasGuards);
-  lua_register(L, "GetCampfireResource", l_getCampfireResource);
-  lua_register(L, "GetCampfireResourceCount", l_getCampfireResourceCount);
-  lua_register(L, "SetCampfireResource", l_setCampfireResource);
-  lua_register(L, "GetLeanToResource", l_getLeanToResource);
-  lua_register(L, "GetLeanToResourceCount", l_getCampfireResourceCount);
-  lua_register(L, "SetLeanToResource", l_setLeanToResource);
-  lua_register(L, "GetWagonType", l_getWagonType);
-  lua_register(L, "GetWagonResource", l_getWagonResource);
-  lua_register(L, "GetWagonResourceCount", l_getWagonResourceCount);
-  lua_register(L, "GetWagonArtifact", l_getWagonArtifact);
-  lua_register(L, "SetWagonResource", l_setWagonResource);
-  lua_register(L, "SetWagonArtifact", l_setWagonArtifact);
-  lua_register(L, "GetSkeletonArtifact", l_getSkeletonArtifact);
-  lua_register(L, "SetSkeletonArtifact", l_setSkeletonArtifact);
-  lua_register(L, "GetResourcePileCount", l_getResourcePileCount);
-  lua_register(L, "SetResourcePileCount", l_setResourcePileCount);
-  lua_register(L, "GetTreasureChestType", l_getTreasureChestType);
-  lua_register(L, "GetTreasureChestLevel", l_getTreasureChestLevel);
-  lua_register(L, "GetTreasureChestArtifact", l_getTreasureChestArtifact);
-  lua_register(L, "SetTreasureChestLevel", l_setTreasureChestLevel);
-  lua_register(L, "SetTreasureChestArtifact", l_setTreasureChestArtifact);
+		lua_register(L, "GetShrineSpell", l_getShrineSpell);
+		lua_register(L, "SetShrineSpell", l_setShrineSpell);
+		lua_register(L, "GetWitchHutSkill", l_getWitchHutSkill);
+		lua_register(L, "SetWitchHutSkill", l_setWitchHutSkill);
+		lua_register(L, "GetSignText", l_getSignText);
+		lua_register(L, "SetSignText", l_setSignText);
+		lua_register(L, "GetPlayerVisitedShrine", l_getPlayerVisitedShrine);
+		lua_register(L, "SetPlayerVisitedShrine", l_setPlayerVisitedShrine);
+		lua_register(L, "GetPlayerVisitedWitchHut", l_getPlayerVisitedShrine);
+		lua_register(L, "SetPlayerVisitedWitchHut", l_setPlayerVisitedShrine);
+		lua_register(L, "GetMineId", l_getMineId);
+		lua_register(L, "GetMineOwner", l_getMineOwner);
+		lua_register(L, "SetMineOwner", l_setMineOwner);
+		lua_register(L, "GetMineGuards", l_getMineGuards);
+		lua_register(L, "GetMineGuardCount", l_getMineGuardCount);
+		lua_register(L, "SetMineGuards", l_setMineGuards);
+		lua_register(L, "GetDwellingQuantity", l_getDwellingQuantity);
+		lua_register(L, "SetDwellingQuantity", l_setDwellingQuantity);
+		lua_register(L, "DwellingHasGuards", l_dwellingHasGuards);
+		lua_register(L, "SetDwellingHasGuards", l_setDwellingHasGuards);
+		lua_register(L, "GetCampfireResource", l_getCampfireResource);
+		lua_register(L, "GetCampfireResourceCount", l_getCampfireResourceCount);
+		lua_register(L, "SetCampfireResource", l_setCampfireResource);
+		lua_register(L, "GetLeanToResource", l_getLeanToResource);
+		lua_register(L, "GetLeanToResourceCount", l_getCampfireResourceCount);
+		lua_register(L, "SetLeanToResource", l_setLeanToResource);
+		lua_register(L, "GetWagonType", l_getWagonType);
+		lua_register(L, "GetWagonResource", l_getWagonResource);
+		lua_register(L, "GetWagonResourceCount", l_getWagonResourceCount);
+		lua_register(L, "GetWagonArtifact", l_getWagonArtifact);
+		lua_register(L, "SetWagonResource", l_setWagonResource);
+		lua_register(L, "SetWagonArtifact", l_setWagonArtifact);
+		lua_register(L, "GetSkeletonArtifact", l_getSkeletonArtifact);
+		lua_register(L, "SetSkeletonArtifact", l_setSkeletonArtifact);
+		lua_register(L, "GetResourcePileCount", l_getResourcePileCount);
+		lua_register(L, "SetResourcePileCount", l_setResourcePileCount);
+		lua_register(L, "GetTreasureChestType", l_getTreasureChestType);
+		lua_register(L, "GetTreasureChestLevel", l_getTreasureChestLevel);
+		lua_register(L, "GetTreasureChestArtifact", l_getTreasureChestArtifact);
+		lua_register(L, "SetTreasureChestLevel", l_setTreasureChestLevel);
+		lua_register(L, "SetTreasureChestArtifact", l_setTreasureChestArtifact);
 }
 
 /************************************** Town *******************************************/
@@ -1432,8 +1456,8 @@ static int l_getPlayerTown(lua_State *L) {
   int index = (int)luaL_checknumber(L, 2);
 
   if (index < MAX_TOWNS) {
-	  deepbound_push(L, deepbind<town*>(&gpGame->castles[player->castlesOwned[index]]));
-	  return 1;
+						deepbound_push(L, deepbind<town*>(&gpGame->castles[player->castlesOwned[index]]));
+						return 1;
   }
   return 0;
 }
@@ -1441,12 +1465,12 @@ static int l_getPlayerTown(lua_State *L) {
 static int l_buildInTown(lua_State *L) {
   town* twn = (town*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 2));
   int building = (int)luaL_checknumber(L, 2);
-  if (gpTownManager->castle == NULL)
-		twn->BuildBuilding(building);
-  else if (gpTownManager->castle->idx == twn->idx)
-		gpTownManager->BuildObj(building);
-  else
-		twn->BuildBuilding(building);
+		if (gpTownManager->castle == NULL)
+						twn->BuildBuilding(building);
+		else if (gpTownManager->castle->idx == twn->idx)
+						gpTownManager->BuildObj(building);
+		else
+						twn->BuildBuilding(building);
   return 0;
 }
 
@@ -1458,8 +1482,8 @@ static int l_getTownFaction(lua_State *L) {
 
 static int l_setTownFaction(lua_State *L) {
   town* twn = (town*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 2));
-  int faction = (int)luaL_checknumber(L, 2);
-  twn->factionID = (char)faction;
+  FACTION faction = (FACTION)(int)luaL_checknumber(L, 2);
+  twn->SetFaction(faction);
   return 0;
 }
 
@@ -1475,25 +1499,25 @@ static int l_getCreatureCost(lua_State *L) {
 
 static int l_getTownOwner(lua_State *L) {
   town* twn = (town*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 1));
-  if (twn->ownerIdx == -1)
-	  lua_pushnil(L);
-  else
-	deepbound_push(L, deepbind<playerData*>(&gpGame->players[twn->ownerIdx]));
+		if (twn->ownerIdx == -1)
+						lua_pushnil(L);
+		else
+						deepbound_push(L, deepbind<playerData*>(&gpGame->players[twn->ownerIdx]));
   return 1;
 }
 
 static int l_setTownOwner(lua_State *L) {
-  town* twn = (town*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 2));
-  if (lua_isnil(L, 2))
-  {
-	  lua_pop(L, 2);
-	  gpGame->ClaimTown(twn->idx, -1, 0);
-  }
-  else
-  {
-	  playerData *player = (playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(2, 2));
-	  gpGame->ClaimTown(twn->idx, GetPlayerNumber(player), 0);
-  }
+		town* twn = (town*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 2));
+		if (lua_isnil(L, 2))
+		{
+						lua_pop(L, 2);
+						gpGame->ClaimTown(twn->idx, -1, 0);
+		}
+		else
+		{
+						playerData *player = (playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(2, 2));
+						gpGame->ClaimTown(twn->idx, GetPlayerNumber(player), 0);
+		}
   return 0;
 }
 
@@ -1517,10 +1541,10 @@ static int l_getTownIDFromPos(lua_State *L) {
 }
 
 static int l_getNumberOfCreatures(lua_State *L) {
-	town* cstle = (town*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 2));
-	int dwllng = (int)luaL_checknumber(L, 2);
-	lua_pushinteger(L, cstle->numCreaturesInDwelling[dwllng]);
-	return 1;
+				town* cstle = (town*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 2));
+				int dwelling = (int)luaL_checknumber(L, 2);
+				lua_pushinteger(L, cstle->numCreaturesInDwelling[dwelling]);
+				return 1;
 }
 
 static int l_setNumberOfCreatures(lua_State *L) {
@@ -1560,17 +1584,17 @@ static int l_getGuildSpell(lua_State *L) {
 }
 
 static int l_getBuildingFlag(lua_State *L) {
-	town* twn = (town*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 1));
-	bool yesno = twn->GetBuildingFlag();
-	lua_pushboolean(L, yesno);
-	return 1;
+				town* twn = (town*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 1));
+				bool yesno = twn->GetBuildingFlag();
+				lua_pushboolean(L, yesno);
+				return 1;
 }
 
 static int l_setBuildingFlag(lua_State *L) {
-	town* twn = (town*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 2));
-	bool yesno = CheckBoolean(L, 2);
-	twn->SetBuildingFlag(yesno);
-	return 0;
+				town* twn = (town*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 2));
+				bool yesno = CheckBoolean(L, 2);
+				twn->SetBuildingFlag(yesno);
+				return 0;
 }
 
 static void register_town_funcs(lua_State *L) {
@@ -1592,13 +1616,13 @@ static void register_town_funcs(lua_State *L) {
   lua_register(L, "GetTownX", l_getTownX);
   lua_register(L, "GetTownY", l_getTownY);
   lua_register(L, "GetTownIdFromPos", l_getTownIDFromPos);
-  lua_register(L, "GetNumberOfCreatures", l_getNumberOfCreatures);
+		lua_register(L, "GetNumberOfCreatures", l_getNumberOfCreatures);
   lua_register(L, "SetNumberOfCreatures", l_setNumberOfCreatures);
   lua_register(L, "SetNumGuildSpells", l_setNumGuildSpells);
   lua_register(L, "SetGuildSpell", l_setGuildSpell);
   lua_register(L, "GetGuildSpell", l_getGuildSpell);
-  lua_register(L, "GetBuildingFlag", l_getBuildingFlag);
-  lua_register(L, "SetBuildingFlag", l_setBuildingFlag);
+		lua_register(L, "GetBuildingFlag", l_getBuildingFlag);
+		lua_register(L, "SetBuildingFlag", l_setBuildingFlag);
 }
 
 /************************************* Battle ******************************************/
@@ -1824,7 +1848,88 @@ static void register_battle_funcs(lua_State *L) {
   lua_register(L, "SetStackHp", l_setStackHp);
 }
 
+/**************************************** Campaign *********************************************/
+
+static int l_getCampaignChoiceType(lua_State *L) {
+  int curMapID = xCampaign.currentMapID;
+  SCampaignChoice *curChoice = &xCampaignChoices[xCampaign.campaignID][curMapID][xCampaign.bonusChoices[curMapID]];
+  lua_pushinteger(L, curChoice->type);
+	return 1;
+}
+
+static int l_getCampaignChoiceField(lua_State *L) {
+  int curMapID = xCampaign.currentMapID;
+  SCampaignChoice *curChoice = &xCampaignChoices[xCampaign.campaignID][curMapID][xCampaign.bonusChoices[curMapID]];
+  lua_pushinteger(L, curChoice->field);
+	return 1;
+}
+
+static int l_getCampaignChoiceAmount(lua_State *L) {
+  int curMapID = xCampaign.currentMapID;
+  SCampaignChoice *curChoice = &xCampaignChoices[xCampaign.campaignID][curMapID][xCampaign.bonusChoices[curMapID]];
+  lua_pushinteger(L, curChoice->amount);
+	return 1;
+}
+
+static int l_getCampaignChoice(lua_State *L) {
+  int curMapID = xCampaign.currentMapID;
+  SCampaignChoice *curChoice = &xCampaignChoices[xCampaign.campaignID][curMapID][xCampaign.bonusChoices[curMapID]];
+  deepbound_push(L, deepbind<SCampaignChoice*>(curChoice));
+	return 1;
+}
+
+static void register_campaign_funcs(lua_State *L) {
+  lua_register(L, "GetCampaignChoiceType", l_getCampaignChoiceType);
+  lua_register(L, "GetCampaignChoiceField", l_getCampaignChoiceField);
+  lua_register(L, "GetCampaignChoiceAmount", l_getCampaignChoiceAmount);
+  lua_register(L, "GetCampaignChoice", l_getCampaignChoice);
+}
+
 /************************************** Uncategorized ******************************************/
+
+static int l_playsoundeffect(lua_State *L) {
+	std::string snd = std::string(luaL_checkstring(L, 1));
+	PlaySoundEffect(snd, SND_DO_WAIT, NULL);
+	return 0;
+}
+
+static int l_getinclinedtojoin(lua_State *L) {
+	int x = (int)luaL_checknumber(L, 1);
+	int y = (int)luaL_checknumber(L, 2);
+	int inclinedToJoin = 0;
+	if ((x >= 0) && (y >= 0) && (x < gpGame->map.width) && (y < gpGame->map.height)) {
+		int cellIdx = y * gpGame->map.height + x;
+		if (gpGame->map.tiles[cellIdx].objType == (LOCATION_ARMY_CAMP | TILE_HAS_EVENT)) {
+			// This uses the correct WillJoin bit, but does not mean that the army at the map cell here will not fight a hero (see "l_setinclinedtojoin").
+			inclinedToJoin = (gpGame->map.tiles[cellIdx].extraInfo & (1 << 12));
+		}
+	}
+	if (inclinedToJoin) {
+		lua_pushinteger(L, 1);
+	} else {
+		lua_pushinteger(L, 0);
+	}
+	return 1;
+}
+
+static int l_setinclinedtojoin(lua_State *L) {
+	int x = (int)luaL_checknumber(L, 1);
+	int y = (int)luaL_checknumber(L, 2);
+	bool inclinedToJoin = CheckBoolean(L, 3);
+	if ((x >= 0) && (y >= 0) && (x < gpGame->map.width) && (y < gpGame->map.height)) {
+		int cellIdx = y * gpGame->map.height + x;
+		if (gpGame->map.tiles[cellIdx].objType == (LOCATION_ARMY_CAMP | TILE_HAS_EVENT)) {
+			// These are using the correct WillJoin bit, but it is not guaranteed to make every army join any hero no matter what.
+			// This condition also depends on the ratio of the hero's power to the army's power, among other variables.
+			if (inclinedToJoin) {
+				gpGame->map.tiles[cellIdx].extraInfo |= (1 << 12);
+			} else {
+				gpGame->map.tiles[cellIdx].extraInfo &= ~(1 << 12);
+			}
+		}
+	}
+	return 0;
+}
 
 static int l_startbattle(lua_State *L) {
   hero* hro = (hero*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 4));
@@ -1843,116 +1948,71 @@ static int l_toggleAIArmySharing(lua_State *L) {
   return 0;
 }
 
+static int l_getSpellLevel(lua_State *L) {
+				int spell = luaL_checknumber(L, 1);
+				lua_pushinteger(L, gsSpellInfo[spell].level);
+				return 1;
+}
+
+static int l_getSpellName(lua_State *L) {
+				int spell = luaL_checknumber(L, 1);
+				lua_pushstring(L, gSpellNames[spell]);
+				return 1;
+}
+
+static int l_getSpellManaCost(lua_State *L) {
+				int spell = luaL_checknumber(L, 1);
+				lua_pushinteger(L, gsSpellInfo[spell].cost);
+				return 1;
+}
+
+static int l_setSpellManaCost(lua_State *L) {
+				int spell = luaL_checknumber(L, 1);
+				int cost = luaL_checknumber(L, 2);
+				gsSpellInfo[spell].cost = cost;
+				return 0;
+}
+
+static int l_getArtifactName(lua_State *L) {
+				int artifact = luaL_checknumber(L, 1);
+				lua_pushstring(L, GetArtifactName(artifact).c_str());
+				return 1;
+}
+
+static int l_getUltimateArtifactX(lua_State *L) {
+				lua_pushinteger(L, gpGame->ultimateArtifactLocX);
+				return 1;
+}
+
+static int l_getUltimateArtifactY(lua_State *L) {
+				lua_pushinteger(L, gpGame->ultimateArtifactLocY);
+				return 1;
+}
+
+static int l_getUltimateArtifact(lua_State *L) {
+				lua_pushinteger(L, gpGame->ultimateArtifactIdx);
+				return 1;
+}
+
+static int l_setUltimateArtifact(lua_State *L) {
+				int artifact = luaL_checknumber(L, 1);
+				gpGame->ultimateArtifactIdx = artifact;
+				return 0;
+}
+
+static int l_setUltimateArtifactPos(lua_State *L) {
+				int x = luaL_checknumber(L, 1);
+				int y = luaL_checknumber(L, 2);
+				gpGame->ultimateArtifactLocX = x;
+				gpGame->ultimateArtifactLocY = y;
+				return 0;
+}
+
 static int l_forceComputerPlayerChase(lua_State *L) {
 	hero* src = (hero*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 3));
 	hero* dst = (hero*)GetPointerFromLuaClassTable(L, StackIndexOfArg(2, 3));
 	bool force = CheckBoolean(L, 3);
 	gpGame->ForceComputerPlayerChase(src, dst, force);
-	return 0;
-}
-
-static int l_getSpellLevel(lua_State *L) {
-	int spell = luaL_checknumber(L, 1);
-	lua_pushinteger(L, gsSpellInfo[spell].level);
-	return 1;
-}
-
-static int l_getSpellName(lua_State *L) {
-	int spell = luaL_checknumber(L, 1);
-	lua_pushstring(L, gSpellNames[spell]);
-	return 1;
-}
-
-static int l_getSpellManaCost(lua_State *L) {
-	int spell = luaL_checknumber(L, 1);
-	lua_pushinteger(L, gsSpellInfo[spell].cost);
-	return 1;
-}
-
-static int l_setSpellManaCost(lua_State *L) {
-	int spell = luaL_checknumber(L, 1);
-	int cost = luaL_checknumber(L, 2);
-	gsSpellInfo[spell].cost = cost;
-	return 0;
-}
-
-static int l_getArtifactName(lua_State *L) {
-	int artifact = luaL_checknumber(L, 1);
-	lua_pushstring(L, GetArtifactName(artifact).c_str());
-	return 1;
-}
-
-static int l_getUltimateArtifactX(lua_State *L) {
-	lua_pushinteger(L, gpGame->ultimateArtifactLocX);
-	return 1;
-}
-
-static int l_getUltimateArtifactY(lua_State *L) {
-	lua_pushinteger(L, gpGame->ultimateArtifactLocY);
-	return 1;
-}
-
-static int l_getUltimateArtifact(lua_State *L) {
-	lua_pushinteger(L, gpGame->ultimateArtifactIdx);
-	return 1;
-}
-
-static int l_setUltimateArtifact(lua_State *L) {
-	int artifact = luaL_checknumber(L, 1);
-	gpGame->ultimateArtifactIdx = artifact;
-	return 0;
-}
-
-static int l_setUltimateArtifactPos(lua_State *L) {
-	int x = luaL_checknumber(L, 1);
-	int y = luaL_checknumber(L, 2);
-	gpGame->ultimateArtifactLocX = x;
-	gpGame->ultimateArtifactLocY = y;
-	return 0;
-}
-
-static int l_playsoundeffect(lua_State *L) {
-	std::string snd = std::string(luaL_checkstring(L, 1));
-	PlaySoundEffect(snd, SND_DO_WAIT, NULL);
-	return 0;
-}
-
-static int l_getinclinedtojoin(lua_State *L) {
-	int x = (int)luaL_checknumber(L, 1);
-	int y = (int)luaL_checknumber(L, 2);
-	int inclinedToJoin = 0;
-	if ((x >= 0) && (y >= 0) && (x < gpGame->map.width) && (y < gpGame->map.height)) {
-		int cellIdx = y * gpGame->map.height + x;
-		if (gpGame->map.tiles[cellIdx].objType == (LOCATION_ARMY_CAMP | TILE_HAS_EVENT)) {
-			inclinedToJoin = (gpGame->map.tiles[cellIdx].extraInfo & (1 << 12));
-		}
-	}
-	if (inclinedToJoin) {
-		lua_pushinteger(L, 1);
-	}
-	else {
-		lua_pushinteger(L, 0);
-	}
-	return 1;
-}
-
-static int l_setinclinedtojoin(lua_State *L) {
-	int x = (int)luaL_checknumber(L, 1);
-	int y = (int)luaL_checknumber(L, 2);
-	bool inclinedToJoin = CheckBoolean(L, 3);
-	if ((x >= 0) && (y >= 0) && (x < gpGame->map.width) && (y < gpGame->map.height)) {
-		int cellIdx = y * gpGame->map.height + x;
-		if (gpGame->map.tiles[cellIdx].objType == (LOCATION_ARMY_CAMP | TILE_HAS_EVENT)) {
-			// These are using the correct WillJoin bit, but it is not guaranteed to make every army join any hero no matter what.
-			// This condition also depends on the ratio of the hero's power to the army's power, among other variables.
-			if (inclinedToJoin) {
-				gpGame->map.tiles[cellIdx].extraInfo |= (1 << 12);
-			}
-			else {
-				gpGame->map.tiles[cellIdx].extraInfo &= ~(1 << 12);
-			}
-		}
-	}
 	return 0;
 }
 
@@ -1962,17 +2022,17 @@ static void register_uncategorized_funcs(lua_State *L) {
   lua_register(L, "SetInclinedToJoin", l_setinclinedtojoin);
   lua_register(L, "StartBattle", l_startbattle);
   lua_register(L, "ToggleAIArmySharing", l_toggleAIArmySharing);
+		lua_register(L, "GetSpellLevel", l_getSpellLevel);
+		lua_register(L, "GetSpellName", l_getSpellName);
+		lua_register(L, "GetSpellManaCost", l_getSpellManaCost);
+		lua_register(L, "SetSpellManaCost", l_setSpellManaCost);
+		lua_register(L, "GetArtifactName", l_getArtifactName);
+		lua_register(L, "GetUltimateArtifactX", l_getUltimateArtifactX);
+		lua_register(L, "GetUltimateArtifactY", l_getUltimateArtifactY);
+		lua_register(L, "GetUltimateArtifact", l_getUltimateArtifact);
+		lua_register(L, "SetUltimateArtifactPos", l_setUltimateArtifactPos);
+		lua_register(L, "SetUltimateArtifact", l_setUltimateArtifact);
   lua_register(L, "ForceComputerPlayerChase", l_forceComputerPlayerChase);
-  lua_register(L, "GetSpellLevel", l_getSpellLevel);
-  lua_register(L, "GetSpellName", l_getSpellName);
-  lua_register(L, "GetSpellManaCost", l_getSpellManaCost);
-  lua_register(L, "SetSpellManaCost", l_setSpellManaCost);
-  lua_register(L, "GetArtifactName", l_getArtifactName);
-  lua_register(L, "GetUltimateArtifactX", l_getUltimateArtifactX);
-  lua_register(L, "GetUltimateArtifactY", l_getUltimateArtifactY);
-  lua_register(L, "GetUltimateArtifact", l_getUltimateArtifact);
-  lua_register(L, "SetUltimateArtifactPos", l_setUltimateArtifactPos);
-  lua_register(L, "SetUltimateArtifact", l_setUltimateArtifact);
 }
 
 /****************************************************************************************************************/
@@ -1986,5 +2046,6 @@ void set_scripting_funcs(lua_State *L) {
   register_map_funcs(L);
   register_town_funcs(L);
   register_battle_funcs(L);
+  register_campaign_funcs(L);
   register_uncategorized_funcs(L);
 }

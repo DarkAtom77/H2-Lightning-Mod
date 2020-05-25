@@ -74,11 +74,13 @@ BEGIN
     END
     POPUP "&Display"
     BEGIN
-        MENUITEM "&640 x 480",                  40005
+        MENUITEM "&640 x 480 (Native)",         40005
         MENUITEM "&800 x 600",                  40006
         MENUITEM "&1024 x 768",                 40007
         MENUITEM "1&280 x 1024",                40008
         MENUITEM "&Full Screen (F4)",           40009
+        MENUITEM "1280 x 960 (Native x2)"       40010
+        MENUITEM "1920 x 1440 (Native x3)"      40011
     END
     POPUP "&Help"
     BEGIN
@@ -96,11 +98,13 @@ BEGIN
     END
     POPUP "&Display"
     BEGIN
-        MENUITEM "&640 x 480",                  40005
+        MENUITEM "&640 x 480 (Native)",         40005
         MENUITEM "&800 x 600",                  40006
         MENUITEM "&1024 x 768",                 40007
         MENUITEM "1&280 x 1024",                40008
         MENUITEM "&Full Screen (F4)",           40009
+        MENUITEM "1280 x 960 (Native x2)"       40010
+        MENUITEM "1920 x 1440 (Native x3)"      40011
     END
     POPUP "&Debug"
     BEGIN
@@ -108,6 +112,7 @@ BEGIN
         MENUITEM "Extra Hero Mobility",         40142
         MENUITEM "Free Spells",                 40143
         MENUITEM "Free Resources",              40144
+        MENUITEM "Auto-win Battles",            40145
         POPUP "Free Creatures"
         BEGIN
             POPUP "Knight"
@@ -184,6 +189,15 @@ BEGIN
                 MENUITEM "Lichs",                       41054
                 MENUITEM "Power Lichs",                 41055
                 MENUITEM "Bone Dragons",                41056
+            END
+			POPUP "Cyborg"
+            BEGIN
+                MENUITEM "Cyber Kobold Spearman",       41078
+                MENUITEM "Cyber Plasma Berserker",      41079
+                MENUITEM "Cyber Plasma Lancer",         41080
+                MENUITEM "Cyber Indigo Panther",        41081
+                MENUITEM "Cyber Shadow Assasin",        41082
+                MENUITEM "Cyber Behemoth",              41083
             END
             POPUP "Miscellaneous"
             BEGIN
@@ -316,11 +330,13 @@ BEGIN
     END
     POPUP "&Display"
     BEGIN
-        MENUITEM "&640 x 480",                  40005
+        MENUITEM "&640 x 480 (Native)",         40005
         MENUITEM "&800 x 600",                  40006
         MENUITEM "&1024 x 768",                 40007
         MENUITEM "1&280 x 1024",                40008
         MENUITEM "&Full Screen (F4)",           40009
+        MENUITEM "1280 x 960 (Native x2)"       40010
+        MENUITEM "1920 x 1440 (Native x3)"      40011
     END
     POPUP "&Help"
     BEGIN
@@ -338,11 +354,13 @@ BEGIN
     END
     POPUP "&Display"
     BEGIN
-        MENUITEM "&640 x 480",                  40005
+        MENUITEM "&640 x 480 (Native)",         40005
         MENUITEM "&800 x 600",                  40006
         MENUITEM "&1024 x 768",                 40007
         MENUITEM "1&280 x 1024",                40008
         MENUITEM "&Full Screen (F4)",           40009
+        MENUITEM "1280 x 960 (Native x2)"       40010
+        MENUITEM "1920 x 1440 (Native x3)"      40011
     END
     POPUP "&Help"
     BEGIN
@@ -360,11 +378,13 @@ BEGIN
     END
     POPUP "&Display"
     BEGIN
-        MENUITEM "&640 x 480",                  40005
+        MENUITEM "&640 x 480 (Native)",         40005
         MENUITEM "&800 x 600",                  40006
         MENUITEM "&1024 x 768",                 40007
         MENUITEM "1&280 x 1024",                40008
         MENUITEM "&Full Screen (F4)",           40009
+        MENUITEM "1280 x 960 (Native x2)"       40010
+        MENUITEM "1920 x 1440 (Native x3)"      40011
     END
     POPUP "&Help"
     BEGIN
@@ -382,11 +402,13 @@ BEGIN
     END
     POPUP "&Display"
     BEGIN
-        MENUITEM "&640 x 480",                  40005
+        MENUITEM "&640 x 480 (Native)",         40005
         MENUITEM "&800 x 600",                  40006
         MENUITEM "&1024 x 768",                 40007
         MENUITEM "1&280 x 1024",                40008
         MENUITEM "&Full Screen (F4)",           40009
+        MENUITEM "1280 x 960 (Native x2)"       40010
+        MENUITEM "1920 x 1440 (Native x3)"      40011
     END
     POPUP "&Debug"
     BEGIN

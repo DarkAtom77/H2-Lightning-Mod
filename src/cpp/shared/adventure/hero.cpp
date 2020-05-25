@@ -1,17 +1,19 @@
+#include <map>
 #include<stdlib.h>
 
 #include "artifacts.h"
 #include "base.h"
+#include "scripting/callback.h"
+#include "scripting/deepbinding.h"
 #include "skills.h"
 #include "spell/spells.h"
 
 #include "adventure/adv.h"
 #include "game/game.h"
-#include "scripting/callback.h"
 
 #include<io.h>
 #include<stddef.h>
-#include<string.h>
+#include<cstring>
 
 char cHeroTypeInitial[MAX_FACTIONS] = {'k', 'b', 's', 'w', 'z', 'n',
                                        '\0','\0','\0','\0','\0','\0',
@@ -71,6 +73,30 @@ extern startingPrimarySkills gStartingHeroStats[MAX_FACTIONS] = {
   {1, 0, 2, 2, 0}  // TODO: Cyborg hero starting stats, copied Necromancer for now
 };
 
+unsigned char iGetSSByAlignment[NUM_SECONDARY_SKILLS][MAX_FACTIONS] = {
+  {3,4,2,2,2,3,0,0,0,0,0,0,3},
+  {2,3,3,1,1,1,0,0,0,0,0,0,2},
+  {3,3,2,2,2,2,0,0,0,0,0,0,3},
+  {2,4,1,4,2,1,0,0,0,0,0,0,2},
+  {3,2,2,2,2,2,0,0,0,0,0,0,3},
+  {2,3,4,2,2,2,0,0,0,0,0,0,2},
+  {5,3,1,1,2,0,0,0,0,0,0,0,5},
+  {2,1,4,5,5,4,0,0,0,0,0,0,2},
+  {1,1,3,3,4,3,0,0,0,0,0,0,1},
+  {1,2,3,1,2,1,0,0,0,0,0,0,1},
+  {4,3,3,3,3,3,0,0,0,0,0,0,4},
+  {1,1,2,3,3,3,0,0,0,0,0,0,1},
+  {0,0,0,1,0,10,0,0,0,0,0,0,0},
+  {3,2,2,2,2,2,0,0,0,0,0,0,3}
+};
+
+HeroExtraII* HeroExtras[MAX_HEROES];
+
+std::map<int, Spell> cyborgLvlUpSpells = {
+  {3, SPELL_ARMAGEDDON},
+  {5, SPELL_BERZERKER}
+};
+
 hero::hero() {
 	this->spellsLearned = NULL;
 	this->Clear();
@@ -108,6 +134,17 @@ void hero::Read(int fd, signed char expansion) {
 		_read(fd, &this->FIELD_AFTER_SPELLS_LEARNED, sizeof(hero)-offsetof(hero, FIELD_AFTER_SPELLS_LEARNED));
 	} else {
 		_read(fd, &this->FIELD_AFTER_SPELLS_LEARNED,
+			offsetof(hero, LAST_SW_HERO_FIELD)-offsetof(hero, FIELD_AFTER_SPELLS_LEARNED));
+	}
+}
+
+void hero::Write(int fd, signed char expansion) {
+	_write(fd, this, offsetof(hero, spellsLearned));
+	_write(fd, this->spellsLearned, ORIG_SPELLS);
+	if(expansion) {
+		_write(fd, &this->FIELD_AFTER_SPELLS_LEARNED, sizeof(hero)-offsetof(hero, FIELD_AFTER_SPELLS_LEARNED));
+	} else {
+		_write(fd, &this->FIELD_AFTER_SPELLS_LEARNED,
 			offsetof(hero, LAST_SW_HERO_FIELD)-offsetof(hero, FIELD_AFTER_SPELLS_LEARNED));
 	}
 }
@@ -276,11 +313,18 @@ int hero::CalcMobility() {
           }
         }
       }
+      auto res = ScriptCallbackResult<int>("OnCalcMobility", deepbind<hero*>(this), points);
+      if(res.has_value())
+        points = max(1, res.value());
       return points;
     }
   }
 
-  return this->CalcMobility_orig(); //Default CalcMobility output
+  points = this->CalcMobility_orig(); //Default CalcMobility output
+  auto res = ScriptCallbackResult<int>("OnCalcMobility", deepbind<hero*>(this), points);
+  if(res.has_value())
+    points = max(1, res.value());
+  return points;
 }
 
 hero* GetCurrentHero() {
@@ -289,57 +333,49 @@ hero* GetCurrentHero() {
 
 HeroExtraII::HeroExtraII(hero* hro) : hro(*hro)
 {
-	int hero = this->hro.heroID;
-	//This will detect the sex by the portrait.
-	switch (hero)
-	{
-		case PORTRAIT_GWENNETH:
-		case PORTRAIT_RUBY:
-		case PORTRAIT_JEZEBEL:
-		case PORTRAIT_JACLYN:
-		case PORTRAIT_ASTRA:
-		case PORTRAIT_NATASHA:
-		case PORTRAIT_TROYAN:
-		case PORTRAIT_VATAWNA:
-		case PORTRAIT_REBECCA:
-		case PORTRAIT_GEM:
-		case PORTRAIT_ARIEL:
-		case PORTRAIT_CARLAWN:
-		case PORTRAIT_LUNA:
-		case PORTRAIT_MYRA:
-		case PORTRAIT_DAWN:
-		case PORTRAIT_MYRINI:
-		case PORTRAIT_KALINDRA:
-		case PORTRAIT_DARLANA:
-		case PORTRAIT_CHARITY:
-		case PORTRAIT_ROXANA:
-		case PORTRAIT_CELIA:
-		case PORTRAIT_SISTER_ELIZA:
-		case PORTRAIT_DRAKONIA:
-		case PORTRAIT_MARTINE:
-		case PORTRAIT_CAPTAIN_SORCERESS:
-			sex = Sex::Female;
-			break;
-		default:
-			sex = Sex::Male;
-			break;
-	}
-	memset(this->objectsVisited, 0, sizeof objectsVisited);
-}
-
-void hero::CheckLevel(void)
-{
-	//ScriptCallback("OnHeroLevelUp", this->heroID); - removed for now; it is not useful at this point
-	//Unfortunately, this gets called at the start of the map as well
-	//But not on the first loading of a map
-	CheckLevel_orig();
+				int hero = this->hro.heroID;
+				//This will detect the sex by the portrait.
+				switch (hero)
+				{
+				case PORTRAIT_GWENNETH:
+				case PORTRAIT_RUBY:
+				case PORTRAIT_JEZEBEL:
+				case PORTRAIT_JACLYN:
+				case PORTRAIT_ASTRA:
+				case PORTRAIT_NATASHA:
+				case PORTRAIT_TROYAN:
+				case PORTRAIT_VATAWNA:
+				case PORTRAIT_REBECCA:
+				case PORTRAIT_GEM:
+				case PORTRAIT_ARIEL:
+				case PORTRAIT_CARLAWN:
+				case PORTRAIT_LUNA:
+				case PORTRAIT_MYRA:
+				case PORTRAIT_DAWN:
+				case PORTRAIT_MYRINI:
+				case PORTRAIT_KALINDRA:
+				case PORTRAIT_DARLANA:
+				case PORTRAIT_CHARITY:
+				case PORTRAIT_ROXANA:
+				case PORTRAIT_CELIA:
+				case PORTRAIT_SISTER_ELIZA:
+				case PORTRAIT_DRAKONIA:
+				case PORTRAIT_MARTINE:
+				case PORTRAIT_CAPTAIN_SORCERESS:
+								sex = Sex::Female;
+								break;
+				default:
+								sex = Sex::Male;
+								break;
+				}
+				memset(this->objectsVisited, 0, sizeof objectsVisited);
 }
 
 HeroExtraII::HeroExtraII(hero& hro) : hro(hro)
 {
-	HeroExtraII h (&hro);
-	sex = h.GetHeroSex();
-	memset(this->objectsVisited, 0, sizeof objectsVisited);
+				HeroExtraII h(&hro);
+				sex = h.GetHeroSex();
+				memset(this->objectsVisited, 0, sizeof objectsVisited);
 }
 
 HeroExtraII::HeroExtraII(hero* hro, Sex sex) : hro(*hro), sex(sex) { memset(this->objectsVisited, 0, sizeof objectsVisited); }
@@ -347,26 +383,49 @@ HeroExtraII::HeroExtraII(hero& hro, Sex sex) : hro(hro), sex(sex) { memset(this-
 
 Sex HeroExtraII::GetHeroSex()
 {
-	return sex;
+				return sex;
 }
 
 void HeroExtraII::SetHeroSex(Sex sex)
 {
-	this->sex = sex;
+				this->sex = sex;
 }
 
 void HeroExtraII::ResetHeroSex()
 {
-	HeroExtraII h = *this;
-	sex = h.GetHeroSex();
+				HeroExtraII h = *this;
+				sex = h.GetHeroSex();
 }
 
 void HeroExtraII::VisitArena(int x, int y, bool set)
 {
-	this->objectsVisited[x][y] = set;
+				this->objectsVisited[x][y] = set;
 }
 
 bool HeroExtraII::HasVisitedArena(int x, int y)
 {
-	return this->objectsVisited[x][y];
+				return this->objectsVisited[x][y];
+}
+
+void hero::CheckLevel() {
+		ScriptCallback("OnHeroLevelUp", this->heroID);
+		//Unfortunately, this gets called at the start of the map as well
+		//But not on the first loading of a map
+  if(this->ownerIdx == -1 || !gbHumanPlayer[this->ownerIdx] || this->factionID != FACTION_CYBORG) {
+    CheckLevel_orig();
+    return;
+  }
+  int oldLevel = this->GetLevel();
+  CheckLevel_orig();
+  int levelsGained = this->GetLevel() - oldLevel;
+  if(levelsGained > 0) {
+    for(int i = 0; i < levelsGained; i++) {
+      int lvlToCheck = oldLevel + i + 1;
+      if(cyborgLvlUpSpells.find(lvlToCheck) != cyborgLvlUpSpells.end()) {
+        int spell = cyborgLvlUpSpells[lvlToCheck];
+        this->AddSpell(spell);
+        gpAdvManager->EventWindow(-1, 1, "You've learned a new spell!", 8, spell, -1, 0, -1);
+      }
+    }
+  }
 }

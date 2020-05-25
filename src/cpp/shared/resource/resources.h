@@ -6,6 +6,7 @@
 #pragma pack(push,1)
 
 #define MAX_FILENAME_LENGTH 13
+#define PALETTE_SIZE 768
 
 enum RESOURCE_TYPE : short
 {
@@ -45,6 +46,7 @@ public:
   void DrawToBufferCareful(short, short);
   void DrawToBuffer(short, short);
   void CopyTo(bitmap *buf, int xTarg, int yTarg, int xFrom, int yFrom, int width, int height);
+  void CopyToCareful(bitmap *target, int targX, int targY, int offX, int offY, int width, int height);
 };
 
 struct IconEntry
@@ -68,6 +70,11 @@ public:
   void DrawToBuffer(int,int,int,int);
   signed int CombatClipDrawToBuffer(int offsetX, int offsetY, int imageIdx, H2RECT *rect, int mirrored, int a11, unsigned char *paletteSubstitution, signed char *a12);
 };
+
+void __fastcall FlipIconToBitmap(icon *icn, bitmap *buf, int x, int y, int spriteIdx, signed int flag, int a7, int a8, int width, int height, int a11);
+void __fastcall DimIconToBitmap(icon *a1, bitmap *a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, int a10, int a11);
+void __fastcall MonoIconToBitmap(icon *a1, bitmap *a2, int x, int y, int idx, int color, int a7, int a8, int a9, int a10, int a11);
+void __fastcall IconToBitmap(icon *icn, bitmap *bmp, int a3, int a4, int spriteIdx, int a6, int a7, int a8, int a9, int a10, int a11);
 
 class sample : public resource
 {
@@ -144,10 +151,14 @@ public:
   ~font();
 
   int LineLength(char*, int);
+  void DrawBoundedString(char *str, int x, int y, signed int regionWidth, int regionHeight, int a7, int alignType);
 };
 
 extern font* smallFont;
-
+IconEntry *__fastcall GetIconEntry(icon *a1, int idx);
+void __fastcall IconToBitmapColorTable(icon *a1, bitmap *buf, int a3, int a4, int a5, signed int a6, int a7, int a8, int a9, int a10, int a11, unsigned char *paletteSubstitution, int a13);
+void __fastcall FlipIconToBitmap(icon *icn, bitmap *buf, int x, int y, int spriteIdx, signed int flag, int a7, int a8, int width, int height, int a11);
+extern "C" char TileToBitmap(tileset *tiles, int idx, bitmap *targ, int x, int y);
 
 #define NUM_GOOD_EVIL_ICONS 37
 

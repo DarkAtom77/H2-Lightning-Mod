@@ -1,3 +1,5 @@
+#include <io.h>
+#include <fcntl.h>
 #include "adventure/adv.h"
 #include "analytics.h"
 #include "base.h"
@@ -6,33 +8,15 @@
 #include "gui/dialog.h"
 #include "gui/gui.h"
 #include "manager.h"
+#include "prefs.h"
 #include "registry_prefs.h"
 #include "resource/resourceManager.h"
 #include "resource/resources.h"
 #include "scripting/callback.h"
 #include "sound/sound.h"
 #include "town/town.h"
-#include "mouse.h"
 
 #pragma pack(push,1)
-
-HeroExtraII* HeroExtras[MAX_HEROES];
-
-class executive {
-public:
-  char _[16];
-  executive();
-
-  int DoDialog(baseManager *a2);
-  int AddManager(baseManager *mgr, int argIdx);
-  int AddManager_orig(baseManager *mgr, int argIdx);
-};
-
-class inputManager {
-public:
-	char _[2154];
-	inputManager();
-};
 
 class highScoreManager {
 public:
@@ -46,15 +30,7 @@ public:
 	searchArray();
 };
 
-class philAI {
-public:
-	char _;
-	philAI();
-};
-
-extern executive* gpExec;
 extern inputManager* gpInputManager;
-extern mouseManager* gpMouseManager;
 extern heroWindowManager* gpWindowManager;
 extern resourceManager* gpResourceMAnager;
 extern soundManager* gpSoundManager;
@@ -85,12 +61,12 @@ void __fastcall InitMainClasses()
 	gpMonGroup = new armyGroup;
 	gpBufferPalette = new palette;
 	for (int i = 0; i < MAX_HEROES; i++)
-		HeroExtras[i] = (HeroExtraII*) operator new(sizeof(HeroExtraII));
-	    //HeroExtraII has no default constructor (it wouldn't make sense),
-		//and heroes are not yet available at this point
-		//using "new HeroExtraII" would ask for a constructor
-		//also malloc/calloc cannot be used
-		//destructor must be called on deletion with delete operator
+					HeroExtras[i] = (HeroExtraII*) operator new(sizeof(HeroExtraII));
+	//HeroExtraII has no default constructor (it wouldn't make sense),
+//and heroes are not yet available at this point
+//using "new HeroExtraII" would ask for a constructor
+//also malloc/calloc cannot be used
+//destructor must be called on deletion with delete operator
 }
 
 void __fastcall DeleteMainClasses() {
@@ -110,15 +86,39 @@ void __fastcall DeleteMainClasses() {
 	delete gpMonGroup;
 	delete gpBufferPalette;
 	for (int i = 0; i < MAX_HEROES; i++)
-		delete HeroExtras[i];
+					delete HeroExtras[i];
 }
 
 extern int iCDRomErr;
 extern int gbNoCDRom;
 extern int gbNoSound;
-
+std::string RegAppPath;
+std::string RegCDRomPath;
 extern void __fastcall SetFullScreenStatus(int);
 extern void __fastcall ResizeWindow(int,int,int,int);
+extern int __fastcall SetupCDDrive_orig();
+
+int __fastcall SetupCDDrive() {
+  RegAppPath = read_pref<std::string>("AppPath");
+  std::string fileToCheck = RegAppPath + "\\HEROES2\\ANIM\\intro.smk";
+  // Check if a folder with videos exists in game's folder
+  int fd = _open(fileToCheck.c_str(), O_BINARY);
+  if(fd == -1) {
+    return SetupCDDrive_orig();
+  } else {
+    close(fd);
+    return 1;
+  }
+}
+
+void SetHeroSexes()
+{
+				for (int i = 0; i < MAX_HEROES; i++)
+				{
+								HeroExtraII* h = new HeroExtraII(gpGame->heroes[i]);
+								HeroExtras[i] = h;
+				}
+}
 
 void __fastcall SetupCDRom() {
 	
@@ -137,7 +137,7 @@ void __fastcall SetupCDRom() {
 	 */
 
 	// Sending an Open event to Google Analytics
-	send_event(gameAction, open);
+	send_event(gameAction, analytics_open);
 
 	//This was part of the workaround; leaving in,
 	//because not yet tested that it can be removed
@@ -150,6 +150,8 @@ void __fastcall SetupCDRom() {
 		old_width == (DWORD)(-1) ? 640 : old_width,
 		old_height == (DWORD)(-1) ? 480 : old_height);
 	
+  RegCDRomPath = read_pref<std::string>("CDDrive");
+
 	if(iCDRomErr == 1 || iCDRomErr == 2) {
 		//Setting to no-CD mode, but not showing message forbidding play
 		SetPalette(gPalette->contents, 1);
@@ -157,9 +159,13 @@ void __fastcall SetupCDRom() {
 		gbNoCDRom = 1;
 		int oldNoSound = gbNoSound;
 		gbNoSound = 1;
-		H2MessageBox("Welcome to no-CD mode. Video, opera, and the campaign menus will not work, "
-						"but otherwise, have fun!");
-		gbNoSound = oldNoSound;
+
+    // Neither CD exists nor HEROES2 folder exists in game's folder
+    if(iCDRomErr != 1)
+      H2MessageBox("Welcome to no-CD mode. Videos will not work, "
+            "but otherwise, have fun!");
+
+		gbNoSound = oldNoSound;    
 	} else if(iCDRomErr == 3) {
 		EarlyShutdown("Startup Error", "Unable to change to the Heroes II directory."
 						"  Please run the installation program.");
@@ -171,27 +177,23 @@ void __fastcall SetupCDRom() {
 	}
 }
 
-int __fastcall SetupCDDrive() {
-	return 1;
-}
-
-void SetHeroSexes()
-{
-	for (int i = 0; i < MAX_HEROES; i++)
-	{
-		HeroExtraII* h = new HeroExtraII(gpGame->heroes[i]);
-		HeroExtras[i] = h;
-	}
-}
-
 int executive::AddManager(baseManager *mgr, int argIdx) {
   int ret = this->AddManager_orig(mgr, argIdx);
   if (mgr == gpAdvManager)
     if (!strcmp(gpGame->lastSaveFile, "NEWGAME") && !gpGame->firstDayEventDone) { // that tells us it's a NEW game, not a loaded game. A loaded game can't have NEWGAME as a save filename
-		SetHeroSexes();
-		ScriptCallback("OnMapStart");
+								SetHeroSexes();
+								ScriptCallback("OnMapStart");
         ScriptCallback("OnNewDay", gpGame->month, gpGame->week, gpGame->day);
         gpGame->firstDayEventDone = true;
     }
   return ret;
+}
+
+extern void* hwndApp;
+extern int __fastcall oldmain_orig();
+
+int __fastcall oldmain() {
+  // Disallow resizing game window using mouse
+  SetWindowLong((HWND)hwndApp, GWL_STYLE, GetWindowLong((HWND)hwndApp, GWL_STYLE) &~ WS_SIZEBOX);
+  return oldmain_orig();
 }

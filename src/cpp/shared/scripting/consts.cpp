@@ -8,6 +8,7 @@ extern "C" {
 #include "adventure/adv.h"
 #include "adventure/map.h"
 #include "game/game.h"
+#include "campaign/campaign.h"
 #include "combat/creatures.h"
 #include "spell/spells.h"
 #include "scripting/lua_utils.h"
@@ -38,29 +39,24 @@ namespace {
 
 /******************************* GUI *****************************************************/
 
-
 void set_dialog_consts(lua_State *L) {
-	lua_setconst(L, "DIALOG_YES_NO", DIALOG_YES_NO);
-	lua_setconst(L, "DIALOG_OKAY", DIALOG_OKAY);
-	lua_setconst(L, "DIALOG_OK", DIALOG_OKAY);
-	lua_setconst(L, "DIALOG_CANCEL", 3);
-	lua_setconst(L, "DIALOG_NO_OR", 0);
-	lua_setconst(L, "DIALOG_OR", DIALOG_OR);
-	lua_setconst(L, "DIALOG_EMPTY", DIALOG_EMPTY);
-	lua_setconst(L, "DIALOG_2_LEARN", 7);
-	lua_setconst(L, "DIALOG_LEFT_LEARN", 8);
+  lua_setconst(L, "DIALOG_OKAY", DIALOG_OKAY);
+  lua_setconst(L, "DIALOG_OK", DIALOG_OKAY);
+  lua_setconst(L, "DIALOG_YES_NO", DIALOG_YES_NO);
+  lua_setconst(L, "DIALOG_CANCEL", DIALOG_CANCEL);
+  lua_setconst(L, "DIALOG_RIGHT_CLICK", DIALOG_RIGHT_CLICK);
+  lua_setconst(L, "DIALOG_LEARN_CHOICE", DIALOG_LEARN_CHOICE);
+  lua_setconst(L, "DIALOG_LEFT_LEARN", 8);
+
+  lua_setconst(L, "DIALOG_OR", DIALOG_OR);
+  lua_setconst(L, "DIALOG_NO_OR", 0);
+  lua_setconst(L, "DIALOG_EMPTY", DIALOG_EMPTY);
 }
 
-void set_button_consts(lua_State* L) {
-	lua_setconst(L, "BUTTON_OK", 30722);
-	lua_setconst(L, "BUTTON_OKAY", 30722);
-	lua_setconst(L, "BUTTON_YES", BUTTON_CODE_OKAY);
-	lua_setconst(L, "BUTTON_NO", BUTTON_CODE_CANCEL);
-	lua_setconst(L, "BUTTON_CANCEL", 30721);
-	lua_setconst(L, "BUTTON_LEFT_LEARN", 30727);
-	lua_setconst(L, "BUTTON_RIGHT_LEARN", 30728);
-}
 
+void set_barriercolor_consts(lua_State *L){
+	lua_setconst(L, "AQUA_BARRIER", AQUA_BARRIER);
+}
 void set_messageboxgroups_consts(lua_State *L) {
 	lua_setconst(L, "IMAGE_EMPTY", IMAGE_EMPTY);
 	lua_setconst(L, "IMAGE_WOOD", IMAGE_WOOD);
@@ -94,7 +90,6 @@ void set_messageboxgroups_consts(lua_State *L) {
 
 void set_gui_consts(lua_State *L) {
   set_dialog_consts(L);
-  set_button_consts(L);
   set_messageboxgroups_consts(L);
 }
 
@@ -166,10 +161,14 @@ void set_spell_consts(lua_State *L) {
   lua_setconst(L, "SPELL_SET_AIR_GUARDIAN", SPELL_SET_AIR_GUARDIAN);
   lua_setconst(L, "SPELL_SET_FIRE_GUARDIAN", SPELL_SET_FIRE_GUARDIAN);
   lua_setconst(L, "SPELL_SET_WATER_GUARDIAN", SPELL_SET_WATER_GUARDIAN);
-  lua_setconst(L, "SPELL_AWARENESS", SPELL_AWARENESS);
-  lua_setconst(L, "SPELL_SHADOW_MARK", SPELL_SHADOW_MARK);
-  lua_setconst(L, "SPELL_DISENCHANT", SPELL_DISENCHANT);
-  lua_setconst(L, "SPELL_MASS_DISENCHANT", SPELL_MASS_DISENCHANT);
+  lua_setconst(L, "SPELL_MARKSMAN_PIERCE", SPELL_MARKSMAN_PIERCE);
+  lua_setconst(L, "SPELL_PLASMA_CONE", SPELL_PLASMA_CONE);
+  lua_setconst(L, "SPELL_FORCE_SHIELD", SPELL_FORCE_SHIELD);
+  lua_setconst(L, "SPELL_MASS_FORCE_SHIELD", SPELL_MASS_FORCE_SHIELD);
+  lua_setconst(L, "SPELL_FIRE_BOMB", SPELL_FIRE_BOMB);
+  lua_setconst(L, "SPELL_IMPLOSION_GRENADE", SPELL_IMPLOSION_GRENADE);
+		lua_setconst(L, "SPELL_DISENCHANT", SPELL_DISENCHANT);
+		lua_setconst(L, "SPELL_MASS_DISENCHANT", SPELL_MASS_DISENCHANT);
 }
 
 void set_artifact_consts(lua_State* L) {
@@ -191,96 +190,98 @@ void set_artifact_consts(lua_State* L) {
   */
 }
 
+
 /*
 void set_luck_consts(lua_State *L) {
 	lua_setconst(L, "IMAGE_LUCK", IMAGE_LUCK);
 	lua_setconst(L, "IMAGE_BADLUCK", IMAGE_BADLUCK);
+
 }
 This is useless*/
 
 void set_hero_consts(lua_State* L) {
-	lua_setconst(L, "SEX_MALE", 0);
-	lua_setconst(L, "SEX_FEMALE", 1);
-	//Used an auxiliary program for the constants, there are just too many of them
-	lua_setconst(L, "PORTRAIT_LORD_KILBURN", PORTRAIT_LORD_KILBURN);
-	lua_setconst(L, "PORTRAIT_SIR_GALLANT", PORTRAIT_SIR_GALLANT);
-	lua_setconst(L, "PORTRAIT_ECTOR", PORTRAIT_ECTOR);
-	lua_setconst(L, "PORTRAIT_GWENNETH", PORTRAIT_GWENNETH);
-	lua_setconst(L, "PORTRAIT_TYRO", PORTRAIT_TYRO);
-	lua_setconst(L, "PORTRAIT_AMBROSE", PORTRAIT_AMBROSE);
-	lua_setconst(L, "PORTRAIT_RUBY", PORTRAIT_RUBY);
-	lua_setconst(L, "PORTRAIT_MAXIMUS", PORTRAIT_MAXIMUS);
-	lua_setconst(L, "PORTRAIT_DIMITRI", PORTRAIT_DIMITRI);
-	lua_setconst(L, "PORTRAIT_THUNDAX", PORTRAIT_THUNDAX);
-	lua_setconst(L, "PORTRAIT_FINEOUS", PORTRAIT_FINEOUS);
-	lua_setconst(L, "PORTRAIT_JOJOSH", PORTRAIT_JOJOSH);
-	lua_setconst(L, "PORTRAIT_CRAG_HACK", PORTRAIT_CRAG_HACK);
-	lua_setconst(L, "PORTRAIT_JEZEBEL", PORTRAIT_JEZEBEL);
-	lua_setconst(L, "PORTRAIT_JACLYN", PORTRAIT_JACLYN);
-	lua_setconst(L, "PORTRAIT_ERGON", PORTRAIT_ERGON);
-	lua_setconst(L, "PORTRAIT_TSABU", PORTRAIT_TSABU);
-	lua_setconst(L, "PORTRAIT_ATLAS", PORTRAIT_ATLAS);
-	lua_setconst(L, "PORTRAIT_ASTRA", PORTRAIT_ASTRA);
-	lua_setconst(L, "PORTRAIT_NATASHA", PORTRAIT_NATASHA);
-	lua_setconst(L, "PORTRAIT_TROYAN", PORTRAIT_TROYAN);
-	lua_setconst(L, "PORTRAIT_VATAWNA", PORTRAIT_VATAWNA);
-	lua_setconst(L, "PORTRAIT_REBECCA", PORTRAIT_REBECCA);
-	lua_setconst(L, "PORTRAIT_GEM", PORTRAIT_GEM);
-	lua_setconst(L, "PORTRAIT_ARIEL", PORTRAIT_ARIEL);
-	lua_setconst(L, "PORTRAIT_CARLAWN", PORTRAIT_CARLAWN);
-	lua_setconst(L, "PORTRAIT_LUNA", PORTRAIT_LUNA);
-	lua_setconst(L, "PORTRAIT_ARIE", PORTRAIT_ARIE);
-	lua_setconst(L, "PORTRAIT_ALAMAR", PORTRAIT_ALAMAR);
-	lua_setconst(L, "PORTRAIT_VESPER", PORTRAIT_VESPER);
-	lua_setconst(L, "PORTRAIT_CRODO", PORTRAIT_CRODO);
-	lua_setconst(L, "PORTRAIT_BAROK", PORTRAIT_BAROK);
-	lua_setconst(L, "PORTRAIT_KASTORE", PORTRAIT_KASTORE);
-	lua_setconst(L, "PORTRAIT_AGAR", PORTRAIT_AGAR);
-	lua_setconst(L, "PORTRAIT_FALAGAR", PORTRAIT_FALAGAR);
-	lua_setconst(L, "PORTRAIT_WRATHMONT", PORTRAIT_WRATHMONT);
-	lua_setconst(L, "PORTRAIT_MYRA", PORTRAIT_MYRA);
-	lua_setconst(L, "PORTRAIT_FLINT", PORTRAIT_FLINT);
-	lua_setconst(L, "PORTRAIT_DAWN", PORTRAIT_DAWN);
-	lua_setconst(L, "PORTRAIT_HALON", PORTRAIT_HALON);
-	lua_setconst(L, "PORTRAIT_MYRINI", PORTRAIT_MYRINI);
-	lua_setconst(L, "PORTRAIT_WILFREY", PORTRAIT_WILFREY);
-	lua_setconst(L, "PORTRAIT_SARAKIN", PORTRAIT_SARAKIN);
-	lua_setconst(L, "PORTRAIT_KALINDRA", PORTRAIT_KALINDRA);
-	lua_setconst(L, "PORTRAIT_MANDIGAL", PORTRAIT_MANDIGAL);
-	lua_setconst(L, "PORTRAIT_ZOM", PORTRAIT_ZOM);
-	lua_setconst(L, "PORTRAIT_DARLANA", PORTRAIT_DARLANA);
-	lua_setconst(L, "PORTRAIT_ZAM", PORTRAIT_ZAM);
-	lua_setconst(L, "PORTRAIT_RANLOO", PORTRAIT_RANLOO);
-	lua_setconst(L, "PORTRAIT_CHARITY", PORTRAIT_CHARITY);
-	lua_setconst(L, "PORTRAIT_RIALDO", PORTRAIT_RIALDO);
-	lua_setconst(L, "PORTRAIT_ROXANA", PORTRAIT_ROXANA);
-	lua_setconst(L, "PORTRAIT_SANDRO", PORTRAIT_SANDRO);
-	lua_setconst(L, "PORTRAIT_CELIA", PORTRAIT_CELIA);
-	lua_setconst(L, "PORTRAIT_ROLAND", PORTRAIT_ROLAND);
-	lua_setconst(L, "PORTRAIT_CORLAGON", PORTRAIT_CORLAGON);
-	lua_setconst(L, "PORTRAIT_SISTER_ELIZA", PORTRAIT_SISTER_ELIZA);
-	lua_setconst(L, "PORTRAIT_ARCHIBALD", PORTRAIT_ARCHIBALD);
-	lua_setconst(L, "PORTRAIT_HALTON", PORTRAIT_HALTON);
-	lua_setconst(L, "PORTRAIT_BROTHER_BRAX", PORTRAIT_BROTHER_BRAX);
-	lua_setconst(L, "PORTRAIT_SOLMYR", PORTRAIT_SOLMYR);
-	lua_setconst(L, "PORTRAIT_KRAEGER", PORTRAIT_KRAEGER);
-	lua_setconst(L, "PORTRAIT_IBN_FADLAN", PORTRAIT_IBN_FADLAN);
-	lua_setconst(L, "PORTRAIT_UNCLE_IVAN", PORTRAIT_UNCLE_IVAN);
-	lua_setconst(L, "PORTRAIT_JOSEPH", PORTRAIT_JOSEPH);
-	lua_setconst(L, "PORTRAIT_GALLAVANT", PORTRAIT_GALLAVANT);
-	lua_setconst(L, "PORTRAIT_JARKONAS_VI", PORTRAIT_JARKONAS_VI);
-	lua_setconst(L, "PORTRAIT_ALBERON", PORTRAIT_ALBERON);
-	lua_setconst(L, "PORTRAIT_DRAKONIA", PORTRAIT_DRAKONIA);
-	lua_setconst(L, "PORTRAIT_MARTINE", PORTRAIT_MARTINE);
-	lua_setconst(L, "PORTRAIT_JARKONAS", PORTRAIT_JARKONAS);
-	lua_setconst(L, "PORTRAIT_LORD_VARUUN", PORTRAIT_LORD_VARUUN);
-	lua_setconst(L, "PORTRAIT_JOHN_CARVER", PORTRAIT_JOHN_CARVER);
-	lua_setconst(L, "PORTRAIT_CAPTAIN_KNIGHT", PORTRAIT_CAPTAIN_KNIGHT);
-	lua_setconst(L, "PORTRAIT_CAPTAIN_BARBARIAN", PORTRAIT_CAPTAIN_BARBARIAN);
-	lua_setconst(L, "PORTRAIT_CAPTAIN_SORCERESS", PORTRAIT_CAPTAIN_SORCERESS);
-	lua_setconst(L, "PORTRAIT_CAPTAIN_WARLOCK", PORTRAIT_CAPTAIN_WARLOCK);
-	lua_setconst(L, "PORTRAIT_CAPTAIN_WIZARD", PORTRAIT_CAPTAIN_WIZARD);
-	lua_setconst(L, "PORTRAIT_CAPTAIN_NECROMANCER", PORTRAIT_CAPTAIN_NECROMANCER);
+				lua_setconst(L, "SEX_MALE", 0);
+				lua_setconst(L, "SEX_FEMALE", 1);
+				//Used an auxiliary program for the constants, there are just too many of them
+				lua_setconst(L, "PORTRAIT_LORD_KILBURN", PORTRAIT_LORD_KILBURN);
+				lua_setconst(L, "PORTRAIT_SIR_GALLANT", PORTRAIT_SIR_GALLANT);
+				lua_setconst(L, "PORTRAIT_ECTOR", PORTRAIT_ECTOR);
+				lua_setconst(L, "PORTRAIT_GWENNETH", PORTRAIT_GWENNETH);
+				lua_setconst(L, "PORTRAIT_TYRO", PORTRAIT_TYRO);
+				lua_setconst(L, "PORTRAIT_AMBROSE", PORTRAIT_AMBROSE);
+				lua_setconst(L, "PORTRAIT_RUBY", PORTRAIT_RUBY);
+				lua_setconst(L, "PORTRAIT_MAXIMUS", PORTRAIT_MAXIMUS);
+				lua_setconst(L, "PORTRAIT_DIMITRI", PORTRAIT_DIMITRI);
+				lua_setconst(L, "PORTRAIT_THUNDAX", PORTRAIT_THUNDAX);
+				lua_setconst(L, "PORTRAIT_FINEOUS", PORTRAIT_FINEOUS);
+				lua_setconst(L, "PORTRAIT_JOJOSH", PORTRAIT_JOJOSH);
+				lua_setconst(L, "PORTRAIT_CRAG_HACK", PORTRAIT_CRAG_HACK);
+				lua_setconst(L, "PORTRAIT_JEZEBEL", PORTRAIT_JEZEBEL);
+				lua_setconst(L, "PORTRAIT_JACLYN", PORTRAIT_JACLYN);
+				lua_setconst(L, "PORTRAIT_ERGON", PORTRAIT_ERGON);
+				lua_setconst(L, "PORTRAIT_TSABU", PORTRAIT_TSABU);
+				lua_setconst(L, "PORTRAIT_ATLAS", PORTRAIT_ATLAS);
+				lua_setconst(L, "PORTRAIT_ASTRA", PORTRAIT_ASTRA);
+				lua_setconst(L, "PORTRAIT_NATASHA", PORTRAIT_NATASHA);
+				lua_setconst(L, "PORTRAIT_TROYAN", PORTRAIT_TROYAN);
+				lua_setconst(L, "PORTRAIT_VATAWNA", PORTRAIT_VATAWNA);
+				lua_setconst(L, "PORTRAIT_REBECCA", PORTRAIT_REBECCA);
+				lua_setconst(L, "PORTRAIT_GEM", PORTRAIT_GEM);
+				lua_setconst(L, "PORTRAIT_ARIEL", PORTRAIT_ARIEL);
+				lua_setconst(L, "PORTRAIT_CARLAWN", PORTRAIT_CARLAWN);
+				lua_setconst(L, "PORTRAIT_LUNA", PORTRAIT_LUNA);
+				lua_setconst(L, "PORTRAIT_ARIE", PORTRAIT_ARIE);
+				lua_setconst(L, "PORTRAIT_ALAMAR", PORTRAIT_ALAMAR);
+				lua_setconst(L, "PORTRAIT_VESPER", PORTRAIT_VESPER);
+				lua_setconst(L, "PORTRAIT_CRODO", PORTRAIT_CRODO);
+				lua_setconst(L, "PORTRAIT_BAROK", PORTRAIT_BAROK);
+				lua_setconst(L, "PORTRAIT_KASTORE", PORTRAIT_KASTORE);
+				lua_setconst(L, "PORTRAIT_AGAR", PORTRAIT_AGAR);
+				lua_setconst(L, "PORTRAIT_FALAGAR", PORTRAIT_FALAGAR);
+				lua_setconst(L, "PORTRAIT_WRATHMONT", PORTRAIT_WRATHMONT);
+				lua_setconst(L, "PORTRAIT_MYRA", PORTRAIT_MYRA);
+				lua_setconst(L, "PORTRAIT_FLINT", PORTRAIT_FLINT);
+				lua_setconst(L, "PORTRAIT_DAWN", PORTRAIT_DAWN);
+				lua_setconst(L, "PORTRAIT_HALON", PORTRAIT_HALON);
+				lua_setconst(L, "PORTRAIT_MYRINI", PORTRAIT_MYRINI);
+				lua_setconst(L, "PORTRAIT_WILFREY", PORTRAIT_WILFREY);
+				lua_setconst(L, "PORTRAIT_SARAKIN", PORTRAIT_SARAKIN);
+				lua_setconst(L, "PORTRAIT_KALINDRA", PORTRAIT_KALINDRA);
+				lua_setconst(L, "PORTRAIT_MANDIGAL", PORTRAIT_MANDIGAL);
+				lua_setconst(L, "PORTRAIT_ZOM", PORTRAIT_ZOM);
+				lua_setconst(L, "PORTRAIT_DARLANA", PORTRAIT_DARLANA);
+				lua_setconst(L, "PORTRAIT_ZAM", PORTRAIT_ZAM);
+				lua_setconst(L, "PORTRAIT_RANLOO", PORTRAIT_RANLOO);
+				lua_setconst(L, "PORTRAIT_CHARITY", PORTRAIT_CHARITY);
+				lua_setconst(L, "PORTRAIT_RIALDO", PORTRAIT_RIALDO);
+				lua_setconst(L, "PORTRAIT_ROXANA", PORTRAIT_ROXANA);
+				lua_setconst(L, "PORTRAIT_SANDRO", PORTRAIT_SANDRO);
+				lua_setconst(L, "PORTRAIT_CELIA", PORTRAIT_CELIA);
+				lua_setconst(L, "PORTRAIT_ROLAND", PORTRAIT_ROLAND);
+				lua_setconst(L, "PORTRAIT_CORLAGON", PORTRAIT_CORLAGON);
+				lua_setconst(L, "PORTRAIT_SISTER_ELIZA", PORTRAIT_SISTER_ELIZA);
+				lua_setconst(L, "PORTRAIT_ARCHIBALD", PORTRAIT_ARCHIBALD);
+				lua_setconst(L, "PORTRAIT_HALTON", PORTRAIT_HALTON);
+				lua_setconst(L, "PORTRAIT_BROTHER_BRAX", PORTRAIT_BROTHER_BRAX);
+				lua_setconst(L, "PORTRAIT_SOLMYR", PORTRAIT_SOLMYR);
+				lua_setconst(L, "PORTRAIT_KRAEGER", PORTRAIT_KRAEGER);
+				lua_setconst(L, "PORTRAIT_IBN_FADLAN", PORTRAIT_IBN_FADLAN);
+				lua_setconst(L, "PORTRAIT_UNCLE_IVAN", PORTRAIT_UNCLE_IVAN);
+				lua_setconst(L, "PORTRAIT_JOSEPH", PORTRAIT_JOSEPH);
+				lua_setconst(L, "PORTRAIT_GALLAVANT", PORTRAIT_GALLAVANT);
+				lua_setconst(L, "PORTRAIT_JARKONAS_VI", PORTRAIT_JARKONAS_VI);
+				lua_setconst(L, "PORTRAIT_ALBERON", PORTRAIT_ALBERON);
+				lua_setconst(L, "PORTRAIT_DRAKONIA", PORTRAIT_DRAKONIA);
+				lua_setconst(L, "PORTRAIT_MARTINE", PORTRAIT_MARTINE);
+				lua_setconst(L, "PORTRAIT_JARKONAS", PORTRAIT_JARKONAS);
+				lua_setconst(L, "PORTRAIT_LORD_VARUUN", PORTRAIT_LORD_VARUUN);
+				lua_setconst(L, "PORTRAIT_JOHN_CARVER", PORTRAIT_JOHN_CARVER);
+				lua_setconst(L, "PORTRAIT_CAPTAIN_KNIGHT", PORTRAIT_CAPTAIN_KNIGHT);
+				lua_setconst(L, "PORTRAIT_CAPTAIN_BARBARIAN", PORTRAIT_CAPTAIN_BARBARIAN);
+				lua_setconst(L, "PORTRAIT_CAPTAIN_SORCERESS", PORTRAIT_CAPTAIN_SORCERESS);
+				lua_setconst(L, "PORTRAIT_CAPTAIN_WARLOCK", PORTRAIT_CAPTAIN_WARLOCK);
+				lua_setconst(L, "PORTRAIT_CAPTAIN_WIZARD", PORTRAIT_CAPTAIN_WIZARD);
+				lua_setconst(L, "PORTRAIT_CAPTAIN_NECROMANCER", PORTRAIT_CAPTAIN_NECROMANCER);
 }
 
 void set_town_consts(lua_State* L) {
@@ -327,35 +328,26 @@ void set_faction_consts(lua_State* L) {
   lua_setconst(L, "FACTION_CYBORG", FACTION_CYBORG);
 }
 
-void set_sec_skill_consts(lua_State* L, std::string name, int number);
 
 void set_skill_consts(lua_State* L) {
   lua_setconst(L, "PRIMARY_SKILL_ATTACK", PRIMARY_SKILL_ATTACK);
   lua_setconst(L, "PRIMARY_SKILL_DEFENSE", PRIMARY_SKILL_DEFENSE);
   lua_setconst(L, "PRIMARY_SKILL_SPELLPOWER", PRIMARY_SKILL_SPELLPOWER);
   lua_setconst(L, "PRIMARY_SKILL_KNOWLEDGE", PRIMARY_SKILL_KNOWLEDGE);
-  set_sec_skill_consts(L, "PATHFINDING", SECONDARY_SKILL_PATHFINDING);
-  set_sec_skill_consts(L, "ARCHERY", SECONDARY_SKILL_ARCHERY);
-  set_sec_skill_consts(L, "LOGISTICS", SECONDARY_SKILL_LOGISTICS);
-  set_sec_skill_consts(L, "SCOUTING", SECONDARY_SKILL_SCOUTING);
-  set_sec_skill_consts(L, "DIPLOMACY", SECONDARY_SKILL_DIPLOMACY);
-  set_sec_skill_consts(L, "NAVIGATION", SECONDARY_SKILL_NAVIGATION);
-  set_sec_skill_consts(L, "LEADERSHIP", SECONDARY_SKILL_LEADERSHIP);
-  set_sec_skill_consts(L, "WISDOM", SECONDARY_SKILL_WISDOM);
-  set_sec_skill_consts(L, "MYSTICISM", SECONDARY_SKILL_MYSTICISM);
-  set_sec_skill_consts(L, "LUCK", SECONDARY_SKILL_LUCK);
-  set_sec_skill_consts(L, "BALLISTICS", SECONDARY_SKILL_BALLISTICS);
-  set_sec_skill_consts(L, "EAGLE_EYE", SECONDARY_SKILL_EAGLE_EYE);
-  set_sec_skill_consts(L, "NECROMANCY", SECONDARY_SKILL_NECROMANCY);
-  set_sec_skill_consts(L, "ESTATES", SECONDARY_SKILL_ESTATES);
-}
-
-void set_sec_skill_consts(lua_State* L, std::string name, int number)
-{
-	lua_setconst(L, ("SECONDARY_SKILL_" + name).c_str(), number);
-	lua_setconst(L, ("BASIC_" + name).c_str(), number * 3);
-	lua_setconst(L, ("ADVANCED_" + name).c_str(), number * 3 + 1);
-	lua_setconst(L, ("EXPERT_" + name).c_str(), number * 3 + 2);
+  lua_setconst(L, "SECONDARY_SKILL_PATHFINDING", SECONDARY_SKILL_PATHFINDING);
+  lua_setconst(L, "SECONDARY_SKILL_ARCHERY", SECONDARY_SKILL_ARCHERY);
+  lua_setconst(L, "SECONDARY_SKILL_LOGISTICS", SECONDARY_SKILL_LOGISTICS);
+  lua_setconst(L, "SECONDARY_SKILL_SCOUTING", SECONDARY_SKILL_SCOUTING);
+  lua_setconst(L, "SECONDARY_SKILL_DIPLOMACY", SECONDARY_SKILL_DIPLOMACY);
+  lua_setconst(L, "SECONDARY_SKILL_NAVIGATION", SECONDARY_SKILL_NAVIGATION);
+  lua_setconst(L, "SECONDARY_SKILL_LEADERSHIP", SECONDARY_SKILL_LEADERSHIP);
+  lua_setconst(L, "SECONDARY_SKILL_WISDOM", SECONDARY_SKILL_WISDOM);
+  lua_setconst(L, "SECONDARY_SKILL_MYSTICISM", SECONDARY_SKILL_MYSTICISM);
+  lua_setconst(L, "SECONDARY_SKILL_LUCK", SECONDARY_SKILL_LUCK);
+  lua_setconst(L, "SECONDARY_SKILL_BALLISTICS", SECONDARY_SKILL_BALLISTICS);
+  lua_setconst(L, "SECONDARY_SKILL_EAGLE_EYE", SECONDARY_SKILL_EAGLE_EYE);
+  lua_setconst(L, "SECONDARY_SKILL_NECROMANCY", SECONDARY_SKILL_NECROMANCY);
+  lua_setconst(L, "SECONDARY_SKILL_ESTATES", SECONDARY_SKILL_ESTATES);
 }
 
 void set_creature_consts(lua_State* L) {
@@ -445,7 +437,7 @@ void set_resources_consts(lua_State *L) {
   lua_setconst(L, "RESOURCE_ORE", RESOURCE_ORE);
   lua_setconst(L, "RESOURCE_SULFUR", RESOURCE_SULFUR);
   lua_setconst(L, "RESOURCE_CRYSTALS", RESOURCE_CRYSTAL);
-  lua_setconst(L, "RESOURCE_CRYSTAL", RESOURCE_CRYSTAL);
+		lua_setconst(L, "RESOURCE_CRYSTAL", RESOURCE_CRYSTAL);
   lua_setconst(L, "RESOURCE_GEMS", RESOURCE_GEMS);
   lua_setconst(L, "RESOURCE_GOLD", RESOURCE_GOLD);
 }
@@ -570,7 +562,7 @@ void set_location_consts(lua_State *L) {
   lua_setconst(L, "LOCATION_EXPANSION_DWELLING", LOCATION_EXPANSION_DWELLING);
   lua_setconst(L, "LOCATION_ALCHEMIST_TOWER", LOCATION_ALCHEMIST_TOWER);
   lua_setconst(L, "LOCATION_JAIL", LOCATION_JAIL);
-  lua_setconst_nil(L, "UNOWNED");
+		lua_setconst_nil(L, "UNOWNED");
 }
 
 void set_map_cell_consts(lua_State *L) {
@@ -585,17 +577,31 @@ void set_tooltip_consts(lua_State *L) {
 }
 
 void set_personality_consts(lua_State *L) {
-	lua_setconst(L, "PERSONALITY_WARRIOR", PERSONALITY_WARRIOR);
-	lua_setconst(L, "PERSONALITY_BUILDER", PERSONALITY_BUILDER);
-	lua_setconst(L, "PERSONALITY_EXPLORER", PERSONALITY_EXPLORER);
-	lua_setconst(L, "PERSONALITY_HUMAN", PERSONALITY_HUMAN);
+				lua_setconst(L, "PERSONALITY_WARRIOR", PERSONALITY_WARRIOR);
+				lua_setconst(L, "PERSONALITY_BUILDER", PERSONALITY_BUILDER);
+				lua_setconst(L, "PERSONALITY_EXPLORER", PERSONALITY_EXPLORER);
+				lua_setconst(L, "PERSONALITY_HUMAN", PERSONALITY_HUMAN);
 }
 
 void set_map_consts(lua_State *L) {
   set_location_consts(L);
   set_map_cell_consts(L);
   set_tooltip_consts(L);
-  set_personality_consts(L);
+		set_personality_consts(L);
+}
+
+void set_campaign_choice_consts(lua_State *L) {
+  lua_setconst(L, "CAMPAIGN_CHOICE_RESOURCE", CAMPAIGN_CHOICE_RESOURCE);
+  lua_setconst(L, "CAMPAIGN_CHOICE_ARTIFACT", CAMPAIGN_CHOICE_ARTIFACT);
+  lua_setconst(L, "CAMPAIGN_CHOICE_SPELL", CAMPAIGN_CHOICE_SPELL);
+  lua_setconst(L, "CAMPAIGN_CHOICE_SECONDARY_SKILL", CAMPAIGN_CHOICE_SECONDARY_SKILL);
+  lua_setconst(L, "CAMPAIGN_CHOICE_ARMY", CAMPAIGN_CHOICE_ARMY);
+  lua_setconst(L, "CAMPAIGN_CHOICE_PUZZLE_PIECES", CAMPAIGN_CHOICE_PUZZLE_PIECES);
+  lua_setconst(L, "CAMPAIGN_CHOICE_EXPERIENCE", CAMPAIGN_CHOICE_EXPERIENCE);
+  lua_setconst(L, "CAMPAIGN_CHOICE_NOT_AVAILABLE", CAMPAIGN_CHOICE_NOT_AVAILABLE);
+  lua_setconst(L, "CAMPAIGN_CHOICE_ALIGNMENT", CAMPAIGN_CHOICE_ALIGNMENT);
+  lua_setconst(L, "CAMPAIGN_CHOICE_PRIMARY_SKILL", CAMPAIGN_CHOICE_PRIMARY_SKILL);
+  lua_setconst(L, "CAMPAIGN_CHOICE_SPELL_SCROLL", CAMPAIGN_CHOICE_SPELL_SCROLL);
 }
 
 /*************************************************************************************/
@@ -604,11 +610,14 @@ void set_scripting_consts(lua_State* L) {
   set_gui_consts(L);
   set_spell_consts(L);
   set_artifact_consts(L);
-  set_hero_consts(L);
+		set_hero_consts(L);
   set_town_consts(L);
   set_faction_consts(L);
   set_skill_consts(L);
   set_creature_consts(L);
+  set_location_consts(L);  
+  set_barriercolor_consts(L);
   set_resources_consts(L); 
   set_map_consts(L);
+  set_campaign_choice_consts(L);
 }

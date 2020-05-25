@@ -23,12 +23,12 @@ void DisplayCustomLuaError(lua_State *L, const char* msg) {
 }
 
 void DisplayCustomLuaError(lua_State *L, std::string msg) {
-	DisplayCustomLuaError(L, msg.c_str());
+  DisplayCustomLuaError(L, msg.c_str());
 }
 
 void DisplayLuaError(lua_State *L) {
-	const char* msg = luaL_checkstring(L, -1);
-	DisplayCustomLuaError(L, msg);
+  const char* msg = luaL_checkstring(L, -1);
+  DisplayCustomLuaError(L, msg);
 }
 
 int LuaGlobalExists(lua_State *L, const char* nam) {
@@ -41,13 +41,13 @@ int LuaGlobalExists(lua_State *L, const char* nam) {
 // Thanks to https://stackoverflow.com/questions/50920640/dynamically-find-out-the-number-of-return-values-of-lua-function for suggesting
 // this approach
 int lua_pcall_nresult(lua_State *L, int nargs, int *nres) {
-	const int stack_size = lua_gettop(L);
+  const int stack_size = lua_gettop(L);
 
-	const int res_code = lua_pcall(L, nargs, LUA_MULTRET, 0);
+  const int res_code = lua_pcall(L, nargs, LUA_MULTRET, 0);
 
-	const int stack_size_before_call = stack_size - nargs - 1;
-	const int num_returns = lua_gettop(L) - stack_size_before_call;
-	*nres = num_returns;
+  const int stack_size_before_call = stack_size - nargs - 1;
+  const int num_returns = lua_gettop(L) - stack_size_before_call;
+  *nres = num_returns;
 
-	return res_code;
+  return res_code;
 }

@@ -15,7 +15,7 @@ struct Point {
   int _y;
 
   Point(int x, int y) : _x(x), _y(y) {}
-
+  Point() {_x = _y = 0;};
   Point clipToRect(const H2RECT &rect);
 };
 
@@ -42,6 +42,19 @@ struct H2RECT {
 
 H2RECT rectAroundPoint(const Point &p, int halfWidth, int halfHeight);
 
+struct tag_rect {
+  short x;
+  short y;
+  short width;
+  short height;
+};
+
+extern signed char __fastcall PointInRect(int x, int y,struct tag_rect *rect);
+
 #pragma pack(pop)
+
+extern int gbUseEvilInterface;
+extern int gbLowMemory;
+extern int giBottomViewOverride;
 
 #endif

@@ -13,17 +13,12 @@ function OnMapStart()
 end;
 
 function OnTownOpen(t)
-	if GetTownName(t) == "Sorrow's End" then
+	if t.name == "Sorrow's End" then
 		if HasVisitingHero(t) then
 			h = GetVisitingHero(t);
 			if HasArtifact(h, ARTIFACT_MAGES_RING_OF_POWER) then
 				TakeArtifact(h, ARTIFACT_MAGES_RING_OF_POWER);
 				MessageBox("The Mage's Ring fits easily in the keyhole of the sealed library door. Inside lie shelves packed with tomes.");
-				SetNumGuildSpells(t, 0, 4); 
-				SetNumGuildSpells(t, 1, 4);
-				SetNumGuildSpells(t, 2, 4);
-				SetNumGuildSpells(t, 3, 4); 
-				SetNumGuildSpells(t, 4, 4);
 				SetGuildSpell(t, 4, 0, SPELL_DIMENSION_DOOR);
 				SetGuildSpell(t, 4, 1, SPELL_SUMMON_WATER_ELEMENTAL);
 				SetGuildSpell(t, 4, 2, SPELL_SUMMON_EARTH_ELEMENTAL);
@@ -33,6 +28,11 @@ function OnTownOpen(t)
 				BuildInCurrentTown(BUILDING_MAGE_GUILD);
 				BuildInCurrentTown(BUILDING_MAGE_GUILD);
 				BuildInCurrentTown(BUILDING_MAGE_GUILD);
+				SetNumGuildSpells(t, 0, 4); 
+				SetNumGuildSpells(t, 1, 4);
+				SetNumGuildSpells(t, 2, 4);
+				SetNumGuildSpells(t, 3, 4); 
+				SetNumGuildSpells(t, 4, 4);
 			end;
 		end;
 	end;

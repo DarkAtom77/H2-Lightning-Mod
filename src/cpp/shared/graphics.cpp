@@ -1,6 +1,6 @@
 #include "base.h"
 #include "graphics.h"
-#include <windows.h> // For max/min....seriously
+#include "windows.h" // For max/min....seriously
 
 Point Point::clipToRect(const H2RECT &rect) {
   int newX = min(max(this->_x, rect._left), rect._right);
