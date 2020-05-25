@@ -452,7 +452,7 @@ public:
 		void ShrineQuickInfo(int xLoc, int yLoc);
 		void WitchHutQuickInfo(int xLoc, int yLoc);
 		void ArtifactQuickInfo(int xLoc, int yLoc);
-		void ArenaQuickInfo(int xLoc, int yLoc);
+		void ArenaQuickInfo(int xLoc, int yLoc, int TriggerX, int TriggerY);
 
   void PlayerMonsterInteract(mapCell *cell, mapCell *other, hero *player, int *window, int a1, int a2, int a3, int a4, int a5);
   void PlayerMonsterInteract_orig(mapCell *cell, mapCell *other, hero *player, int *window, int a1, int a2, int a3, int a4, int a5);

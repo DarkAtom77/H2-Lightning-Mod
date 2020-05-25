@@ -730,10 +730,10 @@ void advManager::HandleArena(class mapCell *cell, int locType, hero *hro, SAMPLE
 {
 				HeroExtraII* hero_extra = HeroExtras[hro->idx];
 				if (hero_extra->HasVisitedArena(locX, locY))
-								hro->flags |= 0x400000;
+								hro->flags |= HERO_ARENA_VISITED;
 				else
-								hro->flags &= ~(0x400000);
-				if (gpGame->players[hro->idx].personality == PERSONALITY_HUMAN)
+								hro->flags &= ~(HERO_ARENA_VISITED);
+				if (gpGame->players[hro->ownerIdx].personality == PERSONALITY_HUMAN)
 								DoEvent_orig(cell, locX, locY);
 				else
 								DoAIEvent_orig(cell, hro, locX, locY);
@@ -853,14 +853,14 @@ void advManager::QuickInfo(int x, int y) {
   if (!overrideText || overrideText->empty()) {
     // Lua error occurred or tooltip text not overridden.
 						if (locationType == LOCATION_SHRINE_FIRST_ORDER || locationType == LOCATION_SHRINE_SECOND_ORDER || locationType == LOCATION_SHRINE_THIRD_ORDER)
-		    {
+						{
 										unsigned char visited = (PlayerVisitedObject[xLoc][yLoc] >> gpCurPlayer->color) & 1u;
 										if (visited)
-					     {
-								      ShrineQuickInfo(xLoc, yLoc);
-								      return;
-					     }
-			   }
+										{
+														ShrineQuickInfo(xLoc, yLoc);
+														return;
+										}
+						}
 						else if (locationType == LOCATION_WITCH_HUT)
 						{
 										unsigned char visited = (PlayerVisitedObject[xLoc][yLoc] >> gpCurPlayer->color) & 1u;
@@ -883,13 +883,46 @@ void advManager::QuickInfo(int x, int y) {
 										ArtifactQuickInfo(xLoc, yLoc);
 										return;
 						}
-						else if (locationType == LOCATION_ALCHEMIST_TOWER)
+						else if (mapCell->objTileset == 61)
 						{
-										if (mapCell->extraInfo == 1)
+										switch (mapCell->objectIndex)
 										{
-														//unfortunately, only the trigger-cell shows something
-														ArenaQuickInfo(xLoc, yLoc);
+										case 40:
+														ArenaQuickInfo(xLoc, yLoc, xLoc + 1, yLoc + 1);
 														return;
+										case 49:
+														ArenaQuickInfo(xLoc, yLoc, xLoc, yLoc + 1);
+														return;
+										case 50:
+														ArenaQuickInfo(xLoc, yLoc, xLoc - 1, yLoc + 1);
+														return;
+										case 69:
+														ArenaQuickInfo(xLoc, yLoc, xLoc + 1, yLoc);
+														return;
+										case 70:
+														ArenaQuickInfo(xLoc, yLoc, xLoc, yLoc);
+														return;
+										case 71:
+														ArenaQuickInfo(xLoc, yLoc, xLoc - 1, yLoc);
+														return;
+										}
+						}
+						else if (mapCell->objectIndex == -1)
+						{
+										if (mapCell->overlayTileset == 61)
+										{
+														switch (mapCell->overlayIndex)
+														{
+														case 4:
+																		ArenaQuickInfo(xLoc, yLoc, xLoc + 1, yLoc + 2);
+																		return;
+														case 13:
+																		ArenaQuickInfo(xLoc, yLoc, xLoc, yLoc + 2);
+																		return;
+														case 22:
+																		ArenaQuickInfo(xLoc, yLoc, xLoc - 1, yLoc + 2);
+																		return;
+														}
 										}
 						}
     QuickInfo_orig(x, y);
@@ -1086,19 +1119,53 @@ void advManager::ArtifactQuickInfo(int xLoc, int yLoc)
 				gpWindowManager->RemoveWindow(&tooltip);
 }
 
-void advManager::ArenaQuickInfo(int xLoc, int yLoc)
+void advManager::ArenaQuickInfo(int xLoc, int yLoc, int TriggerX, int TriggerY)
 {
 				const int x = xLoc - viewX;
 				const int y = yLoc - viewY;
+
+				// Ensure the tooltip box is visible on the screen.
+				const int pTileSize = 32;
+				const int pxOffset = -57;  // tooltip is drawn (-57,-25) pixels from the mouse
+				const int pyOffset = -25;
+				const int pTooltipWidth = 160;
+				const int pTooltipHeight = 96;
+
+				int px = pTileSize * x + pxOffset;
+				if (px < 30) {
+								// minimum indent from left edge
+								px = 30;
+				}
+				else if (px + pTooltipWidth > 464) {
+								// don't overrun right edge
+								px = 304;
+				}
+
+				int py = pTileSize * y + pyOffset;
+				if (py < 16) {
+								// minimum indent from top edge
+								py = 16;
+				}
+				else if (py + pTooltipHeight > 448) {
+								// don't overrun bottom edge
+								py = 352;
+				}
+				auto mapCell = GetCell(xLoc, yLoc);
+				const int locationType = mapCell->objType & 0x7F;
+				std::string str = "Arena\n";
 				if (gpCurPlayer->curHeroIdx != -1)
 				{
 								HeroExtraII* hero_extra = HeroExtras[gpCurPlayer->curHeroIdx];
-								if (hero_extra->HasVisitedArena(xLoc, yLoc))
-												gpGame->heroes[gpCurPlayer->curHeroIdx].flags |= 0x400000u;
+								if (hero_extra->HasVisitedArena(TriggerX, TriggerY))
+												str += "\n(already visited)";
 								else
-												gpGame->heroes[gpCurPlayer->curHeroIdx].flags &= ~(0x400000u);
+												str += "\n(not visited)";
 				}
-				QuickInfo_orig(x, y);
+				heroWindow tooltip(px, py, "qwikinfo.bin");
+				GUISetText(&tooltip, 1, &str[0]);
+				gpWindowManager->AddWindow(&tooltip, 1, -1);
+				QuickViewWait();
+				gpWindowManager->RemoveWindow(&tooltip);
 }
 
 int advManager::ProcessSearch(int x, int y)
