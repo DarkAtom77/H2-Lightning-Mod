@@ -31,9 +31,10 @@ Functions (C-style types are included for more readability):
    msg: The message to display
   Return: True if the player answered yes, false otherwise
 
-4. string InputBox(string msg)
+4. string InputBox(string msg, int len)
   Arguments:
    msg: The message to display
+   len: Maximum length for the message
   Return: The answer of the player
 
 5. int RecruitBox(hero hro, int creatureType, int available)
@@ -836,7 +837,7 @@ ACTIVATES THE SKELETON. USE THOSE COORDINATES FOR THESE FUNCTIONS
    x: The X coordinate of the Treasure Chest
    y: The Y coordinate of the Treasure Chest
    artifact: The artifact ID
-  Note: The function auto-sets the type of the wagon to 2.
+  Note: The function auto-sets the type of the chest to 2.
 
 ---------------------------------------------------------TOWN---------------------------------------------------------
 
