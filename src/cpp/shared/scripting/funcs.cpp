@@ -288,11 +288,24 @@ static int l_revealMap(lua_State *L) {
   return 1;
 }
 
-int l_SetBarrierTentVisited(lua_State *L) {
-	playerData* plyd = (playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 2));
-	int tentcolor = luaL_checknumber(L, 2);
-	plyd->SetBarrierTentVisited(tentcolor);
+int l_GetBarrierTentVisited(lua_State* L) {
+				playerData* plyd = (playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 2));
+				int tentcolor = luaL_checknumber(L, 2);
+				if (plyd->barrierTentsVisited & (1 << tentcolor))
+								lua_pushboolean(L, 1);
+				else
+								lua_pushboolean(L, 0);
+				return 1;
+}
 
+int l_SetBarrierTentVisited(lua_State *L) {
+	playerData* plyd = (playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 3));
+	int tentcolor = luaL_checknumber(L, 2);
+	bool yes = CheckBoolean(L, 3);
+	if (yes)
+					plyd->SetBarrierTentVisited(tentcolor);
+	else
+					plyd->barrierTentsVisited &= ~(1 << tentcolor);
 	return 0;
 }
 
@@ -314,6 +327,7 @@ static void register_player_funcs(lua_State *L) {
   lua_register(L, "SetDaysAfterTownLost", l_setDaysAfterTownLost);
   lua_register(L, "GetDaysAfterTownLost", l_getDaysAfterTownLost);
   lua_register(L, "RevealMap", l_revealMap);
+		lua_register(L, "GetBarrierTentVisited", l_GetBarrierTentVisited);
   lua_register(L, "SetBarrierTentVisited", l_SetBarrierTentVisited);
 }
 
