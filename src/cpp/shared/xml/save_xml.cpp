@@ -167,6 +167,17 @@ tinyxml2::XMLError IronfistXML::Save(const char* fileName) {
   WriteArray(tempDoc, pRoot, "playerNames", cPlayerNames);
   WriteArray(tempDoc, pRoot, "deadPlayers", gpGame->playerDead);
 
+		for (int i = 0; i < 144; i++)
+		    for (int j = 0; j < 144; j++)
+										if (PlayerVisitedObject[i][j])
+										{
+														pElement = tempDoc->NewElement("PlayerVisitedObject");
+														pElement->SetAttribute("x", i);
+														pElement->SetAttribute("y", j);
+														pElement->SetAttribute("value", PlayerVisitedObject[i][j]);
+										}
+		pRoot->InsertEndChild(pElement);
+
   char playerAlive[NUM_PLAYERS];
   for (int i = 0; i < NUM_PLAYERS; ++i) {
     playerAlive[i] = gbHumanPlayer[i];
@@ -191,7 +202,7 @@ tinyxml2::XMLError IronfistXML::Save(const char* fileName) {
   WriteArray(tempDoc, pRoot, "field_637D", gpGame->field_637D);
   WriteArray(tempDoc, pRoot, "rumorIndices", gpGame->rumorIndices);
   WriteArray(tempDoc, pRoot, "eventIndices", gpGame->eventIndices);
-  WriteArray(tempDoc, pRoot, "mapEventIndices", gpGame->mapEventIndices);
+		WriteArray(tempDoc, pRoot, "mapEventIndices", gpGame->mapEventIndices);
 
   for (int i = 1; i < iMaxMapExtra; i++) {
     tinyxml2::XMLElement *extraElem = tempDoc->NewElement("mapExtra");
@@ -895,6 +906,9 @@ void IronfistXML::ReadTown(tinyxml2::XMLNode* root, int townIdx) {
 }
 
 void IronfistXML::ReadRoot(tinyxml2::XMLNode* root) {
+				for (int i = 0; i < 144; i++)
+								for (int j = 0; j < 144; j++)
+												PlayerVisitedObject[i][j] = 0;
   int campaignType;
   char hasPlayer[NUM_PLAYERS];
   std::vector<int> xmlArtifacts;
@@ -903,6 +917,8 @@ void IronfistXML::ReadRoot(tinyxml2::XMLNode* root) {
     tinyxml2::XMLElement *elem = child->ToElement();
     std::string name = elem->Name();
     int index = elem->IntAttribute("index"); // used for arrays
+				int xCoord = elem->IntAttribute("x");
+				int yCoord = elem->IntAttribute("y");
     int value = elem->IntAttribute("value"); // used for arrays
     if(name == "allowAIArmySharing") elem->QueryBoolText(&gpGame->allowAIArmySharing);
     else if(name == "mapWidth") elem->QueryIntText(&gpGame->map.width);
@@ -996,6 +1012,7 @@ void IronfistXML::ReadRoot(tinyxml2::XMLNode* root) {
         ScriptingInitFromString(std::string(script));
       }
     }
+				else if (name == "PlayerVisitedObject") PlayerVisitedObject[xCoord][yCoord] = value;
     else if(name == "mapExtra") ReadMapExtra(elem);
     else if(name == "playerData") ReadPlayerData(elem, index);
     else if(name == "town") ReadTown(elem, index);
