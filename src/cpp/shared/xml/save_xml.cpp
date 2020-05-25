@@ -175,8 +175,8 @@ tinyxml2::XMLError IronfistXML::Save(const char* fileName) {
 														pElement->SetAttribute("x", i);
 														pElement->SetAttribute("y", j);
 														pElement->SetAttribute("value", PlayerVisitedObject[i][j]);
+														pRoot->InsertEndChild(pElement);
 										}
-		pRoot->InsertEndChild(pElement);
 
   char playerAlive[NUM_PLAYERS];
   for (int i = 0; i < NUM_PLAYERS; ++i) {
@@ -444,6 +444,18 @@ tinyxml2::XMLError IronfistXML::Save(const char* fileName) {
     PushBack(tempDoc, heroElement, "flags", hro->flags);
     PushBack(tempDoc, heroElement, "isCaptain", hro->isCaptain);
     PushBack(tempDoc, heroElement, "field_E8", hro->field_E8);
+
+				PushBack(tempDoc, heroElement, "sex", (int)HeroExtras[hro->idx]->GetHeroSex());
+
+				for (int j = 0; j < 144; j++)
+								for (int k = 0; k < 144; k++)
+												if (HeroExtras[hro->idx]->HasVisitedArena(j, k))
+												{
+																tinyxml2::XMLElement* arenaElem = tempDoc->NewElement("arenaVisited");
+																arenaElem->SetAttribute("x", j);
+																arenaElem->SetAttribute("y", k);
+																heroElement->InsertEndChild(arenaElem);
+												}
 
     for (int j = 0; j < ELEMENTS_IN(hro->army.creatureTypes); j++) {
       tinyxml2::XMLElement *armyElem = tempDoc->NewElement("army");
@@ -860,6 +872,14 @@ void IronfistXML::ReadHero(tinyxml2::XMLNode* root, int heroIndex) {
       hro->artifacts[index] = elem->IntAttribute("id");
       hro->scrollSpell[index] = elem->IntAttribute("spell");
     }
+				else if (name == "sex") {
+								int sex;
+								elem->QueryIntText(&sex);
+								HeroExtras[heroIndex]->SetHeroSex((Sex)sex);
+				}
+				else if (name == "arenaVisited") {
+								HeroExtras[heroIndex]->VisitArena(elem->IntAttribute("x"), elem->IntAttribute("y"), true);
+				}
   }
 }
 
@@ -909,6 +929,12 @@ void IronfistXML::ReadRoot(tinyxml2::XMLNode* root) {
 				for (int i = 0; i < 144; i++)
 								for (int j = 0; j < 144; j++)
 												PlayerVisitedObject[i][j] = 0;
+				for (int i = 0; i < MAX_HEROES; i++)
+				{
+								for (int j = 0; j < 144; j++)
+												for (int k = 0; k < 144; k++)
+																HeroExtras[i]->VisitArena(j, k, false);
+				}
   int campaignType;
   char hasPlayer[NUM_PLAYERS];
   std::vector<int> xmlArtifacts;

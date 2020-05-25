@@ -115,6 +115,7 @@ void SetHeroSexes()
 {
 				for (int i = 0; i < MAX_HEROES; i++)
 				{
+								delete HeroExtras[i];
 								HeroExtraII* h = new HeroExtraII(gpGame->heroes[i]);
 								HeroExtras[i] = h;
 				}
