@@ -135,6 +135,7 @@
         <creature-attribute name="two-hex"/>
         <creature-attribute name="flies"/>
         <creature-attribute name="two-hex-attack"/>
+        <creature-attribute name="rebirth"/>
         <random-spawn minimum="7" maximum="12"/>
         <secondary-cost resource="mercury" cost="1"/>
     </creature>
@@ -367,7 +368,7 @@
         <damage minimum="2" maximum="3"/>
         <creature-attribute name="flies"/>
         <random-spawn minimum="20" maximum="30"/>
-    </creature> 
+    </creature>
    <creature id="74" name-singular="harpy" name-plural="harpies" icn="harpy.icn" frm="hrpy_frm.bin" projectile="" cost="200" fight-value="1500" fight-value-aux="20" growth="8" hp="15" faction="6" speed="4" attack="3" defense="3" shots="0" short-name="hrpy">
         <damage minimum="2" maximum="4"/>
         <creature-attribute name="flies"/>

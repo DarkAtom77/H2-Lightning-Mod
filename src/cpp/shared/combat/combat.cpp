@@ -429,6 +429,7 @@ void combatManager::SetupCombat(int arg0, int arg1, hero *h1, armyGroup *a1, tow
     gIronfistExtra.combat.stack.abilityNowAnimating.clear();
     gIronfistExtra.combat.stack.forceShieldHP.clear();
     gIronfistExtra.combat.spell.fireBombWalls.clear();
+				gIronfistExtra.combat.stack.doneRebirth.clear();
 }
 
 void combatManager::ResetRound() {

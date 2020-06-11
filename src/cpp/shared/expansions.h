@@ -6,6 +6,7 @@ class stackExtra {
         std::map<army*, std::map<std::string, int>> abilityCounter;
         std::map<army*, std::map<std::string, bool>> abilityNowAnimating;
         std::map<army*, int> forceShieldHP;
+								std::map<army*, bool> doneRebirth;
 };
 
 class spellExtra {

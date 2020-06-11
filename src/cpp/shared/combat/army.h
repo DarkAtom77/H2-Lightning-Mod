@@ -141,6 +141,7 @@ public:
   int GetPowBaseY();
   int RightX();
   int LeftX();
+		void Rebirth();
 private:
   void RevertChargingMoveAnimation();
   void SetChargingMoveAnimation(CHARGING_DIRECTION dir);

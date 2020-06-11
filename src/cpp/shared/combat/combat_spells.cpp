@@ -165,6 +165,52 @@ void combatManager::Resurrect(int spell, int hex, int spellpower) {
 	creat->creature.creature_flags &= ~DEAD;
 }
 
+void army::Rebirth()
+{
+				strcpy(gText, "resurect.82M");
+				SAMPLE2 res = LoadPlaySample(gText);
+				int x = this->MidX();
+				int y = this->MidY();
+				this->quantity = this->initialQuantity;
+				if (this->quantity <= 1) {
+								sprintf(gText, "%d %s rises from its ashes!", this->quantity, GetCreatureName(this->creatureIdx));
+				}
+				else {
+								sprintf(gText, "%d %s rise from their ashes!", this->quantity, GetCreaturePluralName(this->creatureIdx));
+				}
+				gpCombatManager->CombatMessage(gText, 1, 1, 0);
+				if (!gbNoShowCombat) {
+								icon *spellAnim = gpResourceManager->GetIcon("yinyang.icn");
+
+								for (int i = 0; i < RESURRECT_ANIMATION_LENGTH; i++) {
+												glTimers = (signed __int64)((double)KBTickCount() + gfCombatSpeedMod[giCombatSpeed] * 75.0);
+												IconToBitmap(spellAnim, gpWindowManager->screenBuffer, x, y, i, 1, 0, 0, 0x280u, 443, 0);
+
+												gpCombatManager->UpdateCombatArea();
+												if (this->animationType == ANIMATION_TYPE_DYING) {
+																if (i < RESURRECT_ANIMATION_LENGTH - RESURRECT_ANIMATION_NUM_STANDING_FRAMES) {
+																				int frameNo = this->frameInfo.animationLengths[ANIMATION_TYPE_DYING] - 1;
+																				if (frameNo >= RESURRECT_ANIMATION_LENGTH - RESURRECT_ANIMATION_NUM_STANDING_FRAMES - 1 - i) {
+																								frameNo = RESURRECT_ANIMATION_LENGTH - RESURRECT_ANIMATION_NUM_STANDING_FRAMES - 1 - i;
+																				}
+																				this->animationFrame = frameNo;
+																}
+																else {
+																				this->animationType = ANIMATION_TYPE_STANDING;
+																				this->animationFrame = 0;
+																}
+												}
+												gpCombatManager->DrawFrame(0, 0, 0, 0, 75, 1, 1);
+												DelayTil(&glTimers);
+								}
+								gpResourceManager->Dispose(spellAnim);
+				}
+				gpCombatManager->DrawFrame(1, 0, 0, 0, 75, 1, 1);
+				this->creature.creature_flags &= ~DEAD;
+				this->dead = 0;
+				WaitEndSample(res, res.sample);
+}
+
 float army::SpellCastWorkChance(int spell) {
   double chance = 1.0;
 		if ((this->creature.creature_flags & UNDEAD)

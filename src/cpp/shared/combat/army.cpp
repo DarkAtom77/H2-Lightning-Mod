@@ -2057,9 +2057,18 @@ void army::PowEffect(int animIdx, int a3, int a4, int a5) {
   gpCombatManager->anyStacksShouldVanish = 0;
   for (int i = 0; i < 2; i++) {
     for (int j = 0; gpCombatManager->numCreatures[i] > j; j++) {
-      if (gpCombatManager->creatures[i][j].dead)
-        gpCombatManager->creatures[i][j].ProcessDeath(0);
-    }
+								if (gpCombatManager->creatures[i][j].dead)
+								{
+												army* creat = &gpCombatManager->creatures[i][j];
+												if (CreatureHasAttribute(creat->creatureIdx, REBIRTH) && !gIronfistExtra.combat.stack.doneRebirth[creat])
+												{
+																gIronfistExtra.combat.stack.doneRebirth[creat] = true;
+																creat->Rebirth();
+												}
+												else
+																creat->ProcessDeath(0);
+								}
+				}
   }
   if (gpCombatManager->anyStacksShouldVanish)
     gpCombatManager->MakeCreaturesVanish();
@@ -2572,7 +2581,7 @@ int army::GetStraightLineDistanceToHex(int hex) {
   return distance;
 }
 
-void army::Disenchant(void)
+void army::Disenchant()
 {
 				this->CancelIndividualSpell(EFFECT_HASTE);
 				this->CancelIndividualSpell(EFFECT_BLESS);
