@@ -262,7 +262,6 @@
     <ClInclude Include="..\..\cpp\shared\stdafx.h" />
     <ClInclude Include="..\..\cpp\shared\town\town.h" />
     <ClInclude Include="..\..\cpp\shared\combat\army.h" />
-    <ClInclude Include="mouse.h" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\..\asm\heroes2.asm">

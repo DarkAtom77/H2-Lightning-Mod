@@ -572,9 +572,6 @@
     <ClInclude Include="..\..\cpp\shared\xml\save_xml.h">
       <Filter>Header Files\xml</Filter>
     </ClInclude>
-    <ClInclude Include="mouse.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\asm\heroes2_imports.inc">
