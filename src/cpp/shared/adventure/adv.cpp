@@ -593,7 +593,7 @@ void advManager::DoAIEvent(class mapCell * cell, class hero *hro, int locX, int 
 												this->DoAIEvent_orig(cell, hro, locX, locY);
 												break;
 								}
-								ScriptCallback("AfterLocationVisit", locationType, locX, locY);
+								ScriptCallback("OnAfterLocationVisit", locationType, locX, locY);
 								return;
 				}
 				CheckEndGame(0, 0);
