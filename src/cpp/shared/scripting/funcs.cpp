@@ -1287,6 +1287,81 @@ static int l_setTreasureChestArtifact(lua_State *L)
 				return 0;
 }
 
+static int l_getMagicGardenResource(lua_State *L)
+{
+    int x = (int)luaL_checknumber(L, 1);
+    int y = (int)luaL_checknumber(L, 2);
+    mapCell* cell = gpAdvManager->GetCell(x, y);
+    if ((cell->objType & 0x7F) == LOCATION_MAGIC_GARDEN)
+        lua_pushinteger(L, cell->extraInfo - 1);
+    else
+        lua_pushnil(L);
+    return 1;
+}
+
+static int l_setMagicGardenResource(lua_State *L)
+{
+    int x = (int)luaL_checknumber(L, 1);
+    int y = (int)luaL_checknumber(L, 2);
+    int resource = (int)luaL_checknumber(L, 3);
+    mapCell* cell = gpAdvManager->GetCell(x, y);
+    if ((cell->objType & 0x7F) == LOCATION_MAGIC_GARDEN)
+        cell->extraInfo = resource + 1;
+    return 0;
+}
+
+static int l_getWaterWheelGold(lua_State *L)
+{
+    int x = (int)luaL_checknumber(L, 1);
+    int y = (int)luaL_checknumber(L, 2);
+    mapCell* cell = gpAdvManager->GetCell(x, y);
+    if ((cell->objType & 0x7F) == LOCATION_WATERWHEEL)
+        lua_pushinteger(L, cell->extraInfo);
+    else
+        lua_pushnil(L);
+    return 1;
+}
+
+static int l_setWaterWheelGold(lua_State *L)
+{
+    int x = (int)luaL_checknumber(L, 1);
+    int y = (int)luaL_checknumber(L, 2);
+    int qty = (int)luaL_checknumber(L, 3);
+    mapCell* cell = gpAdvManager->GetCell(x, y);
+    if ((cell->objType & 0x7F) == LOCATION_WATERWHEEL)
+        cell->extraInfo = qty;
+    return 0;
+}
+
+static int l_getWindmillResource(lua_State *L)
+{
+    int x = (int)luaL_checknumber(L, 1);
+    int y = (int)luaL_checknumber(L, 2);
+    mapCell* cell = gpAdvManager->GetCell(x, y);
+    if ((cell->objType & 0x7F) == LOCATION_WINDMILL)
+        if (cell->extraInfo != 99)
+            lua_pushinteger(L, cell->extraInfo);
+        else
+            lua_pushinteger(L, -1);
+    else
+        lua_pushnil(L);
+    return 1;
+}
+
+static int l_setWindmillResource(lua_State *L)
+{
+    int x = (int)luaL_checknumber(L, 1);
+    int y = (int)luaL_checknumber(L, 2);
+    int resource = (int)luaL_checknumber(L, 3);
+    mapCell* cell = gpAdvManager->GetCell(x, y);
+    if ((cell->objType & 0x7F) == LOCATION_WINDMILL)
+        if (resource != -1)
+            cell->extraInfo = resource;
+        else
+            cell->extraInfo = 99;
+    return 0;
+}
+
 static int l_mapPutArmy(lua_State *L) {
   int x = (int)luaL_checknumber(L, 1);
   int y = (int)luaL_checknumber(L, 2);
@@ -1406,6 +1481,12 @@ static void register_map_funcs(lua_State *L) {
 		lua_register(L, "GetTreasureChestArtifact", l_getTreasureChestArtifact);
 		lua_register(L, "SetTreasureChestLevel", l_setTreasureChestLevel);
 		lua_register(L, "SetTreasureChestArtifact", l_setTreasureChestArtifact);
+  lua_register(L, "GetWindmillResource", l_getWindmillResource);
+  lua_register(L, "SetWindmillResource", l_setWindmillResource);
+  lua_register(L, "GetWaterWheelGold", l_getWaterWheelGold);
+  lua_register(L, "SetWaterWheelGold", l_setWaterWheelGold);
+  lua_register(L, "GetMagicGardenResource", l_getMagicGardenResource);
+  lua_register(L, "SetMagicGardenResource", l_setMagicGardenResource);
 }
 
 /************************************** Town *******************************************/
