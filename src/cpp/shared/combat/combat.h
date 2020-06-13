@@ -125,8 +125,8 @@ public:
   int heroSpellpowers[2];
   armyGroup *armies[2];
   int shadedHex;
-  char field_339D[2];
-  char field_339F[2];
+  char shouldDoHeroFidget1[2];
+  char shouldDoHeroFidget2[2];
   char field_33A1;
   char field_33A2;
   char field_33A3[2];
@@ -228,6 +228,7 @@ public:
 
   int FindResurrectArmyIndex(int side, int spell, int hex);
   void Resurrect(int spell, int hex, int spellpower);
+  void ResurrectScript(int spell, int hex, int creatures, int side);
   void SummonElemental(int, int);
 
   void CastSpell(int,int,int,int);
@@ -244,14 +245,19 @@ public:
   void ModifyDamageForArtifacts(long *, int, hero *, hero *);
   void RippleCreature(int side, int stackIdx, int a4);
   void DoBlast(int hexIdx, int spell);
+  int GetNextChainLightningTarget(army *, int);
   void ChainLightning(int targetHex, int power);
+  int ChainLightning(int hex, int baseDamage, int targets, int side);
   void CastMassSpell(int spell, signed int spellpower);
+  void CastMassSpellScript(int spell, int effect, int side);
   void MirrorImage(int hex);
+  bool MirrorImage(int sourceHex, int destinationHex, int lifespan);
   void SpellMessage(int spell, int hex);
   void ShowSpellMessage(int isCreatureAbility, int spell, army *stack);
   void BloodLustEffect(army *a2, int flagAdditions);
   void TurnToStone(army *stack);
   void ElementalStorm();
+  void ElementalStorm(int baseDamage, bool showText);
   void Armageddon();
   void Earthquake();
   void DefaultSpell(int hexIdx);
@@ -314,6 +320,7 @@ public:
   void PlasmaCone(int hexIdx);
   void FireBomb(int hexIdx);
   void ImplosionGrenade(int hexIdx);
+		void CastSpellScript(int spell, int hex, int effect, int extra, int side);
 };
 
 extern combatManager* gpCombatManager;

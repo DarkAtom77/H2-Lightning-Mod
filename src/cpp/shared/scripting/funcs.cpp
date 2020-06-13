@@ -1831,6 +1831,23 @@ static int l_setStackHp(lua_State *L) {
   return 0;
 }
 
+static int l_battleCastSpell(lua_State *L) {
+				int spell = (int)luaL_checknumber(L, 1);
+				int hex = (int)luaL_checknumber(L, 2);
+				int effect = (int)luaL_checknumber(L, 3);
+				int extra = (int)luaL_checknumber(L, 4);
+				int side = (int)luaL_checknumber(L, 5);
+				gpCombatManager->CastSpellScript(spell, hex, effect, extra, side);
+				return 0;
+}
+
+static int l_debugGetFields(lua_State *L) {
+    lua_pushinteger(L, gpCombatManager->field_3543);
+    lua_pushinteger(L, gpCombatManager->field_353F);
+    lua_pushinteger(L, 865);
+    return 3;
+}
+
 static void register_battle_funcs(lua_State *L) {
   lua_register(L, "BattleSummonCreature", l_battleSummonCreature);
   lua_register(L, "IsHexEmpty", l_isHexEmpty);
@@ -1860,6 +1877,7 @@ static void register_battle_funcs(lua_State *L) {
   lua_register(L, "SetStackShots", l_setStackShots);
   lua_register(L, "GetStackHp", l_getStackHp);
   lua_register(L, "SetStackHp", l_setStackHp);
+		lua_register(L, "BattleCastSpell", l_battleCastSpell);
 }
 
 /**************************************** Campaign *********************************************/

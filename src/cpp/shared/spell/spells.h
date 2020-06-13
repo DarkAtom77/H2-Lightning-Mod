@@ -6,6 +6,9 @@
 
 #pragma pack(push, 1)
 
+#define RESURRECT_ANIMATION_LENGTH 22
+#define RESURRECT_ANIMATION_NUM_STANDING_FRAMES 4
+
 struct SSpellInfo {
   char soundName[9];
   char level;

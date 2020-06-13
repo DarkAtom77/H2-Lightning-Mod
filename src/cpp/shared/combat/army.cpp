@@ -343,7 +343,8 @@ void army::DoAttack(int isRetaliation) {
   if (gpCombatManager->combatGrid[targetHex].unitOwner < 0 || gpCombatManager->combatGrid[targetHex].stackIdx < 0)
     primaryTarget = this;
   ScriptCallback("OnBattleMeleeAttack", deepbind<army*>(this), deepbind<army*>(primaryTarget), (bool)isRetaliation);
-
+		if (this->creature.creature_flags & DEAD || primaryTarget->creature.creature_flags & DEAD)
+				return;
   if(isRetaliation)
     gCloseMove = true;
 
@@ -2060,13 +2061,8 @@ void army::PowEffect(int animIdx, int a3, int a4, int a5) {
 								if (gpCombatManager->creatures[i][j].dead)
 								{
 												army* creat = &gpCombatManager->creatures[i][j];
-												if (CreatureHasAttribute(creat->creatureIdx, REBIRTH) && !gIronfistExtra.combat.stack.doneRebirth[creat])
-												{
-																gIronfistExtra.combat.stack.doneRebirth[creat] = true;
-																creat->Rebirth();
-												}
-												else
-																creat->ProcessDeath(0);
+												if (!CreatureHasAttribute(creat->creatureIdx, REBIRTH) || gIronfistExtra.combat.stack.doneRebirth[creat])
+                creat->ProcessDeath(0);
 								}
 				}
   }
@@ -2085,6 +2081,11 @@ void army::PowEffect(int animIdx, int a3, int a4, int a5) {
       creature->field_6 = 1;
       creature->mightBeIsAttacking = 0;
       creature->previousQuantity = -1;
+      if (gpCombatManager->creatures[i][j].dead && CreatureHasAttribute(creature->creatureIdx, REBIRTH) && !gIronfistExtra.combat.stack.doneRebirth[creature])
+      {
+          gIronfistExtra.combat.stack.doneRebirth[creature] = true;
+          creature->Rebirth();
+      }
     }
   }
   gpCombatManager->DrawFrame(1, 0, 0, 0, 75, 1, 1);

@@ -1992,7 +1992,7 @@ int GetShrineSpell(int x, int y)
 {
 				auto cell = gpAdvManager->GetCell(x, y);
 				const int locationType = cell->objType & 0x7F;
-				if (locationType != LOCATION_SHRINE_FIRST_ORDER && locationType != LOCATION_SHRINE_SECOND_ORDER && locationType != LOCATION_SHRINE_THIRD_ORDER || locationType == LOCATION_PYRAMID)
+				if (locationType != LOCATION_SHRINE_FIRST_ORDER && locationType != LOCATION_SHRINE_SECOND_ORDER && locationType != LOCATION_SHRINE_THIRD_ORDER && locationType != LOCATION_PYRAMID)
 								return -1;
 				return cell->extraInfo - 1;
 }

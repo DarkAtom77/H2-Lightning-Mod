@@ -21,13 +21,13 @@ hero_mt = {
 		elseif key == "experience" then
 			SetExperiencePoints(table, value)
 		elseif key == "attack" then
-			SetPrimarySkill(table, PRIMARY_SKILL_ATTACK)
+			SetPrimarySkill(table, PRIMARY_SKILL_ATTACK, value)
 		elseif key == "defense" then
-			SetPrimarySkill(table, PRIMARY_SKILL_DEFENSE)
+			SetPrimarySkill(table, PRIMARY_SKILL_DEFENSE, value)
 		elseif key == "spellpower" then
-			SetPrimarySkill(table, PRIMARY_SKILL_SPELLPOWER)
+			SetPrimarySkill(table, PRIMARY_SKILL_SPELLPOWER, value)
 		elseif key == "knowledge" then
-			SetPrimarySkill(table, PRIMARY_SKILL_KNOWLEDGE)
+			SetPrimarySkill(table, PRIMARY_SKILL_KNOWLEDGE, value)
 		elseif key == "faction" then
 			SetHeroFaction(table, value)
 		else
