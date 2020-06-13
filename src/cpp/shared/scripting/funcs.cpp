@@ -2041,15 +2041,11 @@ static int l_getUltimateArtifact(lua_State *L) {
 
 static int l_setUltimateArtifact(lua_State *L) {
 				int artifact = luaL_checknumber(L, 1);
+    int x = luaL_checknumber(L, 2);
+    int y = luaL_checknumber(L, 3);
+    gpGame->ultimateArtifactLocX = x;
+    gpGame->ultimateArtifactLocY = y;
 				gpGame->ultimateArtifactIdx = artifact;
-				return 0;
-}
-
-static int l_setUltimateArtifactPos(lua_State *L) {
-				int x = luaL_checknumber(L, 1);
-				int y = luaL_checknumber(L, 2);
-				gpGame->ultimateArtifactLocX = x;
-				gpGame->ultimateArtifactLocY = y;
 				return 0;
 }
 
@@ -2075,7 +2071,6 @@ static void register_uncategorized_funcs(lua_State *L) {
 		lua_register(L, "GetUltimateArtifactX", l_getUltimateArtifactX);
 		lua_register(L, "GetUltimateArtifactY", l_getUltimateArtifactY);
 		lua_register(L, "GetUltimateArtifact", l_getUltimateArtifact);
-		lua_register(L, "SetUltimateArtifactPos", l_setUltimateArtifactPos);
 		lua_register(L, "SetUltimateArtifact", l_setUltimateArtifact);
   lua_register(L, "ForceComputerPlayerChase", l_forceComputerPlayerChase);
 }
