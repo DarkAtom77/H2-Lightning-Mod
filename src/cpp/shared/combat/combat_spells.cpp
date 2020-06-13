@@ -2687,6 +2687,8 @@ void combatManager::CastSpell(int proto_spell, int hexIdx, int effect, int extra
 void combatManager::Resurrect(int spell, int hex, int creatures, int side) {
 
     int stackIdx = this->FindResurrectArmyIndex(side, (Spell)spell, hex);
+    if (stackIdx == -1)
+        return;
     army* creat = &this->creatures[side][stackIdx];
     int processedFirstHex = 0;
 
