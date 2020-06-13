@@ -228,7 +228,7 @@ public:
 
   int FindResurrectArmyIndex(int side, int spell, int hex);
   void Resurrect(int spell, int hex, int spellpower);
-  void ResurrectScript(int spell, int hex, int creatures, int side);
+  void Resurrect(int spell, int hex, int creatures, int side);
   void SummonElemental(int, int);
 
   void CastSpell(int,int,int,int);
@@ -249,7 +249,7 @@ public:
   void ChainLightning(int targetHex, int power);
   int ChainLightning(int hex, int baseDamage, int targets, int side);
   void CastMassSpell(int spell, signed int spellpower);
-  void CastMassSpellScript(int spell, int effect, int side);
+  void CastMassSpell(int spell, int effect, int side);
   void MirrorImage(int hex);
   bool MirrorImage(int sourceHex, int destinationHex, int lifespan);
   void SpellMessage(int spell, int hex);
@@ -320,7 +320,7 @@ public:
   void PlasmaCone(int hexIdx);
   void FireBomb(int hexIdx);
   void ImplosionGrenade(int hexIdx);
-		void CastSpellScript(int spell, int hex, int effect, int extra, int side);
+		void CastSpell(int spell, int hex, int effect, int extra, int side);
 };
 
 extern combatManager* gpCombatManager;

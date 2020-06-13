@@ -406,6 +406,13 @@ float army::CheckApplyDwarfSpellChance() {
 }
 
 void combatManager::CastSpell(int proto_spell, int hexIdx, int isCreatureAbility, int a5) {
+  
+    if (!isCreatureAbility)
+    {
+        auto res = ScriptCallbackResult<bool>("OnBattleCastSpell", proto_spell, hexIdx, a5, this->currentActionSide);
+        if (res.has_value() && res.value() == true)
+            return;
+    }
   hero* enemyHero = this->heroes[1 - this->currentActionSide];
   hero *currentHero = this->heroes[this->currentActionSide];
 
@@ -2171,8 +2178,11 @@ int combatManager::ViewSpells(int unused) {
   }
 }
 
-void combatManager::CastSpellScript(int proto_spell, int hexIdx, int effect, int extra, int side)
+void combatManager::CastSpell(int proto_spell, int hexIdx, int effect, int extra, int side)
 {
+    auto result = ScriptCallbackResult<bool>("OnBattleCastSpell", proto_spell, hexIdx, extra, side);
+    if (result.has_value() && result.value() == true)
+        return;
     if (this->field_F2B7) {
         this->ResetLimitCreature();
         if (ValidHex(this->field_F2BB) && this->combatGrid[this->field_F2BB].unitOwner >= 0) {
@@ -2404,7 +2414,7 @@ void combatManager::CastSpellScript(int proto_spell, int hexIdx, int effect, int
     case SPELL_MASS_SHIELD:
     case SPELL_MASS_DISENCHANT:
     case SPELL_MASS_FORCE_SHIELD:
-        this->CastMassSpellScript(proto_spell, effect, side);
+        this->CastMassSpell(proto_spell, effect, side);
         break;
     case SPELL_MIRROR_IMAGE:
         this->MirrorImage(hexIdx, extra, effect);
@@ -2448,7 +2458,7 @@ void combatManager::CastSpellScript(int proto_spell, int hexIdx, int effect, int
     case SPELL_RESURRECT:
     case SPELL_RESURRECT_TRUE:
     case SPELL_ANIMATE_DEAD:
-        this->ResurrectScript(proto_spell, hexIdx, effect, side);
+        this->Resurrect(proto_spell, hexIdx, effect, side);
         break;
     case SPELL_CURE:
         stack->SpellEffect(gsSpellInfo[SPELL_CURE].creatureEffectAnimationIdx, 0, 0);
@@ -2674,7 +2684,7 @@ void combatManager::CastSpellScript(int proto_spell, int hexIdx, int effect, int
     this->CheckChangeSelector();
 }
 
-void combatManager::ResurrectScript(int spell, int hex, int creatures, int side) {
+void combatManager::Resurrect(int spell, int hex, int creatures, int side) {
 
     int stackIdx = this->FindResurrectArmyIndex(side, (Spell)spell, hex);
     army* creat = &this->creatures[side][stackIdx];
@@ -2793,7 +2803,7 @@ void combatManager::ResurrectScript(int spell, int hex, int creatures, int side)
     creat->dead = 0;
 }
 
-void combatManager::CastMassSpellScript(int spell, int effect, int side) {
+void combatManager::CastMassSpell(int spell, int effect, int side) {
     bool isDamageSpell = false;
     gpWindowManager->cycleColors = 0;
 

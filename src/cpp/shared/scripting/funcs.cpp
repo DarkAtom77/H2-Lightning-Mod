@@ -1837,7 +1837,7 @@ static int l_battleCastSpell(lua_State *L) {
 				int effect = (int)luaL_checknumber(L, 3);
 				int extra = (int)luaL_checknumber(L, 4);
 				int side = (int)luaL_checknumber(L, 5);
-				gpCombatManager->CastSpellScript(spell, hex, effect, extra, side);
+				gpCombatManager->CastSpell(spell, hex, effect, extra, side);
 				return 0;
 }
 
