@@ -483,7 +483,7 @@ void combatManager::CastSpell(int proto_spell, int hexIdx, int isCreatureAbility
     stack = NULL;
   }
   if (!isCreatureAbility)
-    *(&this->field_353F + this->currentActionSide) = 1;
+     this->heroCastThisTurn[this->currentActionSide] = 1;
   if (isCreatureAbility) {
     spellpower = 3;
   } else {
@@ -947,6 +947,8 @@ void combatManager::CastSpell(int proto_spell, int hexIdx, int isCreatureAbility
   }
   WaitEndSample(res, res.sample);
   this->CheckChangeSelector();
+  if (!isCreatureAbility)
+      ScriptCallback("OnAfterBattleCastSpell", proto_spell, hexIdx, a5, this->currentActionSide);
 }
 
 void __thiscall combatManager::ModifyDamageForArtifacts(long* damage, int spell, hero* thisHero, hero * enemyHero)
@@ -2682,6 +2684,7 @@ void combatManager::CastSpell(int proto_spell, int hexIdx, int effect, int extra
     this->DrawFrame(1, 0, 0, 0, 75, 1, 1);
     WaitEndSample(res, res.sample);
     this->CheckChangeSelector();
+    ScriptCallback("OnAfterBattleCastSpell", proto_spell, hexIdx, extra, side);
 }
 
 void combatManager::Resurrect(int spell, int hex, int creatures, int side) {

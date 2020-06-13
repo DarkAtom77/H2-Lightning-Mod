@@ -149,8 +149,7 @@ public:
   int involvedInBadMorale[2];
   int playerID[2];
   int experienceForDefeating[2];
-  int field_353F;
-  int field_3543;
+  int heroCastThisTurn[2];
   int numCreatures[2];
   army creatures[2][MAX_STACKS];
   int otherCurrentSideThing; // activeStackOwner

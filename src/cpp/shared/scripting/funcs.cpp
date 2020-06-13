@@ -1841,11 +1841,22 @@ static int l_battleCastSpell(lua_State *L) {
 				return 0;
 }
 
-static int l_debugGetFields(lua_State *L) {
-    lua_pushinteger(L, gpCombatManager->field_3543);
-    lua_pushinteger(L, gpCombatManager->field_353F);
-    lua_pushinteger(L, 865);
-    return 3;
+static int l_getHeroCastThisTurn(lua_State *L)
+{
+    int side = (int)luaL_checknumber(L, 1);
+    lua_pushinteger(L, gpCombatManager->heroCastThisTurn[side]);
+    return 1;
+}
+
+static int l_setHeroCastThisTurn(lua_State *L)
+{
+    int side = (int)luaL_checknumber(L, 1);
+    bool yesno = CheckBoolean(L, 2);
+    if (yesno)
+        gpCombatManager->heroCastThisTurn[side] = 1;
+    else
+        gpCombatManager->heroCastThisTurn[side] = 0;
+    return 0;
 }
 
 static void register_battle_funcs(lua_State *L) {
@@ -1878,6 +1889,8 @@ static void register_battle_funcs(lua_State *L) {
   lua_register(L, "GetStackHp", l_getStackHp);
   lua_register(L, "SetStackHp", l_setStackHp);
 		lua_register(L, "BattleCastSpell", l_battleCastSpell);
+  lua_register(L, "GetHeroCastThisTurn", l_getHeroCastThisTurn);
+  lua_register(L, "SetHeroCastThisTurn", l_setHeroCastThisTurn);
 }
 
 /**************************************** Campaign *********************************************/
