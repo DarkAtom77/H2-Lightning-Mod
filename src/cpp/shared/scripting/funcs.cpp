@@ -1573,6 +1573,29 @@ static int l_setDaemonCaveType(lua_State *L)
     //5: pay 2500 gold or die
 }
 
+static int l_getJailHero(lua_State *L)
+{
+    int x = (int)luaL_checknumber(L, 1);
+    int y = (int)luaL_checknumber(L, 2);
+    mapCell* cell = gpAdvManager->GetCell(x, y);
+    if ((cell->objType & 0x7F) == LOCATION_JAIL)
+        deepbound_push(L, deepbind<hero*>(&gpGame->heroes[cell->extraInfo]));
+    else
+        lua_pushnil(L);
+    return 1;
+}
+
+static int l_setJailHero(lua_State *L)
+{
+    int x = (int)luaL_checknumber(L, 1);
+    int y = (int)luaL_checknumber(L, 2);
+    hero* hro = (hero*)GetPointerFromLuaClassTable(L, StackIndexOfArg(3, 3));
+    mapCell* cell = gpAdvManager->GetCell(x, y);
+    if ((cell->objType & 0x7F) == LOCATION_JAIL)
+        cell->extraInfo = hro->idx;
+    return 0;
+}
+
 static int l_mapPutArmy(lua_State *L) {
   int x = (int)luaL_checknumber(L, 1);
   int y = (int)luaL_checknumber(L, 2);
@@ -1712,6 +1735,8 @@ static void register_map_funcs(lua_State *L) {
   lua_register(L, "SetGraveyardVisited", l_setGraveyardVisited);
   lua_register(L, "GetDaemonCaveType", l_getDaemonCaveType);
   lua_register(L, "SetDaemonCaveType", l_setDaemonCaveType);
+  lua_register(L, "GetJailHero", l_getJailHero);
+  lua_register(L, "SetJailHero", l_setJailHero);
 }
 
 /************************************** Town *******************************************/
