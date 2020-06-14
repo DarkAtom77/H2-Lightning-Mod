@@ -1362,6 +1362,93 @@ static int l_setWindmillResource(lua_State *L)
     return 0;
 }
 
+static int l_getSeaChestTreasure(lua_State *L)
+{
+    int x = (int)luaL_checknumber(L, 1);
+    int y = (int)luaL_checknumber(L, 2);
+    mapCell* cell = gpAdvManager->GetCell(x, y);
+    if ((cell->objType & 0x7F) == LOCATION_SEA_CHEST)
+    {
+        if (cell->extraInfo & 0x100)
+            lua_pushinteger(L, cell->extraInfo);
+        else if (cell->extraInfo != 0)
+            lua_pushinteger(L, -2);
+        else
+            lua_pushinteger(L, -1);
+    }
+    else
+        lua_pushnil(L);
+    return 1;
+}
+
+static int l_setSeaChestTreasure(lua_State *L)
+{
+    int x = (int)luaL_checknumber(L, 1);
+    int y = (int)luaL_checknumber(L, 2);
+    int treasure = (int)luaL_checknumber(L, 3);
+    mapCell* cell = gpAdvManager->GetCell(x, y);
+    if ((cell->objType & 0x7F) == LOCATION_SEA_CHEST)
+    {
+        if (treasure == -1)
+            cell->extraInfo = 0;
+        else if (treasure >= 0)
+            cell->extraInfo = treasure | 0x100;
+        else
+            cell->extraInfo = 1;
+    }
+    return 0;
+}
+
+static int l_getFlotsamLevel(lua_State *L)
+{
+    int x = (int)luaL_checknumber(L, 1);
+    int y = (int)luaL_checknumber(L, 2);
+    mapCell* cell = gpAdvManager->GetCell(x, y);
+    if ((cell->objType & 0x7F) == LOCATION_FLOTSAM)
+        lua_pushinteger(L, cell->extraInfo);
+    else
+        lua_pushnil(L);
+    return 1;
+    //0: empty
+    //1: 5 wood
+    //2: 5 wood, 200 gold
+    //3: 10 wood, 500 gold
+}
+
+static int l_setFlotsamLevel(lua_State *L)
+{
+    int x = (int)luaL_checknumber(L, 1);
+    int y = (int)luaL_checknumber(L, 2);
+    int level = (int)luaL_checknumber(L, 3);
+    mapCell* cell = gpAdvManager->GetCell(x, y);
+    if ((cell->objType & 0x7F) == LOCATION_FLOTSAM)
+            cell->extraInfo = level;
+    return 0;
+}
+
+static int l_getShipwreckSurvivorArtifact(lua_State *L)
+{
+    int x = (int)luaL_checknumber(L, 1);
+    int y = (int)luaL_checknumber(L, 2);
+    mapCell* cell = gpAdvManager->GetCell(x, y);
+    if ((cell->objType & 0x7F) == LOCATION_SHIPWRECK_SURVIVOR)
+        lua_pushinteger(L, cell->extraInfo);
+    else
+        lua_pushnil(L);
+    return 1;
+}
+
+static int l_setShipwreckSurvivorArtifact(lua_State *L)
+{
+    int x = (int)luaL_checknumber(L, 1);
+    int y = (int)luaL_checknumber(L, 2);
+    int artifact = (int)luaL_checknumber(L, 3);
+    mapCell* cell = gpAdvManager->GetCell(x, y);
+    if ((cell->objType & 0x7F) == LOCATION_SHIPWRECK_SURVIVOR)
+        cell->extraInfo = artifact;
+    return 0;
+}
+
 static int l_mapPutArmy(lua_State *L) {
   int x = (int)luaL_checknumber(L, 1);
   int y = (int)luaL_checknumber(L, 2);
@@ -1487,6 +1574,12 @@ static void register_map_funcs(lua_State *L) {
   lua_register(L, "SetWaterWheelGold", l_setWaterWheelGold);
   lua_register(L, "GetMagicGardenResource", l_getMagicGardenResource);
   lua_register(L, "SetMagicGardenResource", l_setMagicGardenResource);
+  lua_register(L, "GetSeaChestTreasure", l_getSeaChestTreasure);
+  lua_register(L, "SetSeaChestTreasure", l_setSeaChestTreasure);
+  lua_register(L, "GetFlotsamLevel", l_getFlotsamLevel);
+  lua_register(L, "SetFlotsamLevel", l_setFlotsamLevel);
+  lua_register(L, "GetShipwreckSurvivorArtifact", l_getShipwreckSurvivorArtifact);
+  lua_register(L, "SetShipwreckSurvivorArtifact", l_setShipwreckSurvivorArtifact);
 }
 
 /************************************** Town *******************************************/
