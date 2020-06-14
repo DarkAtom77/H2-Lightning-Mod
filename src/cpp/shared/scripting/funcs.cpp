@@ -1509,6 +1509,66 @@ static int l_setShipwreckType(lua_State *L)
     //anything else: 2000 gold + 1 random artifact
 }
 
+static int l_getGraveyardVisited(lua_State *L)
+{
+    int x = (int)luaL_checknumber(L, 1);
+    int y = (int)luaL_checknumber(L, 2);
+    mapCell* cell = gpAdvManager->GetCell(x, y);
+    if ((cell->objType & 0x7F) == LOCATION_GRAVEYARD)
+    {
+        if (cell->extraInfo == 1)
+            lua_pushboolean(L, true);
+        else
+            lua_pushboolean(L, false);
+    }
+    else
+        lua_pushnil(L);
+    return 1;
+}
+
+static int l_setGraveyardVisited(lua_State *L)
+{
+    int x = (int)luaL_checknumber(L, 1);
+    int y = (int)luaL_checknumber(L, 2);
+    bool yesno = CheckBoolean(L, 3);
+    mapCell* cell = gpAdvManager->GetCell(x, y);
+    if ((cell->objType & 0x7F) == LOCATION_GRAVEYARD)
+        if (yesno)
+            cell->extraInfo = 1;
+        else
+            cell->extraInfo = 4;
+    //naturally, the game initializes the object with 2, 3 or 4, but they seem to make no difference
+    return 0;
+}
+
+static int l_getDaemonCaveType(lua_State *L)
+{
+    int x = (int)luaL_checknumber(L, 1);
+    int y = (int)luaL_checknumber(L, 2);
+    mapCell* cell = gpAdvManager->GetCell(x, y);
+    if ((cell->objType & 0x7F) == LOCATION_DAEMON_CAVE)
+        lua_pushinteger(L, cell->extraInfo);
+    else
+        lua_pushnil(L);
+    return 1;
+}
+
+static int l_setDaemonCaveType(lua_State *L)
+{
+    int x = (int)luaL_checknumber(L, 1);
+    int y = (int)luaL_checknumber(L, 2);
+    int type = (int)luaL_checknumber(L, 3);
+    mapCell* cell = gpAdvManager->GetCell(x, y);
+    if ((cell->objType & 0x7F) == LOCATION_DAEMON_CAVE)
+        cell->extraInfo = type;
+    return 0;
+    //1: empty
+    //2: 1000 experience
+    //3: 1000 experience + 1 random artifact (uses 4 if backpack is full)
+    //4: 1000 experience + 2500 gold
+    //5: pay 2500 gold or die
+}
+
 static int l_mapPutArmy(lua_State *L) {
   int x = (int)luaL_checknumber(L, 1);
   int y = (int)luaL_checknumber(L, 2);
@@ -1644,6 +1704,10 @@ static void register_map_funcs(lua_State *L) {
   lua_register(L, "SetDerelictShipVisited", l_setDerelictShipVisited);
   lua_register(L, "GetShipwreckType", l_getShipwreckType);
   lua_register(L, "SetShipwreckType", l_setShipwreckType);
+  lua_register(L, "GetGraveyardVisited", l_getGraveyardVisited);
+  lua_register(L, "SetGraveyardVisited", l_setGraveyardVisited);
+  lua_register(L, "GetDaemonCaveType", l_getDaemonCaveType);
+  lua_register(L, "SetDaemonCaveType", l_setDaemonCaveType);
 }
 
 /************************************** Town *******************************************/
