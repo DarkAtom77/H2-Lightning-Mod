@@ -1449,6 +1449,66 @@ static int l_setShipwreckSurvivorArtifact(lua_State *L)
     return 0;
 }
 
+static int l_getDerelictShipVisited(lua_State *L)
+{
+    int x = (int)luaL_checknumber(L, 1);
+    int y = (int)luaL_checknumber(L, 2);
+    mapCell* cell = gpAdvManager->GetCell(x, y);
+    if ((cell->objType & 0x7F) == LOCATION_DERELICT_SHIP)
+    {
+        if (cell->extraInfo == 1)
+            lua_pushboolean(L, true);
+        else
+            lua_pushboolean(L, false);
+    }
+    else
+        lua_pushnil(L);
+    return 1;
+}
+
+static int l_setDerelictShipVisited(lua_State *L)
+{
+    int x = (int)luaL_checknumber(L, 1);
+    int y = (int)luaL_checknumber(L, 2);
+    bool yesno = CheckBoolean(L, 3);
+    mapCell* cell = gpAdvManager->GetCell(x, y);
+    if ((cell->objType & 0x7F) == LOCATION_DERELICT_SHIP)
+        if (yesno)
+            cell->extraInfo = 1;
+        else
+            cell->extraInfo = 4;
+    //naturally, the game initializes the object with 3, 4 or 5, but they seem to make no difference
+    return 0;
+}
+
+static int l_getShipwreckType(lua_State *L)
+{
+    int x = (int)luaL_checknumber(L, 1);
+    int y = (int)luaL_checknumber(L, 2);
+    mapCell* cell = gpAdvManager->GetCell(x, y);
+    if ((cell->objType & 0x7F) == LOCATION_SHIPWRECK)
+        lua_pushinteger(L, cell->extraInfo);
+    else
+        lua_pushnil(L);
+    return 1;
+}
+
+static int l_setShipwreckType(lua_State *L)
+{
+    int x = (int)luaL_checknumber(L, 1);
+    int y = (int)luaL_checknumber(L, 2);
+    int type = (int)luaL_checknumber(L, 3);
+    mapCell* cell = gpAdvManager->GetCell(x, y);
+    if ((cell->objType & 0x7F) == LOCATION_SHIPWRECK)
+        cell->extraInfo = type;
+    return 0;
+    //1: empty
+    //2: 1000 gold
+    //3: 2000 gold
+    //4: 5000 gold
+    //anything else: 2000 gold + 1 random artifact
+}
+
 static int l_mapPutArmy(lua_State *L) {
   int x = (int)luaL_checknumber(L, 1);
   int y = (int)luaL_checknumber(L, 2);
@@ -1580,6 +1640,10 @@ static void register_map_funcs(lua_State *L) {
   lua_register(L, "SetFlotsamLevel", l_setFlotsamLevel);
   lua_register(L, "GetShipwreckSurvivorArtifact", l_getShipwreckSurvivorArtifact);
   lua_register(L, "SetShipwreckSurvivorArtifact", l_setShipwreckSurvivorArtifact);
+  lua_register(L, "GetDerelictShipVisited", l_getDerelictShipVisited);
+  lua_register(L, "SetDerelictShipVisited", l_setDerelictShipVisited);
+  lua_register(L, "GetShipwreckType", l_getShipwreckType);
+  lua_register(L, "SetShipwreckType", l_setShipwreckType);
 }
 
 /************************************** Town *******************************************/
