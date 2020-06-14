@@ -849,8 +849,12 @@ static int l_setSignText(lua_State *L)
 				int y = (int)luaL_checknumber(L, 2);
 				const char* text = (char*)luaL_checkstring(L, 3);
 				mapCell* loc = gpAdvManager->GetCell(x, y);
-				SignExtra* sign = (SignExtra *)ppMapExtra[loc->extraInfo];
+    SignExtra* sign = (SignExtra*)ALLOC(sizeof *sign + strlen(text));
+    SignExtra* signOld = (SignExtra *)ppMapExtra[loc->extraInfo];
+    memcpy(sign, signOld, sizeof *sign);
+    FREE(signOld);
 				strcpy(&sign->message, text);
+    ppMapExtra[loc->extraInfo] = sign;
 				return 0;
 }
 
