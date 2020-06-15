@@ -30,6 +30,8 @@ hero_mt = {
 			SetPrimarySkill(table, PRIMARY_SKILL_KNOWLEDGE, value)
 		elseif key == "faction" then
 			SetHeroFaction(table, value)
+		elseif key == "portrait" then
+			SetHeroPortrait(table, value)
 		else
 			MessageBox("This field is not supported")
 		end
@@ -77,6 +79,10 @@ hero_mt = {
 			return HeroSkillTable(t)
 		elseif k == "artifacts" then
 			return HeroArtifactTable(t)
+		elseif k == "number" then
+			return GetHeroNumber(t)
+		elseif k == "portrait" then
+			return GetHeroPortrait(t)
 		else
 			return MethodTable(t, k, "hero")
 		end

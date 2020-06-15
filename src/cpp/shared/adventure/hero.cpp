@@ -408,7 +408,7 @@ bool HeroExtraII::HasVisitedArena(int x, int y)
 }
 
 void hero::CheckLevel() {
-		ScriptCallback("OnHeroLevelUp", this->heroID);
+		ScriptCallback("OnHeroLevelUp", deepbind<hero*>(this));
 		//Unfortunately, this gets called at the start of the map as well
 		//But not on the first loading of a map
   if(this->ownerIdx == -1 || !gbHumanPlayer[this->ownerIdx] || this->factionID != FACTION_CYBORG) {

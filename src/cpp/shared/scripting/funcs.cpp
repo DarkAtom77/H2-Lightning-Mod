@@ -490,6 +490,13 @@ static int l_getHeroOwner(lua_State *L) {
   return 1;
 }
 
+static int l_getHeroNumber(lua_State *L)
+{
+    hero *hro = (hero*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 1));
+    lua_pushinteger(L, hro->idx);
+    return 1;
+}
+
 static int l_grantArtifact(lua_State *L) {
   hero* hro = (hero*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 2));
   int art = (int)luaL_checknumber(L, 2);
@@ -695,6 +702,21 @@ static int l_setHeroFaction(lua_State *L) {
   return 0;
 }
 
+static int l_getHeroPortrait(lua_State *L)
+{
+    hero* hro = (hero*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 1));
+    lua_pushinteger(L, hro->heroID);
+    return 1;
+}
+
+static int l_setHeroPortrait(lua_State *L)
+{
+    hero* hro = (hero*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 2));
+    int id = (int)luaL_checknumber(L, 2);
+    hro->heroID = id;
+    return 0;
+}
+
 static void register_hero_funcs(lua_State *L) {
   lua_register(L, "GetCurrentHero", l_getCurrentHero);
   lua_register(L, "GrantSpell", l_grantSpell);
@@ -708,6 +730,7 @@ static void register_hero_funcs(lua_State *L) {
   lua_register(L, "SetHeroName", l_setHeroName);
   lua_register(L, "GetHeroInPool", l_getHeroInPool);
   lua_register(L, "GetHeroOwner", l_getHeroOwner);
+  lua_register(L, "GetHeroNumber", l_getHeroNumber);
   lua_register(L, "GrantArtifact", l_grantArtifact);
   lua_register(L, "HasArtifact", l_hasArtifact);
 		lua_register(L, "GetArtifactAtIndex", l_getArtifactAtIndex);
@@ -741,6 +764,8 @@ static void register_hero_funcs(lua_State *L) {
 		lua_register(L, "SetHeroSex", l_setHeroSex);
   lua_register(L, "GetHeroFaction", l_getHeroFaction);
   lua_register(L, "SetHeroFaction", l_setHeroFaction);
+  lua_register(L, "GetHeroPortrait", l_getHeroPortrait);
+  lua_register(L, "SetHeroPortrait", l_setHeroPortrait);
 }
 
 /************************************** Map *******************************************/
