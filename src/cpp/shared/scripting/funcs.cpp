@@ -1621,6 +1621,100 @@ static int l_setJailHero(lua_State *L)
     return 0;
 }
 
+static int l_getSphinxData(lua_State *L)
+{
+    int x = (int)luaL_checknumber(L, 1);
+    int y = (int)luaL_checknumber(L, 2);
+    mapCell* cell = gpAdvManager->GetCell(x, y);
+    if ((cell->objType & 0x7F) != LOCATION_SPHINX)
+        lua_pushnil(L);
+    else
+    {
+        SphinxExtra* sphinx = (SphinxExtra*)ppMapExtra[cell->extraInfo];
+        lua_newtable(L);
+        lua_pushstring(L, "visited");
+        lua_pushboolean(L, !sphinx->unclaimed);
+        lua_settable(L, -3);
+        lua_pushstring(L, "resourceReward");
+        lua_newtable(L);
+        for (int i = 0; i < NUM_RESOURCES; i++)
+        {
+            lua_pushinteger(L, i);
+            lua_pushinteger(L, sphinx->resourceReward[i]);
+            lua_settable(L, -3);
+        }
+        lua_settable(L, -3);
+        lua_pushstring(L, "artifactReward");
+        lua_pushinteger(L, sphinx->artifactReward);
+        lua_settable(L, -3);
+        lua_pushstring(L, "answers");
+        lua_newtable(L);
+        for (int i = 0; i < sphinx->numAnswers; i++)
+        {
+            lua_pushinteger(L, i + 1);
+            lua_pushstring(L, sphinx->answers[i]);
+            lua_settable(L, -3);
+        }
+        lua_settable(L, -3);
+        lua_pushstring(L, "riddle");
+        lua_pushstring(L, &sphinx->riddle);
+        lua_settable(L, -3);
+    }
+    return 1;
+}
+
+static int l_setSphinxData(lua_State *L)
+{
+    int x = (int)luaL_checknumber(L, 1);
+    int y = (int)luaL_checknumber(L, 2);
+    mapCell* cell = gpAdvManager->GetCell(x, y);
+    if ((cell->objType & 0x7F) != LOCATION_SPHINX)
+        return 0;
+    std::string riddle;
+    lua_pushstring(L, "riddle");
+    lua_gettable(L, 3);
+    riddle = luaL_checkstring(L, -1);
+    lua_pop(L, 1);
+    SphinxExtra* sphinx = (SphinxExtra*)ALLOC(sizeof(SphinxExtra) + riddle.size());
+    strcpy(&sphinx->riddle, riddle.c_str());
+    lua_pushstring(L, "visited");
+    lua_gettable(L, 3);
+    sphinx->unclaimed = !CheckBoolean(L, -1);
+    lua_pop(L, 1);
+    lua_pushstring(L, "resourceReward");
+    lua_gettable(L, 3);
+    for (int i = 0; i < NUM_RESOURCES; i++)
+    {
+        lua_pushinteger(L, i);
+        lua_gettable(L, -2);
+        sphinx->resourceReward[i] = luaL_checknumber(L, -1);
+        lua_pop(L, 1);
+    }
+    lua_pop(L, 1);
+    lua_pushstring(L, "artifactReward");
+    lua_gettable(L, 3);
+    sphinx->artifactReward = luaL_checknumber(L, -1);
+    lua_pop(L, 1);
+    lua_pushstring(L, "answers");
+    lua_gettable(L, 3);
+    for (sphinx->numAnswers = 0; sphinx->numAnswers < 8; sphinx->numAnswers++)
+    {
+        lua_pushinteger(L, sphinx->numAnswers + 1);
+        lua_gettable(L, -2);
+        if (lua_isnil(L, -1))
+        {
+            lua_pop(L, 1);
+            break;
+        }
+        strncpy_s(sphinx->answers[sphinx->numAnswers], luaL_checkstring(L, -1), _TRUNCATE);
+        lua_pop(L, 1);
+    }
+    lua_pop(L, 1);
+    FREE(ppMapExtra[cell->extraInfo]);
+    ppMapExtra[cell->extraInfo] = sphinx;
+    return 0;
+}
+
 static int l_mapPutArmy(lua_State *L) {
   int x = (int)luaL_checknumber(L, 1);
   int y = (int)luaL_checknumber(L, 2);
@@ -1762,6 +1856,8 @@ static void register_map_funcs(lua_State *L) {
   lua_register(L, "SetDaemonCaveType", l_setDaemonCaveType);
   lua_register(L, "GetJailHero", l_getJailHero);
   lua_register(L, "SetJailHero", l_setJailHero);
+  lua_register(L, "GetSphinxData", l_getSphinxData);
+  lua_register(L, "SetSphinxData", l_setSphinxData);
 }
 
 /************************************** Town *******************************************/
