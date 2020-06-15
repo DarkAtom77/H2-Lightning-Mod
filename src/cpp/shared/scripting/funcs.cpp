@@ -468,7 +468,7 @@ static int l_getHeroName(lua_State *L) {
 static int l_setHeroName(lua_State *L) {
   hero* hro = (hero*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 2));
   lua_pushstring(L, hro->name);
-  strncpy(hro->name, luaL_checkstring(L, 2), ELEMENTS_IN(hro->name));
+  strncpy_s(hro->name, luaL_checkstring(L, 2), _TRUNCATE);
   return 0;
 }
 
