@@ -580,7 +580,7 @@ void advManager::DoAIEvent(class mapCell * cell, class hero *hro, int locX, int 
 																this->HandleArena(cell, locationType, hro, &res2, locX, locY);
 																break;
 												default:
-																this->DoEvent_orig(cell, locX, locY);
+																this->DoAIEvent_orig(cell, hro, locX, locY);
 																break;
 												}
 												break;
