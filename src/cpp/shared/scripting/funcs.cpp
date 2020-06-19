@@ -1670,12 +1670,12 @@ static int l_setSphinxData(lua_State *L)
     mapCell* cell = gpAdvManager->GetCell(x, y);
     if ((cell->objType & 0x7F) != LOCATION_SPHINX)
         return 0;
-    std::string riddle;
     lua_pushstring(L, "riddle");
     lua_gettable(L, 3);
-    riddle = luaL_checkstring(L, -1);
+    std::string riddle = luaL_checkstring(L, -1);
     lua_pop(L, 1);
-    SphinxExtra* sphinx = (SphinxExtra*)ALLOC(sizeof(SphinxExtra) + riddle.size());
+    SphinxExtra* sphinx = (SphinxExtra*)ALLOC(sizeof *sphinx + riddle.length());
+    memset(sphinx, 0, sizeof *sphinx + riddle.length());
     strcpy(&sphinx->riddle, riddle.c_str());
     lua_pushstring(L, "visited");
     lua_gettable(L, 3);
@@ -1712,6 +1712,262 @@ static int l_setSphinxData(lua_State *L)
     lua_pop(L, 1);
     FREE(ppMapExtra[cell->extraInfo]);
     ppMapExtra[cell->extraInfo] = sphinx;
+    return 0;
+}
+
+static int l_getMapEventId(lua_State *L)
+{
+    int x = (int)luaL_checknumber(L, 1);
+    int y = (int)luaL_checknumber(L, 2);
+    int id = -1;
+    for (int i = 0; i < gpGame->numMapEvents; i++)
+    {
+        EventExtra* ev = (EventExtra*)ppMapExtra[gpGame->mapEventIndices[i]];
+        if (x == ev->x && y == ev->y)
+        {
+            id = i;
+            break;
+        }
+    }
+    lua_pushinteger(L, id);
+    return 1;
+}
+
+static int l_getMapEventData(lua_State *L)
+{
+    int id = (int)luaL_checknumber(L, 1);
+    if (id < 0 || id > gpGame->numMapEvents)
+    {
+        lua_pushnil(L);
+        return 1;
+    }
+    EventExtra* evt = (EventExtra*)ppMapExtra[gpGame->mapEventIndices[id]];
+    lua_newtable(L);
+    lua_pushstring(L, "visited");
+    lua_pushboolean(L, !evt->unclaimed);
+    lua_settable(L, -3);
+    lua_pushstring(L, "resourceReward");
+    lua_newtable(L);
+    for (int i = 0; i < NUM_RESOURCES; i++)
+    {
+        lua_pushinteger(L, i);
+        lua_pushinteger(L, evt->resourceReward[i]);
+        lua_settable(L, -3);
+    }
+    lua_settable(L, -3);
+    lua_pushstring(L, "artifactReward");
+    lua_pushinteger(L, evt->artifactReward);
+    lua_settable(L, -3);
+    lua_pushstring(L, "colorCanSee");
+    lua_newtable(L);
+    for (int i = 0; i < NUM_PLAYERS; i++)
+    {
+        lua_pushinteger(L, i);
+        lua_pushboolean(L, evt->colorCanSee[i]);
+        lua_settable(L, -3);
+    }
+    lua_settable(L, -3);
+    lua_pushstring(L, "x");
+    lua_pushinteger(L, evt->x);
+    lua_settable(L, -3);
+    lua_pushstring(L, "y");
+    lua_pushinteger(L, evt->y);
+    lua_settable(L, -3);
+    lua_pushstring(L, "cancelAfterFirstVisit");
+    lua_pushboolean(L, evt->cancelAfterFirstVisit);
+    lua_settable(L, -3);
+    lua_pushstring(L, "allowComputerToGetEvent");
+    lua_pushboolean(L, evt->allowComputerToGetEvent);
+    lua_settable(L, -3);
+    lua_pushstring(L, "message");
+    lua_pushstring(L, &evt->message);
+    lua_settable(L, -3);
+
+    //field_0 is always be 1, all others are always 0, apparently
+    lua_pushstring(L, "field_0");
+    lua_pushinteger(L, evt->field_0);
+    lua_settable(L, -3);
+    lua_pushstring(L, "field_21");
+    lua_pushinteger(L, evt->field_21);
+    lua_settable(L, -3);
+    lua_pushstring(L, "field_22");
+    lua_pushinteger(L, evt->field_22);
+    lua_settable(L, -3);
+    lua_pushstring(L, "field_23");
+    lua_pushinteger(L, evt->field_23);
+    lua_settable(L, -3);
+    lua_pushstring(L, "field_24");
+    lua_pushinteger(L, evt->field_24);
+    lua_settable(L, -3);
+    lua_pushstring(L, "field_2A");
+    lua_pushinteger(L, evt->field_2A);
+    lua_settable(L, -3);
+
+    lua_pushstring(L, "useDebugFields");
+    lua_pushboolean(L, false);
+    lua_settable(L, -3);
+    return 1;
+}
+
+static int l_setMapEventData(lua_State *L)
+{
+    lua_pushstring(L, "message");
+    lua_gettable(L, 1);
+    std::string message = luaL_checkstring(L, -1);
+    lua_pop(L, 1);
+    EventExtra* evt = (EventExtra*)ALLOC(sizeof *evt + message.length());
+    memset(evt, 0, sizeof *evt + message.length());
+    strcpy(&evt->message, message.c_str());
+    lua_pushstring(L, "x");
+    lua_gettable(L, 1);
+    evt->x = luaL_checknumber(L, -1);
+    lua_pop(L, 1);
+    lua_pushstring(L, "y");
+    lua_gettable(L, 1);
+    evt->y = luaL_checknumber(L, -1);
+    lua_pop(L, 1);
+    int id = -1;
+    for (int i = 0; i < gpGame->numMapEvents; i++)
+    {
+        EventExtra* e = (EventExtra*)ppMapExtra[gpGame->mapEventIndices[i]];
+        if (e->x == evt->x && e->y == evt->y)
+        {
+            id = i;
+            break;
+        }
+    }
+    lua_pushstring(L, "visited");
+    lua_gettable(L, 1);
+    evt->unclaimed = !CheckBoolean(L, -1);
+    lua_pop(L, 1);
+    lua_pushstring(L, "resourceReward");
+    lua_gettable(L, 1);
+    for (int i = 0; i < NUM_RESOURCES; i++)
+    {
+        lua_pushinteger(L, i);
+        lua_gettable(L, -2);
+        evt->resourceReward[i] = luaL_checknumber(L, -1);
+        lua_pop(L, 1);
+    }
+    lua_pop(L, 1);
+    lua_pushstring(L, "artifactReward");
+    lua_gettable(L, 1);
+    evt->artifactReward = luaL_checknumber(L, -1);
+    lua_pop(L, 1);
+    lua_pushstring(L, "colorCanSee");
+    lua_gettable(L, 1);
+    for (int i = 0; i < NUM_PLAYERS; i++)
+    {
+        lua_pushinteger(L, i);
+        lua_gettable(L, -2);
+        evt->colorCanSee[i] = !CheckBoolean(L, -1);
+        lua_pop(L, 1);
+    }
+    lua_pop(L, 1);
+    lua_pushstring(L, "cancelAfterFirstVisit");
+    lua_gettable(L, 1);
+    evt->cancelAfterFirstVisit = CheckBoolean(L, -1);
+    lua_pop(L, 1);
+    lua_pushstring(L, "allowComputerToGetEvent");
+    lua_gettable(L, 1);
+    evt->allowComputerToGetEvent = CheckBoolean(L, -1);
+    lua_pop(L, 1);
+    lua_pushstring(L, "useDebugFields");
+    lua_gettable(L, 1);
+    if (lua_isboolean(L, -1) && CheckBoolean(L, -1) == true)
+    {
+        lua_pushstring(L, "field_0");
+        lua_gettable(L, 1);
+        evt->field_0 = luaL_checknumber(L, -1);
+        lua_pop(L, 1);
+        lua_pushstring(L, "field_21");
+        lua_gettable(L, 1);
+        evt->field_21 = luaL_checknumber(L, -1);
+        lua_pop(L, 1);
+        lua_pushstring(L, "field_22");
+        lua_gettable(L, 1);
+        evt->field_22 = luaL_checknumber(L, -1);
+        lua_pop(L, 1);
+        lua_pushstring(L, "field_23");
+        lua_gettable(L, 1);
+        evt->field_23 = luaL_checknumber(L, -1);
+        lua_pop(L, 1);
+        lua_pushstring(L, "field_24");
+        lua_gettable(L, 1);
+        evt->field_24 = luaL_checknumber(L, -1);
+        lua_pop(L, 1);
+        lua_pushstring(L, "field_2A");
+        lua_gettable(L, 1);
+        evt->field_2A = luaL_checknumber(L, -1);
+        lua_pop(L, 1);
+    }
+    else if (id == -1)
+    {
+        evt->field_0 = 1;
+        evt->field_21 = 0;
+        evt->field_22 = 0;
+        evt->field_23 = 0;
+        evt->field_24 = 0;
+        evt->field_2A = 0;
+    }
+    else
+    {
+        EventExtra* orig = (EventExtra*)ppMapExtra[gpGame->mapEventIndices[id]];
+        evt->field_0 = orig->field_0;
+        evt->field_21 = orig->field_21;
+        evt->field_22 = orig->field_22;
+        evt->field_23 = orig->field_23;
+        evt->field_24 = orig->field_24;
+        evt->field_2A = orig->field_2A;
+    }
+    lua_pop(L, 1);
+    if (id != -1)
+    {
+        FREE(ppMapExtra[gpGame->mapEventIndices[id]]);
+        ppMapExtra[gpGame->mapEventIndices[id]] = evt;
+    }
+    else if (gpGame->numMapEvents < ELEMENTS_IN(gpGame->mapEventIndices))
+    {
+        ppMapExtra[gpGame->mapEventIndices[gpGame->numMapEvents]] = evt;
+        id = gpGame->numMapEvents;
+        gpGame->numMapEvents++;
+    }
+    //Not sure if it matters whether or not they are sorted, this is just to make sure
+    //This sorts the events vertically (the y coordinate matters more than the x coordinate), because that's how they are originally sorted
+    for (int i = 0; i < gpGame->numMapEvents - 1; i++)
+        for (int j = i + 1; j < gpGame->numMapEvents; j++)
+        {
+            EventExtra* ev_i = (EventExtra*)ppMapExtra[gpGame->mapEventIndices[i]];
+            EventExtra* ev_j = (EventExtra*)ppMapExtra[gpGame->mapEventIndices[j]];
+            if (ev_i->y > ev_j->y)
+                std::swap(ppMapExtra[gpGame->mapEventIndices[i]], ppMapExtra[gpGame->mapEventIndices[j]]);
+            else if (ev_i->y == ev_j->y && ev_i->x > ev_j->x)
+                std::swap(ppMapExtra[gpGame->mapEventIndices[i]], ppMapExtra[gpGame->mapEventIndices[j]]);
+        }
+    id = -1;
+    //Find the id of our event in the newly sorted array
+    for (int i = 0; i < gpGame->numMapEvents; i++)
+    {
+        EventExtra* ev = (EventExtra*)ppMapExtra[gpGame->mapEventIndices[i]];
+        if (evt->x == ev->x && evt->y == ev->y)
+        {
+            id = i;
+            break;
+        }
+    }
+    lua_pushinteger(L, id);
+    return 1;
+}
+
+static int l_removeMapEvent(lua_State *L)
+{
+    int id = (int)luaL_checknumber(L, 1);
+    if (id < 0 || id > gpGame->numMapEvents)
+        return 0;
+    FREE(ppMapExtra[gpGame->mapEventIndices[id]]);
+    gpGame->numMapEvents--;
+    for (int i = id; i < gpGame->numMapEvents; i++)
+        gpGame->mapEventIndices[i] = gpGame->mapEventIndices[i + 1];
     return 0;
 }
 
@@ -1858,6 +2114,10 @@ static void register_map_funcs(lua_State *L) {
   lua_register(L, "SetJailHero", l_setJailHero);
   lua_register(L, "GetSphinxData", l_getSphinxData);
   lua_register(L, "SetSphinxData", l_setSphinxData);
+  lua_register(L, "GetMapEventId", l_getMapEventId);
+  lua_register(L, "GetMapEventData", l_getMapEventData);
+  lua_register(L, "SetMapEventData", l_setMapEventData);
+  lua_register(L, "RemoveMapEvent", l_removeMapEvent);
 }
 
 /************************************** Town *******************************************/

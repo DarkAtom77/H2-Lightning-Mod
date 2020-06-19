@@ -202,7 +202,7 @@ public:
   char field_0;
   int resourceReward[7];
   __int16 artifactReward;
-  char field_1F;
+  char allowComputerToGetEvent;
   char cancelAfterFirstVisit;
   char field_21;
   char field_22;
