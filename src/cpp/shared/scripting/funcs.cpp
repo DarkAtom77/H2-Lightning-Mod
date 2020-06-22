@@ -937,10 +937,7 @@ static int l_setMineOwner(lua_State *L)
 				int id = (int)luaL_checknumber(L, 1);
 				int idx;
 				if (lua_isnil(L, 2))
-				{
-								lua_pop(L, 2);
 								idx = -1;
-				}
 				else
 								idx = GetPlayerNumber((playerData*)GetPointerFromLuaClassTable(L, StackIndexOfArg(2, 2)));
 				gpGame->ClaimMine(id, idx);
@@ -972,6 +969,64 @@ static int l_setMineGuards(lua_State *L)
 				mn->guardianType = type;
 				mn->guardianQty = qty;
 				return 0;
+}
+
+static int l_getMineType(lua_State* L)
+{
+    int id = (int)luaL_checknumber(L, 1);
+    mine* mn = &gpGame->mines[id];
+    mapCell* cell = gpAdvManager->GetCell(mn->x, mn->y);
+    if (cell->objType & 0x7F == LOCATION_ABANDONED_MINE)
+        lua_pushinteger(L, LOCATION_ABANDONED_MINE);
+    else
+        lua_pushinteger(L, mn->type);
+    return 1;
+}
+
+static int l_setMineType(lua_State* L)
+{
+    int id = (int)luaL_checknumber(L, 1);
+    int type = (int)luaL_checknumber(L, 2);
+    mine* mn = &gpGame->mines[id];
+    int locX = mn->x, locY = mn->y;
+    mapCell* cell = gpAdvManager->GetCell(mn->x, mn->y);
+    int locationType = cell->objType & 0x7F;
+    if (locationType != LOCATION_MINE && locationType != LOCATION_ABANDONED_MINE)
+        return 0;
+    int fromCartId, toCartId;
+    if (type == LOCATION_ABANDONED_MINE)
+    {
+        if (locationType == LOCATION_ABANDONED_MINE || (cell->objTileset != TILESET_DIRT_MOUNTAIN && cell->objTileset != TILESET_MOUNTAIN_GRASS))
+            return 0;
+        toCartId = 5;
+    }
+    else
+        toCartId = type - 2;
+    if (locationType == LOCATION_ABANDONED_MINE)
+    {
+        fromCartId = 5;
+        gpGame->ConvertObject(locX - 3, locY - 1, locX + 1, locY - 1, TILESET_OBJECT_DIRT, 0, 4, TILESET_DIRT_MOUNTAIN, 104, LOCATION_ABANDONED_MINE, LOCATION_MINE);
+        gpGame->ConvertObject(locX - 3, locY, locX + 1, locY, TILESET_OBJECT_DIRT, 5, 9, TILESET_DIRT_MOUNTAIN, 109, LOCATION_ABANDONED_MINE, LOCATION_MINE);
+        gpGame->ConvertObject(locX - 2, locY - 1, locX + 1, locY - 1, TILESET_OBJECT_GRASS, 0, 3, TILESET_MOUNTAIN_GRASS, 75, LOCATION_ABANDONED_MINE, LOCATION_MINE);
+        gpGame->ConvertObject(locX - 2, locY, locX + 1, locY, TILESET_OBJECT_GRASS, 4, 7, TILESET_MOUNTAIN_GRASS, 80, LOCATION_ABANDONED_MINE, LOCATION_MINE);
+    }
+    else
+        fromCartId = mn->type - 2;
+    if (type == LOCATION_ABANDONED_MINE)
+    {
+        gpGame->ConvertObject(locX - 3, locY - 1, locX + 1, locY - 1, TILESET_DIRT_MOUNTAIN, 104, 108, TILESET_OBJECT_DIRT, 0, LOCATION_MINE, LOCATION_ABANDONED_MINE);
+        gpGame->ConvertObject(locX - 3, locY, locX + 1, locY, TILESET_DIRT_MOUNTAIN, 109, 113, TILESET_OBJECT_DIRT, 5, LOCATION_MINE, LOCATION_ABANDONED_MINE);
+        gpGame->ConvertObject(locX - 2, locY - 1, locX + 1, locY - 1, TILESET_MOUNTAIN_GRASS, 75, 79, TILESET_OBJECT_GRASS, 0, LOCATION_MINE, LOCATION_ABANDONED_MINE);
+        gpGame->ConvertObject(locX - 2, locY, locX + 1, locY, TILESET_MOUNTAIN_GRASS, 80, 83, TILESET_OBJECT_GRASS, 4, LOCATION_MINE, LOCATION_ABANDONED_MINE);
+        gpGame->ConvertObject(locX, locY, locX, locY, TILESET_EXTRA_OVERLAY, fromCartId, fromCartId, TILESET_EXTRA_OVERLAY, toCartId, LOCATION_MINE, LOCATION_ABANDONED_MINE);
+    }
+    else
+        gpGame->ConvertObject(locX, locY, locX, locY, TILESET_EXTRA_OVERLAY, fromCartId, fromCartId, TILESET_EXTRA_OVERLAY, toCartId, LOCATION_MINE, LOCATION_MINE);
+    if (type == LOCATION_ABANDONED_MINE)
+        mn->type = -1;
+    else
+        mn->type = type;
+    return 0;
 }
 
 static int l_getDwellingQuantity(lua_State* L)
@@ -2065,6 +2120,8 @@ static void register_map_funcs(lua_State *L) {
 		lua_register(L, "GetMineGuards", l_getMineGuards);
 		lua_register(L, "GetMineGuardCount", l_getMineGuardCount);
 		lua_register(L, "SetMineGuards", l_setMineGuards);
+  lua_register(L, "GetMineType", l_getMineType);
+  lua_register(L, "SetMineType", l_setMineType);
 		lua_register(L, "GetDwellingQuantity", l_getDwellingQuantity);
 		lua_register(L, "SetDwellingQuantity", l_setDwellingQuantity);
 		lua_register(L, "DwellingHasGuards", l_dwellingHasGuards);
