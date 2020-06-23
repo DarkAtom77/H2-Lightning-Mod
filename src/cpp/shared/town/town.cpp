@@ -562,10 +562,9 @@ void townManager::SetupMage(heroWindow *mageGuildWindow) {
 	const int BOTTOM_BAR = 110;
 	tag_message evt;
 	evt.eventCode = INPUT_GUI_MESSAGE_CODE;
-	if( this->castle->visitingHeroIdx == -1) {
+	if( this->castle->visitingHeroIdx == -1 || !gpGame->heroes[this->castle->visitingHeroIdx].HasArtifact(ARTIFACT_MAGIC_BOOK)) {
 		GUISetText(mageGuildWindow, BOTTOM_BAR, "The above spells are available here."); 
 	}
-
 	for (int i = 0; i < 5; i++) {
 		for(int j = 0; j < 4; j++) {
 			int hasLibrary = this->castle->factionID == FACTION_WIZARD && this->castle->BuildingBuilt(BUILDING_SPECIAL);
@@ -880,22 +879,14 @@ int townManager::Main(tag_message &evt) {
               }
               case BUILDING_MAGE_GUILD: {
                 int visitingHeroIdx = this->castle->visitingHeroIdx;
-                if(visitingHeroIdx == -1 || gpGame->heroes[visitingHeroIdx].HasArtifact(ARTIFACT_MAGIC_BOOK)) {
-                  this->curScreen = new heroWindow(0, 0, "magewind.bin");
-                  if(!this->curScreen)
-                    MemError();
-                  SetWinText(this->curScreen, 17);
-                  this->SetupMage(this->curScreen);
-                  gpWindowManager->DoDialog(this->curScreen, MageGuildHandler, 0);
-                  delete this->curScreen;
-                } else {
-                  if(gpGame->heroes[visitingHeroIdx].NumArtifacts() == 14) {
+                if (visitingHeroIdx != -1 && !gpGame->heroes[visitingHeroIdx].HasArtifact(ARTIFACT_MAGIC_BOOK)) {
+                  if(gpGame->heroes[visitingHeroIdx].NumArtifacts() == MAX_ARTIFACTS) {
                     NormalDialog("You must purchase a spell book to use the mage guild, but you currently have no room for a spell book.  Try giving one of your artifacts to another hero.",
-                      1, -1, -1, -1, 0, -1, 0, -1, 0);
+                      DIALOG_OKAY, -1, -1, -1, 0, -1, 0, -1, 0);
                   } else {
                     if(gpCurPlayer->resources[RESOURCE_GOLD] >= 500) {
                       NormalDialog("To cast spells, you must first buy a spell book for 500 gold.  Do you wish to buy one?",
-                        2, -1, -1, 7, 81, -1, 0, -1, 0);
+                        DIALOG_YES_NO, -1, -1, IMAGE_GROUP_ARTIFACTS, ARTIFACT_MAGIC_BOOK, -1, 0, -1, 0);
                       if(gpWindowManager->buttonPressedCode == BUTTON_YES) {
                         GiveArtifact(&gpGame->heroes[visitingHeroIdx], ARTIFACT_MAGIC_BOOK, 1, -1);
                         gpCurPlayer->resources[RESOURCE_GOLD] -= 500;
@@ -905,10 +896,17 @@ int townManager::Main(tag_message &evt) {
                       }
                     } else {
                       NormalDialog("To cast spells, you must first buy a spell book for 500 gold.  Unfortunately, you seem to be a little short of cash at the moment.",
-                        1, -1, -1, 7, 81, -1, 0, -1, 0);
+                        DIALOG_OKAY, -1, -1, IMAGE_GROUP_ARTIFACTS, ARTIFACT_MAGIC_BOOK, -1, 0, -1, 0);
                     }
                   }
                 }
+                this->curScreen = new heroWindow(0, 0, "magewind.bin");
+                if (!this->curScreen)
+                    MemError();
+                SetWinText(this->curScreen, 17);
+                this->SetupMage(this->curScreen);
+                gpWindowManager->DoDialog(this->curScreen, MageGuildHandler, 0);
+                delete this->curScreen;
                 this->castle->GiveSpells(0);
                 this->RedrawTownScreen();
                 break;
