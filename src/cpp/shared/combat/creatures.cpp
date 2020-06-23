@@ -44,6 +44,19 @@ int gMonRandBound[MAX_CREATURES][2];
 int gMonSecondaryResourceCost[MAX_CREATURES][NUM_SECONDARY_RESOURCES];
 char *cArmyProjectileFileNames[MAX_CREATURES];
 
+char* speedText[] = {
+    "",
+    "Crawling (1)",
+    "Very Slow (2)",
+    "Slow (3)",
+    "Average (4)",
+    "Fast (5)",
+    "Very Fast (6)",
+    "Ultra Fast (7)",
+    "Blazing (8)",
+    "Instant (9)",
+};
+
 struct attributeNameTableEntry{char* name; int flag;};
 
 attributeNameTableEntry creatureAttributeNameTable[] = {

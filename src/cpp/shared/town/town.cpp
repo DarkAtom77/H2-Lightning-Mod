@@ -603,33 +603,41 @@ void townManager::SetupMage(heroWindow *mageGuildWindow) {
 
 void townManager::SetupWell(heroWindow *window) {
   SetupWell_orig(window);
-  if (!IsWellDisabled()) {
-    return;
-  }
-
+  const char* shortSpeedText[] = {
+      "",
+      "Crawling (1)",
+      "V. Slow (2)",
+      "Slow (3)",
+      "Average (4)",
+      "Fast (5)",
+      "V. Fast (6)",
+      "U. Fast (7)",
+      "Blazing (8)",
+      "Instant (9)",
+  };
   for (int tier = 0; tier < 6; ++tier) {
-    const int dwellingIdx = castle->DwellingIndex(tier);
-    const tag_monsterInfo &mon = gMonsterDatabase[GetDwellingType(castle->factionID, dwellingIdx)];
+      const int dwellingIdx = castle->DwellingIndex(tier);
+      const tag_monsterInfo &mon = gMonsterDatabase[GetDwellingType(castle->factionID, dwellingIdx)];
 
-    std::ostringstream desc;
-    desc << "Attack: " << int(mon.attack)
-      << "\nDefense: " << int(mon.defense)
-      << "\nDmg: " << int(mon.min_damage) << '-' << int(mon.max_damage)
-      << "\nHP: " << mon.hp
-      << "\n\nSpeed:\n" << speedText[mon.speed];
+      std::ostringstream desc;
+      desc << "Attack: " << int(mon.attack)
+          << "\nDefense: " << int(mon.defense)
+          << "\nDmg: " << int(mon.min_damage) << '-' << int(mon.max_damage)
+          << "\nHP: " << mon.hp
+          << "\n\nSpeed:\n" << shortSpeedText[mon.speed];
 
-    if (castle->DwellingBuilt(dwellingIdx)) {
-      // Original code added +2 for the Well here.
-      int growth = mon.growth;
-      if (tier == 0 && castle->BuildingBuilt(BUILDING_SPECIAL_GROWTH)) {
-        growth += 8;
+      if (castle->DwellingBuilt(dwellingIdx)) {
+          int growth = mon.growth;
+          if (tier == 0 && castle->BuildingBuilt(BUILDING_SPECIAL_GROWTH)) {
+              growth += 8;
+          }
+          if (castle->BuildingBuilt(BUILDING_WELL) && !IsWellDisabled())
+              growth += 2;
+          desc << "\n\nGrowth\n + " << growth << " / week";
       }
-      desc << "\n\nGrowth\n + " << growth << " / week";
-    }
-
-    // Overwrite the text the original code sent for each creature's
-    // description field in the Well window.
-    GUISetText(window, 25 + tier, desc.str());
+      // Overwrite the text the original code sent for each creature's
+      // description field in the Well window.
+      GUISetText(window, 25 + tier, desc.str());
   }
 }
 

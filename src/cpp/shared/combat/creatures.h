@@ -8,6 +8,8 @@
 
 #pragma pack(push, 1)
 
+extern char* newSpeedText[];
+
 enum CREATURES
 {
   CREATURE_PEASANT = 0,
@@ -144,7 +146,7 @@ enum CREATURE_EVENT_CODE {
 #define CHARGER "charger"
 #define REBIRTH "rebirth"
 
-extern char *speedText[];
+extern char* speedText[];
 
 struct tag_monsterInfo
 {
