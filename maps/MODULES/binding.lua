@@ -129,7 +129,6 @@ town_mt = {
 }
 
 player_mt = {
-
 	__newindex = function (table, key, value)
 		if key == "daysLeftWithoutCastle" then
 			SetDaysAfterTownLost(table, value);
@@ -150,6 +149,12 @@ player_mt = {
 			return GetPlayerNumber(t);
 		elseif k == "personality" then
 			return GetPlayerPersonality(t);
+		elseif k == "hero" then
+			return FunctionAsIndex(t, GetHero)
+		elseif k == "town" then
+			return FunctionAsIndex(t, GetPlayerTown)
+		elseif k == "heroForHire" then
+			return FunctionAsIndex(t, GetHeroForHire)
 		else
 			return MethodTable(t, k, "player")
 		end
@@ -313,6 +318,15 @@ spell_mt = {
 	end;
 }
 
+funcIndex_mt = {
+	__newindex = function (table, key, value)
+		MessageBox("Setting this field is not supported")
+	end;
+	__index = function (t, k)
+		return t.func(t.ptrToObj, k)
+	end;
+}
+
 func_mt = {
 	__call = function (tbl, ...)
 		return tbl.func(tbl.ptrToObject, ...);
@@ -325,6 +339,14 @@ function PlayerResourceTable(player)
 	setmetatable(tbl, resource_mt);
 	return tbl;
 end;
+
+function FunctionAsIndex(obj, func)
+	local tbl = {}
+	tbl.ptrToObj = obj
+	tbl.func = func
+	setmetatable(tbl, funcIndex_mt)
+	return tbl
+end
 
 function HeroSkillTable(hero)
 	local tbl = {};
@@ -403,15 +425,10 @@ function MethodTable(object, method, objType)
 			MessageBox("This field is not supported")
 		end;
 	elseif objType == "player" then
-		if method == "hero" then
-			tbl.func = GetHero;
-		elseif method == "town" then
-			tbl.func = GetPlayerTown;
-		elseif method == "heroForHire" then
-			tbl.func = GetHeroForHire;
-		else
+		--if method == "" then
+		--else
 			MessageBox("This field is not supported")
-		end;
+		--end;
 	elseif objType == "battleStack" then
 		--if method == "" then
 		--else
