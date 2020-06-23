@@ -2702,8 +2702,11 @@ static void register_campaign_funcs(lua_State *L) {
 /************************************** Uncategorized ******************************************/
 
 static int l_playsoundeffect(lua_State *L) {
-	std::string snd = std::string(luaL_checkstring(L, 1));
-	PlaySoundEffect(snd, SND_DO_WAIT, NULL);
+	std::string snd = luaL_checkstring(L, 1);
+ if (lua_isnil(L, 2) || CheckBoolean(L, 2))
+     PlaySoundEffect(snd, SND_DO_WAIT, NULL);
+ else
+     PlaySoundEffect(snd, SND_DONT_WAIT, NULL);
 	return 0;
 }
 
