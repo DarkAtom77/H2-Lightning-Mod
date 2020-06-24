@@ -806,9 +806,12 @@ void game::PerWeek() {
     }
   }
 
-  for(int playerIdxb = 0; playerIdxb < 54; ++playerIdxb) {
-    if(this->heroes[playerIdxb].flags & (HERO_AT_SEA << 16))
-      this->heroes[playerIdxb].flags -= 0x800000;
+  for (int hroIdx = 0; hroIdx < 54; ++hroIdx) {
+      HeroExtraII* hero_extra = HeroExtras[hroIdx];
+      for (int i = 0; i < 144; i++)
+          for (int j = 0; j < 144; j++)
+              if (hero_extra->HasVisitedStables(i, j))
+                  hero_extra->VisitStables(i, j, false);
   }
 
   this->week++;

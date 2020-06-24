@@ -451,11 +451,12 @@ tinyxml2::XMLError IronfistXML::Save(const char* fileName) {
 								for (int k = 0; k < 144; k++)
 												if (HeroExtras[hro->idx]->HasVisitedArena(j, k))
 												{
-																tinyxml2::XMLElement* arenaElem = tempDoc->NewElement("arenaVisited");
-																arenaElem->SetAttribute("x", j);
-																arenaElem->SetAttribute("y", k);
-																heroElement->InsertEndChild(arenaElem);
+																tinyxml2::XMLElement* objectElem = tempDoc->NewElement("objectVisited");
+                objectElem->SetAttribute("x", j);
+                objectElem->SetAttribute("y", k);
+																heroElement->InsertEndChild(objectElem);
 												}
+    PushBack(tempDoc, heroElement, "stablesVisited", HeroExtras[hro->idx]->GetNumStablesVisited());
 
     for (int j = 0; j < ELEMENTS_IN(hro->army.creatureTypes); j++) {
       tinyxml2::XMLElement *armyElem = tempDoc->NewElement("army");
@@ -877,9 +878,14 @@ void IronfistXML::ReadHero(tinyxml2::XMLNode* root, int heroIndex) {
 								elem->QueryIntText(&sex);
 								HeroExtras[heroIndex]->SetHeroSex((Sex)sex);
 				}
-				else if (name == "arenaVisited") {
+				else if (name == "objectVisited") {
 								HeroExtras[heroIndex]->VisitArena(elem->IntAttribute("x"), elem->IntAttribute("y"), true);
 				}
+    else if (name == "stablesVisited") {
+        int num;
+        elem->QueryIntText(&num);
+        HeroExtras[heroIndex]->SetNumStablesVisited(num);
+    }
   }
 }
 

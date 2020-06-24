@@ -538,6 +538,19 @@ void advManager::DoEvent(class mapCell *cell, int locX, int locY) {
 								case 1: //Arena
 												this->HandleArena(cell, locationType, hro, &res2, locX, locY);
 												break;
+        case 4: //Stables
+        {
+            HeroExtraII* hero_extra = HeroExtras[hro->idx];
+            if (!hero_extra->HasVisitedStables(locX, locY))
+            {
+                hro->flags &= ~HERO_STABLE_VISITED;
+                hero_extra->VisitStables(locX, locY, true);
+            }
+            else
+                hro->flags |= HERO_STABLE_VISITED;
+            this->DoEvent_orig(cell, locX, locY);
+            break;
+        }
 								default:
 												this->DoEvent_orig(cell, locX, locY);
 												break;
@@ -579,6 +592,19 @@ void advManager::DoAIEvent(class mapCell * cell, class hero *hro, int locX, int 
 												case 1: //Arena
 																this->HandleArena(cell, locationType, hro, &res2, locX, locY);
 																break;
+            case 4: //Stables
+            {
+                HeroExtraII* hero_extra = HeroExtras[hro->idx];
+                if (!hero_extra->HasVisitedStables(locX, locY))
+                {
+                    hro->flags &= ~HERO_STABLE_VISITED;
+                    hero_extra->VisitStables(locX, locY, true);
+                }
+                else
+                    hro->flags |= HERO_STABLE_VISITED;
+                this->DoAIEvent_orig(cell, hro, locX, locY);
+                break;
+            }
 												default:
 																this->DoAIEvent_orig(cell, hro, locX, locY);
 																break;
@@ -732,7 +758,7 @@ void advManager::HandleArena(class mapCell *cell, int locType, hero *hro, SAMPLE
 				if (hero_extra->HasVisitedArena(locX, locY))
 								hro->flags |= HERO_ARENA_VISITED;
 				else
-								hro->flags &= ~(HERO_ARENA_VISITED);
+								hro->flags &= ~HERO_ARENA_VISITED;
 				if (gpGame->players[hro->ownerIdx].personality == PERSONALITY_HUMAN)
 								DoEvent_orig(cell, locX, locY);
 				else
@@ -883,7 +909,7 @@ void advManager::QuickInfo(int x, int y) {
 										ArtifactQuickInfo(xLoc, yLoc);
 										return;
 						}
-						else if (mapCell->objTileset == 61)
+						else if (mapCell->objTileset == TILESET_OBJECT_EXPANSION_1)
 						{
 										switch (mapCell->objectIndex)
 										{
@@ -907,9 +933,21 @@ void advManager::QuickInfo(int x, int y) {
 														return;
 										}
 						}
+      else if (mapCell->objTileset == TILESET_OBJECT_EXPANSION_2)
+      {
+          switch (mapCell->objectIndex)
+          {
+          case 3:
+              StablesQuickInfo(xLoc, yLoc, xLoc + 1, yLoc);
+              return;
+          case 4:
+              StablesQuickInfo(xLoc, yLoc, xLoc, yLoc);
+              return;
+          }
+      }
 						else if (mapCell->objectIndex == -1)
 						{
-										if (mapCell->overlayTileset == 61)
+										if (mapCell->overlayTileset == TILESET_OBJECT_EXPANSION_1)
 										{
 														switch (mapCell->overlayIndex)
 														{
@@ -924,6 +962,18 @@ void advManager::QuickInfo(int x, int y) {
 																		return;
 														}
 										}
+          else if (mapCell->overlayTileset == TILESET_OBJECT_EXPANSION_2)
+          {
+              switch (mapCell->overlayIndex)
+              {
+              case 0:
+                  StablesQuickInfo(xLoc, yLoc, xLoc + 1, yLoc + 1);
+                  return;
+              case 1:
+                  StablesQuickInfo(xLoc, yLoc, xLoc, yLoc + 1);
+                  return;
+              }
+          }
 						}
     QuickInfo_orig(x, y);
     return;
@@ -1166,6 +1216,55 @@ void advManager::ArenaQuickInfo(int xLoc, int yLoc, int TriggerX, int TriggerY)
 				gpWindowManager->AddWindow(&tooltip, 1, -1);
 				QuickViewWait();
 				gpWindowManager->RemoveWindow(&tooltip);
+}
+
+void advManager::StablesQuickInfo(int xLoc, int yLoc, int TriggerX, int TriggerY)
+{
+    const int x = xLoc - viewX;
+    const int y = yLoc - viewY;
+
+    // Ensure the tooltip box is visible on the screen.
+    const int pTileSize = 32;
+    const int pxOffset = -57;  // tooltip is drawn (-57,-25) pixels from the mouse
+    const int pyOffset = -25;
+    const int pTooltipWidth = 160;
+    const int pTooltipHeight = 96;
+
+    int px = pTileSize * x + pxOffset;
+    if (px < 30) {
+        // minimum indent from left edge
+        px = 30;
+    }
+    else if (px + pTooltipWidth > 464) {
+        // don't overrun right edge
+        px = 304;
+    }
+
+    int py = pTileSize * y + pyOffset;
+    if (py < 16) {
+        // minimum indent from top edge
+        py = 16;
+    }
+    else if (py + pTooltipHeight > 448) {
+        // don't overrun bottom edge
+        py = 352;
+    }
+    auto mapCell = GetCell(xLoc, yLoc);
+    const int locationType = mapCell->objType & 0x7F;
+    std::string str = "Stables\n";
+    if (gpCurPlayer->curHeroIdx != -1)
+    {
+        HeroExtraII* hero_extra = HeroExtras[gpCurPlayer->curHeroIdx];
+        if (hero_extra->HasVisitedStables(TriggerX, TriggerY))
+            str += "\n(already visited)";
+        else
+            str += "\n(not visited)";
+    }
+    heroWindow tooltip(px, py, "qwikinfo.bin");
+    GUISetText(&tooltip, 1, &str[0]);
+    gpWindowManager->AddWindow(&tooltip, 1, -1);
+    QuickViewWait();
+    gpWindowManager->RemoveWindow(&tooltip);
 }
 
 int advManager::ProcessSearch(int x, int y)

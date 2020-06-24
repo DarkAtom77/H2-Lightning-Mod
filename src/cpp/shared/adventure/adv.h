@@ -271,6 +271,10 @@ public:
 				HeroExtraII(hero& hro, Sex sex);
 				void VisitArena(int x, int y, bool set);
 				bool HasVisitedArena(int x, int y);
+    void VisitStables(int x, int y, bool set);
+    bool HasVisitedStables(int x, int y);
+    int GetNumStablesVisited();
+    void SetNumStablesVisited(int num);
 				Sex GetHeroSex();
 				void ResetHeroSex(); //automatic by the portrait
 				void SetHeroSex(Sex sex);
@@ -279,6 +283,7 @@ private:
 				Sex sex;
 				int specialty; //for the future, not used right now
 				bool objectsVisited[144][144]; //vector<bool> is more space-effiecient, but this is a matrix :(
+    int numStablesVisited;
 };
 
 enum HERO_FLAGS {
@@ -453,6 +458,7 @@ public:
 		void WitchHutQuickInfo(int xLoc, int yLoc);
 		void ArtifactQuickInfo(int xLoc, int yLoc);
 		void ArenaQuickInfo(int xLoc, int yLoc, int TriggerX, int TriggerY);
+  void StablesQuickInfo(int xLoc, int yLoc, int TriggerX, int TriggerY);
 
   void PlayerMonsterInteract(mapCell *cell, mapCell *other, hero *player, int *window, int a1, int a2, int a3, int a4, int a5);
   void PlayerMonsterInteract_orig(mapCell *cell, mapCell *other, hero *player, int *window, int a1, int a2, int a3, int a4, int a5);

@@ -290,9 +290,7 @@ int hero::CalcMobility() {
     if (cell->objType == (LOCATION_TOWN | TILE_HAS_EVENT)) {  //Non-creature adjusted CalcMobility() output
       points = MOVEMENT_POINTS_TERM_CREATURE_MAX;
       points = (signed __int64)((double)points * gfSSLogisticsMod[GetSSLevel(SECONDARY_SKILL_LOGISTICS)]);
-      if (this->flags & HERO_AT_SEA) {
-        points += 400;
-      }
+      points += HeroExtras[this->idx]->GetNumStablesVisited() * 400;
       if (this->HasArtifact(ARTIFACT_NOMAD_BOOTS_OF_MOBILITY)) {
         points += 600;
       }
@@ -319,8 +317,14 @@ int hero::CalcMobility() {
       return points;
     }
   }
-
+  HeroExtraII* hero_extra = HeroExtras[this->idx];
+  if (hero_extra->GetNumStablesVisited() > 0)
+      this->flags |= HERO_STABLE_VISITED;
+  else
+      this->flags &= ~HERO_STABLE_VISITED;
   points = this->CalcMobility_orig(); //Default CalcMobility output
+  if (hero_extra->GetNumStablesVisited() > 1)
+      points += (hero_extra->GetNumStablesVisited() - 1) * 400;
   auto res = ScriptCallbackResult<int>("OnCalcMobility", deepbind<hero*>(this), points);
   if(res.has_value())
     points = max(1, res.value());
@@ -333,9 +337,9 @@ hero* GetCurrentHero() {
 
 HeroExtraII::HeroExtraII(hero* hro) : hro(*hro)
 {
-				int hero = this->hro.heroID;
+				int portrait = this->hro.heroID;
 				//This will detect the sex by the portrait.
-				switch (hero)
+				switch (portrait)
 				{
 				case PORTRAIT_GWENNETH:
 				case PORTRAIT_RUBY:
@@ -369,6 +373,7 @@ HeroExtraII::HeroExtraII(hero* hro) : hro(*hro)
 								break;
 				}
 				memset(this->objectsVisited, 0, sizeof objectsVisited);
+    numStablesVisited = 0;
 }
 
 HeroExtraII::HeroExtraII(hero& hro) : hro(hro)
@@ -376,10 +381,11 @@ HeroExtraII::HeroExtraII(hero& hro) : hro(hro)
 				HeroExtraII h(&hro);
 				sex = h.GetHeroSex();
 				memset(this->objectsVisited, 0, sizeof objectsVisited);
+    numStablesVisited = 0;
 }
 
-HeroExtraII::HeroExtraII(hero* hro, Sex sex) : hro(*hro), sex(sex) { memset(this->objectsVisited, 0, sizeof objectsVisited); }
-HeroExtraII::HeroExtraII(hero& hro, Sex sex) : hro(hro), sex(sex) { memset(this->objectsVisited, 0, sizeof objectsVisited); }
+HeroExtraII::HeroExtraII(hero* hro, Sex sex) : hro(*hro), sex(sex) { memset(this->objectsVisited, 0, sizeof objectsVisited); numStablesVisited = 0; }
+HeroExtraII::HeroExtraII(hero& hro, Sex sex) : hro(hro), sex(sex) { memset(this->objectsVisited, 0, sizeof objectsVisited); numStablesVisited = 0; }
 
 Sex HeroExtraII::GetHeroSex()
 {
@@ -393,7 +399,7 @@ void HeroExtraII::SetHeroSex(Sex sex)
 
 void HeroExtraII::ResetHeroSex()
 {
-				HeroExtraII h = *this;
+    HeroExtraII h(hro);
 				sex = h.GetHeroSex();
 }
 
@@ -405,6 +411,30 @@ void HeroExtraII::VisitArena(int x, int y, bool set)
 bool HeroExtraII::HasVisitedArena(int x, int y)
 {
 				return this->objectsVisited[x][y];
+}
+
+void HeroExtraII::VisitStables(int x, int y, bool set)
+{
+    this->objectsVisited[x][y] = set;
+    if (set)
+        numStablesVisited++;
+    else
+        numStablesVisited--;
+}
+
+bool HeroExtraII::HasVisitedStables(int x, int y)
+{
+    return this->objectsVisited[x][y];
+}
+
+int HeroExtraII::GetNumStablesVisited()
+{
+    return this->numStablesVisited;
+}
+
+void HeroExtraII::SetNumStablesVisited(int num)
+{
+    this->numStablesVisited = num;
 }
 
 void hero::CheckLevel() {
