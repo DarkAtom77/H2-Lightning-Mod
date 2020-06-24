@@ -149,11 +149,11 @@ player_mt = {
 			return GetPlayerNumber(t);
 		elseif k == "personality" then
 			return GetPlayerPersonality(t);
-		elseif k == "hero" then
+		elseif k == "heroes" then
 			return FunctionAsIndex(t, GetHero)
-		elseif k == "town" then
+		elseif k == "towns" then
 			return FunctionAsIndex(t, GetPlayerTown)
-		elseif k == "heroForHire" then
+		elseif k == "heroesForHire" then
 			return FunctionAsIndex(t, GetHeroForHire)
 		else
 			return MethodTable(t, k, "player")
