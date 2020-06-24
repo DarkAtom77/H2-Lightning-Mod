@@ -478,6 +478,13 @@ void advManager::DoEvent(class mapCell *cell, int locX, int locY) {
 								PlayerVisitedObject[locX][locY] |= 1u << gpCurPlayer->color;
 								this->HandleWitchHut(cell, locationType, hro, &res2, locX, locY);
 								break;
+    case LOCATION_STONE_LITHS:
+    {
+        std::string snd = "telptout.82m";
+        res2 = LoadPlaySample(&snd[0]);
+        DoEvent_orig(cell, locX, locY);
+        break;
+    }
     case LOCATION_SHIPYARD: {
       gpMouseManager->SetPointer(0);
 
