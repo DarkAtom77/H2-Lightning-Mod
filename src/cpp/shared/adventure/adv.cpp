@@ -745,7 +745,7 @@ void advManager::HandlePyramid(class mapCell *cell,int locType, hero *hro, SAMPL
 void advManager::HandleWitchHut(class mapCell *cell, int locType, hero *hro, SAMPLE2 *res2, int locX, int locY)
 {
 				int skill = cell->extraInfo;
-				if (hro->GetSSLevel(skill) >= 1 || hro->numSecSkillsKnown >= NUM_SECONDARY_SKILLS)
+				if (hro->GetSSLevel(skill) >= 1 || hro->numSecSkillsKnown >= 8)
 				{
 								DoEvent_orig(cell, locX, locY);
 								return;
