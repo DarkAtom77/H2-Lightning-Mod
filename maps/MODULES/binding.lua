@@ -423,6 +423,8 @@ function MethodTable(object, method, objType)
 			tbl.func = SetNumGuildSpells;
 		elseif method == "disableBuilding" then
 			tbl.func = DisallowBuilding;
+		elseif method == "hasBuilt" then
+			tbl.func = HasBuilt;
 		else
 			MessageBox("This field is not supported")
 		end;

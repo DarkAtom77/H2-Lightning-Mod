@@ -2257,6 +2257,17 @@ static int l_buildInTown(lua_State *L) {
   return 0;
 }
 
+static int l_hasBuilt(lua_State *L) {
+    town* twn = (town*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 2));
+    int building = (int)luaL_checknumber(L, 2);
+    unsigned int mask = 1u << building;
+    if (twn->buildingsBuiltFlags & mask)
+        lua_pushboolean(L, true);
+    else
+        lua_pushboolean(L, false);
+    return 1;
+}
+
 static int l_getTownFaction(lua_State *L) {
   town* twn = (town*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 1));
   lua_pushinteger(L, twn->factionID);
@@ -2401,6 +2412,7 @@ static void register_town_funcs(lua_State *L) {
   lua_register(L, "GetTownByName", l_getTownByName);
   lua_register(L, "GetPlayerTown", l_getPlayerTown);
   lua_register(L, "BuildInTown", l_buildInTown);
+  lua_register(L, "HasBuilt", l_hasBuilt);
   lua_register(L, "GetTownFaction", l_getTownFaction);
   lua_register(L, "SetTownFaction", l_setTownFaction);
   lua_register(L, "GetCreatureCost", l_getCreatureCost);
