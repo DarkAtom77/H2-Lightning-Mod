@@ -210,10 +210,6 @@ void army::Rebirth()
 
 float army::SpellCastWorkChance(int spell) {
   double chance = 1.0;
-		if ((this->creature.creature_flags & UNDEAD)
-						&& (spell == SPELL_COLD_RAY
-										|| spell == SPELL_COLD_RING))
-						return 0.0;
 		if ((spell == SPELL_DISENCHANT || spell == SPELL_MASS_DISENCHANT)
 						&& !(this->effectStrengths[EFFECT_HASTE])
 						&& !(this->effectStrengths[EFFECT_BLESS])
