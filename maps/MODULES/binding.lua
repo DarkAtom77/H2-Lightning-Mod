@@ -421,6 +421,8 @@ function MethodTable(object, method, objType)
 			tbl.func = SetGuildSpell;
 		elseif method == "setNumGuildSpells" then
 			tbl.func = SetNumGuildSpells;
+		elseif method == "disableBuilding" then
+			tbl.func = DisallowBuilding;
 		else
 			MessageBox("This field is not supported")
 		end;

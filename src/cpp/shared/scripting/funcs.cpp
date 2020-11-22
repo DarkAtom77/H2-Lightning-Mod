@@ -2367,10 +2367,12 @@ static int l_getGuildSpell(lua_State *L) {
 }
 
 static int l_disallowBuilding(lua_State *L) {
-    int townIdx = (int)luaL_checknumber(L, 1);
+    town* twn = (town*)GetPointerFromLuaClassTable(L, StackIndexOfArg(1, 3));
     int building = (int)luaL_checknumber(L, 2);
+    bool yesno = CheckBoolean(L, 3);
+    int townIdx = twn->idx;
     if (building >= 0 && building < BUILDING_MAX && townIdx >= 0 && townIdx < MAX_TOWNS)
-        gpGame->disallowedBuildings[townIdx][building] = true;
+        gpGame->disallowedBuildings[townIdx][building] = yesno;
     return 0;
 }
 
