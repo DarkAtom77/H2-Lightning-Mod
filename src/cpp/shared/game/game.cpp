@@ -504,6 +504,10 @@ void game::NewMap(char* mapname) {
   this->NewMap_orig(mapname);  
   gpGame->firstDayEventDone = false;
   gpGame->allowAIArmySharing = true;
+  for (int i = 0; i < (unsigned)disallowedBuildings->size(); i++) {
+      if (!gpGame->castles[i].CanBuildDock())
+          disallowedBuildings[i][BUILDING_DOCK] = true;
+  }
 }
 
 void game::NextPlayer() {
@@ -943,6 +947,8 @@ void game::ResetIronfistGameState() {
 			this->forcedComputerPlayerChases[i][j] = false;
 		}
 	}
+ for (auto &i : disallowedBuildings)
+     i.reset();
 }
 
 extern int gbGameOver;

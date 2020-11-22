@@ -329,6 +329,8 @@ IMPORT_?TownQuickView@advManager@@QAEXHHHH@Z = 1
 IMPORT_?DrawCell@advManager@@QAEXHHHHHH@Z = 1
 ?DrawCell@advManager@@QAEXHHHHHH@Z_clone EQU ?DrawCell_orig@advManager@@QAEXHHHHHH@Z
 IMPORT_?DrawCursor@advManager@@QAEXXZ = 1
+IMPORT_?PuzzleDraw@advManager@@QAEXHHHH@Z = 1
+?PuzzleDraw@advManager@@QAEXHHHH@Z_clone EQU ?PuzzleDraw_orig@advManager@@QAEXHHHH@Z
 
 ;;hero movement reminder
 IMPORT_?ProcessDeSelect@advManager@@QAEHPAUtag_message@@PAHPAPAVmapCell@@@Z = 1
@@ -416,6 +418,8 @@ IMPORT_?SetupCastle@townManager@@QAEXPAVheroWindow@@H@Z = 1
 IMPORT_?gHierarchyMask@@3PAY0M@KA = 1
 IMPORT_?CanBuild@@YIHPAVtown@@H@Z = 1
 IMPORT_?getCastleOwnedIdx@@YAHPAVplayerData@@H@Z = 1
+IMPORT_?BuyBuild@townManager@@QAEHHHH@Z = 1
+?BuyBuild@townManager@@QAEHHHH@Z_clone EQU ?BuyBuild_orig@townManager@@QAEHHHH@Z
 
 ;;scripting hooks
 IMPORT_?PerDay@game@@QAEXXZ = 1

@@ -880,6 +880,8 @@ void advManager::QuickInfo(int x, int y) {
     return;
   }
 
+  const int pTileSize = 32;
+
   const auto mapCell = GetCell(xLoc, yLoc);
   const int locationType = mapCell->objType & 0x7F;
   auto overrideText = ScriptCallbackResult<std::string>("GetTooltipText", locationType, xLoc, yLoc);
@@ -913,8 +915,22 @@ void advManager::QuickInfo(int x, int y) {
 						}
 						else if (locationType == LOCATION_ARTIFACT)
 						{
-										ArtifactQuickInfo(xLoc, yLoc);
-										return;
+          int artId = (unsigned char)(mapCell->objectIndex) >> 1;
+          int xPos = (x - 4) * pTileSize;
+          int yPos = (y - 4) * pTileSize;
+          xPos = max(0, xPos);
+          yPos = max(0, min(160, yPos));
+
+          if (artId == ARTIFACT_SPELL_SCROLL) {
+              strcpy(gText, "{Spell Scroll}\n\nGives the hero the ability to cast a specific spell");
+          }
+          else {
+              strcpy(gText, &GetArtifactDescription(artId)[0u]);
+          }
+          NormalDialog(gText, DIALOG_RIGHT_CLICK, xPos, yPos, IMAGE_GROUP_ARTIFACTS, artId, -1, 0, -1, 0);
+          return;
+										//ArtifactQuickInfo(xLoc, yLoc);
+										//return;
 						}
 						else if (mapCell->objTileset == TILESET_OBJECT_EXPANSION_1)
 						{
@@ -987,7 +1003,6 @@ void advManager::QuickInfo(int x, int y) {
   }
 
   // Ensure the tooltip box is visible on the screen.
-  const int pTileSize = 32;
   const int pxOffset = -57;  // tooltip is drawn (-57,-25) pixels from the mouse
   const int pyOffset = -25;
   const int pTooltipWidth = 160;
@@ -2092,6 +2107,11 @@ void __fastcall GiveTakeArtifactStat(hero *h, int art, int take) {
     ScriptCallback("OnArtifactGive", deepbind<hero*>(h), art);
   else
     ScriptCallback("OnArtifactTake", deepbind<hero*>(h), art);
+}
+
+// Bug fix for drawing puzzle when artifact x or y >= 128
+void advManager::PuzzleDraw(int offsetX, int offsetY, int artifactX, int artifactY) {
+    this->PuzzleDraw_orig((unsigned char)offsetX, (unsigned char)offsetY, (unsigned char)artifactX, (unsigned char)artifactY);
 }
 
 int GetShrineSpell(int x, int y)

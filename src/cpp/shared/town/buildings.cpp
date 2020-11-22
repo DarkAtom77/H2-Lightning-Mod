@@ -287,15 +287,12 @@ BUILDING_CODE gBuildingsToDraw[MAX_FACTIONS][BUILDING_MAX] = {
   { BUILDING_INVALID },
   { // Cyborg buildings (include them all for now)
     BUILDING_MAGE_GUILD,
-    BUILDING_THIEVES_GUILD,
     BUILDING_TENT,
     BUILDING_CASTLE,
     BUILDING_WELL,
     BUILDING_STATUE,
     BUILDING_LEFT_TURRET,
     BUILDING_RIGHT_TURRET,
-    BUILDING_MARKET,
-    BUILDING_TAVERN,
     BUILDING_SPECIAL_GROWTH,
     BUILDING_MOAT,
     BUILDING_SPECIAL,
@@ -307,6 +304,8 @@ BUILDING_CODE gBuildingsToDraw[MAX_FACTIONS][BUILDING_MAX] = {
     BUILDING_BOAT,
     BUILDING_DWELLING_1,
     BUILDING_DWELLING_2,
+    BUILDING_MARKET,
+    BUILDING_TAVERN,
     BUILDING_DWELLING_3,
     BUILDING_DWELLING_4,
     BUILDING_DWELLING_5,
@@ -317,6 +316,7 @@ BUILDING_CODE gBuildingsToDraw[MAX_FACTIONS][BUILDING_MAX] = {
     BUILDING_UPGRADE_4,
     BUILDING_UPGRADE_5,
     BUILDING_UPGRADE_5B,
+    BUILDING_THIEVES_GUILD,
     BUILDING_EXT_3
   }
 };
@@ -441,4 +441,14 @@ void InitDwellingCosts() {
   gDwellingCosts[FACTION_CYBORG][DWELLING_4_UPGRADE] = { 0, 0, 5, 0, 0, 0, 1000 };
   gDwellingCosts[FACTION_CYBORG][DWELLING_5_UPGRADE] = {10, 0, 10, 0, 0, 0, 2000};
   gDwellingCosts[FACTION_CYBORG][DWELLING_6_UPGRADE] = {20, 0, 0, 0, 0, 0, 3000};
+}
+
+void BuildingCostToIntArray(SBuildingCost &cost, int(&arr)[NUM_RESOURCES]) {
+    arr[RESOURCE_WOOD] = cost.wood;
+    arr[RESOURCE_MERCURY] = cost.mercury;
+    arr[RESOURCE_ORE] = cost.ore;
+    arr[RESOURCE_SULFUR] = cost.sulfur;
+    arr[RESOURCE_CRYSTAL] = cost.crystal;
+    arr[RESOURCE_GEMS] = cost.gems;
+    arr[RESOURCE_GOLD] = cost.gold;
 }
